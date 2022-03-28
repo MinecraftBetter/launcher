@@ -1,0 +1,26 @@
+import com.sun.org.apache.xalan.internal.xsltc.cmdline.Compile
+
+plugins {
+    id 'java'
+}
+
+group 'fr.zoxam.minecraftbetter'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.tianti:applogger:1.6.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation fileTree(dir: 'libs', include: '*.jar')
+}
+
+test {
+    useJUnitPlatform()
+}
+compileJava {
+    options.encoding = "UTF-8"
+}
