@@ -1,6 +1,5 @@
 package fr.zoxam.launcher.ui;
 
-import fr.arinonia.arilibfx.AriLibFX;
 import fr.arinonia.arilibfx.ui.utils.ResizeHelper;
 import fr.zoxam.launcher.MinecraftBetterLauncher;
 import fr.zoxam.launcher.ui.panel.IPanel;
@@ -17,16 +16,15 @@ public class PanelManager {
 
     private final MinecraftBetterLauncher minecraftBetterLauncher;
     private final Stage stage;
-    private GridPane layout;
-    private TopPanel topPanel = new TopPanel();
-    private GridPane centerPanel = new GridPane();
+    private final TopPanel topPanel = new TopPanel();
+    private final GridPane centerPanel = new GridPane();
 
     public PanelManager(MinecraftBetterLauncher minecraftBetterLauncher, Stage stage) {
         this.minecraftBetterLauncher = minecraftBetterLauncher;
         this.stage = stage;
     }
 
-    public void init(){
+    public void init() {
         this.stage.setTitle("MinecraftBetter");
         this.stage.setMinWidth(1280);
         this.stage.setWidth(1280);
@@ -36,29 +34,30 @@ public class PanelManager {
         this.stage.centerOnScreen();
         this.stage.show();
 
-        this.layout = new GridPane();
-        this.layout.setStyle(AriLibFX.setResponsiveBackground("http://minecraftbetter.fr/caca.png"));
-        this.stage.setScene(new Scene(this.layout));
+        GridPane layout = new GridPane();
+        //this.layout.setStyle(AriLibFX.setResponsiveBackground("http://minecraftbetter.fr/caca.png")); // TODO: Store this locally, having it remote increase the loading time (especially on low connexions)
+        this.stage.setScene(new Scene(layout));
 
         RowConstraints topPanelConstraints = new RowConstraints();
         topPanelConstraints.setValignment(VPos.TOP);
         topPanelConstraints.setMinHeight(25);
         topPanelConstraints.setMaxHeight(25);
-        this.layout.getRowConstraints().addAll(topPanelConstraints, new RowConstraints());
-        this.layout.add(this.topPanel.getLayout(), 0,0);
+        layout.getRowConstraints().addAll(topPanelConstraints, new RowConstraints());
+        layout.add(this.topPanel.getLayout(), 0, 0);
         this.topPanel.init(this);
 
-        this.layout.add(this.centerPanel, 0, 1);
+        layout.add(this.centerPanel, 0, 1);
         GridPane.setVgrow(this.centerPanel, Priority.ALWAYS);
         GridPane.setHgrow(this.centerPanel, Priority.ALWAYS);
         ResizeHelper.addResizeListener(this.stage);
 
     }
-    public void showPanel(IPanel panel){
+
+    public void showPanel(IPanel panel) {
         this.centerPanel.getChildren().clear();
         this.centerPanel.getChildren().add(panel.getLayout());
-       panel.init(this);
-       panel.onShow();
+        panel.init(this);
+        panel.onShow();
     }
 
     public Stage getStage() {
