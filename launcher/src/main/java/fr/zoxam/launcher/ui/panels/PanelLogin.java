@@ -33,10 +33,13 @@ public class PanelLogin extends Panel {
 
         // Check if we saved a token
         try {
-            String encryptedToken =  new String(Files.readAllBytes(AppData.resolve(Paths.get("token.txt"))), StandardCharsets.UTF_8);
-            String decryptedToken = textEncryptor.decrypt(encryptedToken);
-            if(tokenConnect(decryptedToken)) {
-                return;
+            Path tokenPath = AppData.resolve(Paths.get("token.txt"));
+            if (Files.exists(tokenPath)) {
+                String encryptedToken = new String(Files.readAllBytes(tokenPath), StandardCharsets.UTF_8);
+                String decryptedToken = textEncryptor.decrypt(encryptedToken);
+                if (tokenConnect(decryptedToken)) {
+                    return;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,6 +78,7 @@ public class PanelLogin extends Panel {
         // Save the token
         try {
             String encryptedToken = textEncryptor.encrypt(result.getRefreshToken());
+            if (!Files.exists(AppData)) Files.createDirectory(AppData);
             Path file = Files.write(AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
             System.out.printf("Written encrypted token to %1$s%n", file);
         } catch (IOException e) {
