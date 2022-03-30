@@ -1,7 +1,6 @@
 package fr.zoxam.launcher;
 
 import fr.zoxam.launcher.ui.PanelManager;
-import fr.zoxam.launcher.ui.panel.Panel;
 import fr.zoxam.launcher.ui.panels.PanelLogin;
 import javafx.stage.Stage;
 
