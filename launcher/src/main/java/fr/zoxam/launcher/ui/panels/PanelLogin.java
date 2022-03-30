@@ -1,26 +1,47 @@
 package fr.zoxam.launcher.ui.panels;
 
-
-import fr.litarvan.openauth.microsoft.AuthTokens;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
+import org.jasypt.util.text.BasicTextEncryptor;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class PanelLogin extends Panel {
 
     public static MicrosoftAuthenticator authenticator;
     public static MinecraftProfile account = null;
+    public static BasicTextEncryptor textEncryptor;
+    public static final Path AppData = Paths.get(System.getenv("APPDATA"), "MinecraftBetter");
 
     @Override
     public void init(PanelManager panelManager) {
         super.init(panelManager);
-        authenticator = new MicrosoftAuthenticator();
+        System.out.printf("AppData path: %1$s%n", AppData);
 
-        //TODO: Check if we saved a token
+        authenticator = new MicrosoftAuthenticator();
+        textEncryptor = new BasicTextEncryptor();
+        textEncryptor.setPassword("uFw722H8$@2R");
+
+        // Check if we saved a token
+        try {
+            String encryptedToken =  new String(Files.readAllBytes(AppData.resolve(Paths.get("token.txt"))), StandardCharsets.UTF_8);
+            String decryptedToken = textEncryptor.decrypt(encryptedToken);
+            if(tokenConnect(decryptedToken)) {
+                return;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         new Thread(PanelLogin::webConnect).start(); // Open the pop-up asynchronously, so it doesn't freeze the app
     }
 
@@ -40,9 +61,9 @@ public class PanelLogin extends Panel {
     /**
      * Try to connect using a token
      */
-    private static Boolean tokenConnect(AuthTokens token) {
+    private static Boolean tokenConnect(String token) {
         try {
-            connected(authenticator.loginWithTokens(token));
+            connected(authenticator.loginWithRefreshToken(token));
             return true;
         } catch (MicrosoftAuthenticationException e) {
             e.printStackTrace(); /* Unknown error TODO: Handle this */
@@ -51,7 +72,16 @@ public class PanelLogin extends Panel {
     }
 
     private static void connected(MicrosoftAuthResult result) {
-        //TODO: Save the token
+        // Save the token
+        try {
+            String encryptedToken = textEncryptor.encrypt(result.getRefreshToken());
+            Path file = Files.write(AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
+            System.out.printf("Written encrypted token to %1$s%n", file);
+        } catch (IOException e) {
+            // Couldn't write
+            e.printStackTrace();
+        }
+
         account = result.getProfile();
         System.out.printf("Hello %1$s%n", account.getName());
     }

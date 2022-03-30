@@ -5,6 +5,13 @@
     <file type="web" url="file://$PROJECT_DIR$/launcher" />
     <file type="web" url="file://$PROJECT_DIR$/untitled" />
   </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/launcher/pom.xml" />
+      </list>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/../launcher/out" />
   </component>

@@ -1,6 +1,5 @@
 package fr.zoxam.launcher.ui.panel;
 
-import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.zoxam.launcher.ui.PanelManager;
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.GridPane;
