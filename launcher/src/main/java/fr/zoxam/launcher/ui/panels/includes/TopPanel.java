@@ -2,9 +2,12 @@ package fr.zoxam.launcher.ui.panels.includes;
 
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
+import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.control.Label;
@@ -22,16 +25,20 @@ public class TopPanel extends Panel {
         super.init(panelManager);
         this.topBar = this.layout;
         this.layout.setStyle("-fx-background-color: rgb(31,35,37);");
+
+
         GridPane topBarButton = new GridPane();
         this.layout.getChildren().add(topBarButton);
 
         GridPane.setHgrow(topBarButton, Priority.ALWAYS);
         GridPane.setVgrow(topBarButton, Priority.ALWAYS);
-        Label title = new Label();
+        Label title = new Label("Minecraft Better");
         this.layout.getChildren().add(title);
-        title.setFont(Font.font("Consolas", FontWeight.THIN,FontPosture.REGULAR, 22.0f));
+        title.setTranslateX(17);
+
+        title.setFont(Font.loadFont(Main.class.getResourceAsStream("/ITCAvantGardeStdMd.otf"), 14.0f));
         title.setStyle("-fx-text-fill: white;");
-        GridPane.setHalignment(title, HPos.CENTER);
+        GridPane.setHalignment(title, HPos.LEFT);
         topBarButton.setMinWidth(100.0d);
         topBarButton.setMaxWidth(100.0d);
         GridPane.setHalignment(topBarButton, HPos.RIGHT);
