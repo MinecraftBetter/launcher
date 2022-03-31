@@ -1,16 +1,20 @@
 package fr.zoxam.launcher.ui;
 
+import fr.arinonia.arilibfx.AriLibFX;
 import fr.arinonia.arilibfx.ui.utils.ResizeHelper;
+import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.MinecraftBetterLauncher;
 import fr.zoxam.launcher.ui.panel.IPanel;
 import fr.zoxam.launcher.ui.panels.includes.TopPanel;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.io.Console;
+import java.io.InputStream;
 
 public class PanelManager {
 
@@ -25,31 +29,35 @@ public class PanelManager {
     }
 
     public void init() {
-        this.stage.setTitle("MinecraftBetter");
-        this.stage.setMinWidth(1280);
-        this.stage.setWidth(1280);
-        this.stage.setMinHeight(720);
-        this.stage.setHeight(720);
-        this.stage.initStyle(StageStyle.UNDECORATED);
-        this.stage.centerOnScreen();
-        this.stage.show();
+        stage.setTitle("MinecraftBetter");
+        InputStream icon = Main.class.getResourceAsStream("/icon.png");
+        if (icon != null) stage.getIcons().add(new Image(icon));
+        stage.setMinWidth(1280);
+        stage.setWidth(1280);
+        stage.setMinHeight(720);
+        stage.setHeight(720);
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.centerOnScreen();
+        stage.show();
 
         GridPane layout = new GridPane();
-        //this.layout.setStyle(AriLibFX.setResponsiveBackground("http://minecraftbetter.fr/caca.png")); // TODO: Store this locally, having it remote increase the loading time (especially on low connexions)
-        this.stage.setScene(new Scene(layout));
+        Background background = GetBackground("/background.jpg");
+        if (background != null) layout.setBackground(background);
+
+        stage.setScene(new Scene(layout));
 
         RowConstraints topPanelConstraints = new RowConstraints();
         topPanelConstraints.setValignment(VPos.TOP);
         topPanelConstraints.setMinHeight(25);
         topPanelConstraints.setMaxHeight(25);
         layout.getRowConstraints().addAll(topPanelConstraints, new RowConstraints());
-        layout.add(this.topPanel.getLayout(), 0, 0);
-        this.topPanel.init(this);
+        layout.add(topPanel.getLayout(), 0, 0);
+        topPanel.init(this);
 
-        layout.add(this.centerPanel, 0, 1);
-        GridPane.setVgrow(this.centerPanel, Priority.ALWAYS);
-        GridPane.setHgrow(this.centerPanel, Priority.ALWAYS);
-        ResizeHelper.addResizeListener(this.stage);
+        layout.add(centerPanel, 0, 1);
+        GridPane.setVgrow(centerPanel, Priority.ALWAYS);
+        GridPane.setHgrow(centerPanel, Priority.ALWAYS);
+        ResizeHelper.addResizeListener(stage);
 
     }
 
@@ -58,6 +66,16 @@ public class PanelManager {
         this.centerPanel.getChildren().add(panel.getLayout());
         panel.init(this);
         panel.onShow();
+    }
+
+    public static Background GetBackground(String resource){
+        InputStream stream = Main.class.getResourceAsStream(resource);
+        if (stream == null) return null;
+        BackgroundImage background = new BackgroundImage(new Image(stream),
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(100, 100, true, true, false, true));
+        return new Background(background);
     }
 
     public Stage getStage() {
