@@ -37,13 +37,11 @@ public class TopPanel extends Panel {
         icon.setFitWidth(18);
         icon.setPreserveRatio(true);
         GridPane.setVgrow(icon, Priority.ALWAYS);
-        //GridPane.setValignment(icon, VPos.CENTER);
         icon.setTranslateX(5d);
 
         Label title = new Label("Minecraft Better");
         titlePanel.getChildren().add(title);
         title.setTranslateX(25);
-        title.setFont(Font.loadFont(Main.class.getResourceAsStream("/minecraftbetter/fonts/OpenSans-Regular.ttf"), 14.0f));
         title.setStyle("-fx-text-fill: white;");
         GridPane.setVgrow(title, Priority.ALWAYS);
 
