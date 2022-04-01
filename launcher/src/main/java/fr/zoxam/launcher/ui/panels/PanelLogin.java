@@ -4,8 +4,14 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
+import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import net.harawata.appdirs.AppDirsFactory;
 import org.jasypt.util.text.BasicTextEncryptor;
 
@@ -18,15 +24,26 @@ import java.nio.file.Paths;
 
 public class PanelLogin extends Panel {
 
-    public static MicrosoftAuthenticator authenticator;
-    public static MinecraftProfile account = null;
-    public static BasicTextEncryptor textEncryptor;
+    public MicrosoftAuthenticator authenticator;
+    public BasicTextEncryptor textEncryptor;
     public static final Path AppData = Paths.get(AppDirsFactory.getInstance().getUserDataDir("MinecraftBetter", null, null, true));
+
+    public PanelManager panelManager;
 
     @Override
     public void init(PanelManager panelManager) {
         super.init(panelManager);
+        this.panelManager = panelManager;
         System.out.printf("AppData path: %1$s%n", AppData);
+
+        Media media = new Media(Main.class.getResource("/minecraftbetter/images/intro.mp4").toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        MediaView mediaView = new MediaView(mediaPlayer);
+        layout.getChildren().add(mediaView);
+        mediaView.fitWidthProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "width"));
+        mediaView.fitHeightProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "height"));
+        mediaView.setPreserveRatio(true);
+        mediaPlayer.play();
 
         new Thread(() -> {
             authenticator = new MicrosoftAuthenticator();
@@ -47,14 +64,14 @@ public class PanelLogin extends Panel {
                 e.printStackTrace();
             }
 
-           webConnect(); // Open a login pop-up
+            webConnect(); // Open a login pop-up
         }).start(); // Makes the requests asynchronously, so it doesn't freeze the app
     }
 
     /**
      * Try to connect using a web pop-up
      */
-    private static Boolean webConnect() {
+    private Boolean webConnect() {
         try {
             connected(authenticator.loginWithWebview());
             return true;
@@ -67,7 +84,7 @@ public class PanelLogin extends Panel {
     /**
      * Try to connect using a token
      */
-    private static Boolean tokenConnect(String token) {
+    private Boolean tokenConnect(String token) {
         try {
             connected(authenticator.loginWithRefreshToken(token));
             return true;
@@ -77,7 +94,7 @@ public class PanelLogin extends Panel {
         return false;
     }
 
-    private static void connected(MicrosoftAuthResult result) {
+    private void connected(MicrosoftAuthResult result) {
         // Save the token
         try {
             String encryptedToken = textEncryptor.encrypt(result.getRefreshToken());
@@ -85,11 +102,11 @@ public class PanelLogin extends Panel {
             Path file = Files.write(AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
             System.out.printf("Written encrypted token to %1$s%n", file);
         } catch (IOException e) {
-            // Couldn't write
-            e.printStackTrace();
+            e.printStackTrace(); // Couldn't write
         }
 
-        account = result.getProfile();
-        System.out.printf("Hello %1$s%n", account.getName());
+        MinecraftProfile account = result.getProfile();
+        System.out.printf("Connected as %1$s%n", account.getName());
+        Platform.runLater(() -> panelManager.showPanel(new PanelHome(account)));
     }
 }

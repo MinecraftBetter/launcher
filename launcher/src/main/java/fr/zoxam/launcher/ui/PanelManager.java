@@ -9,6 +9,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -20,6 +21,8 @@ public class PanelManager {
     private final Stage stage;
     private final TopPanel topPanel = new TopPanel();
     private final GridPane centerPanel = new GridPane();
+
+    private GridPane layout;
 
     public PanelManager(MinecraftBetterLauncher minecraftBetterLauncher, Stage stage) {
         this.minecraftBetterLauncher = minecraftBetterLauncher;
@@ -38,9 +41,8 @@ public class PanelManager {
         stage.centerOnScreen();
         stage.show();
 
-        GridPane layout = new GridPane();
-        Background background = GetBackground("/minecraftbetter/images/background.jpg");
-        if (background != null) layout.setBackground(background);
+        layout = new GridPane();
+        SetBackground(new Color(0.2,0.2,0.2,1));
 
         stage.setScene(new Scene(layout));
 
@@ -56,7 +58,6 @@ public class PanelManager {
         GridPane.setVgrow(centerPanel, Priority.ALWAYS);
         GridPane.setHgrow(centerPanel, Priority.ALWAYS);
         ResizeHelper.addResizeListener(stage);
-
     }
 
     public void showPanel(IPanel panel) {
@@ -66,14 +67,22 @@ public class PanelManager {
         panel.onShow();
     }
 
-    public static Background GetBackground(String resource){
+
+    public Boolean SetBackground(Color color) {
+        layout.setBackground(new Background(new BackgroundFill(color, null, null)));
+        return true;
+    }
+    public Boolean SetBackground(String resource){
         InputStream stream = Main.class.getResourceAsStream(resource);
-        if (stream == null) return null;
+        if (stream == null) return false;
+
         BackgroundImage background = new BackgroundImage(new Image(stream),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
                 new BackgroundSize(100, 100, true, true, false, true));
-        return new Background(background);
+
+        layout.setBackground(new Background(background));
+        return true;
     }
 
     public Stage getStage() {
