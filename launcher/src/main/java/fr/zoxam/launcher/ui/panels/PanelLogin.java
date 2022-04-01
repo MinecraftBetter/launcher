@@ -6,6 +6,7 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
+import net.harawata.appdirs.AppDirsFactory;
 import org.jasypt.util.text.BasicTextEncryptor;
 
 import java.io.IOException;
@@ -20,18 +21,18 @@ public class PanelLogin extends Panel {
     public static MicrosoftAuthenticator authenticator;
     public static MinecraftProfile account = null;
     public static BasicTextEncryptor textEncryptor;
-    public static final Path AppData = Paths.get(System.getenv("APPDATA"), "MinecraftBetter");
+    public static final Path AppData = Paths.get(AppDirsFactory.getInstance().getUserDataDir("MinecraftBetter", null, null, true));
 
     @Override
     public void init(PanelManager panelManager) {
         super.init(panelManager);
         System.out.printf("AppData path: %1$s%n", AppData);
 
-        authenticator = new MicrosoftAuthenticator();
-        textEncryptor = new BasicTextEncryptor();
-        textEncryptor.setPassword("uFw722H8$@2R");
-
         new Thread(() -> {
+            authenticator = new MicrosoftAuthenticator();
+            textEncryptor = new BasicTextEncryptor();
+            textEncryptor.setPassword("uFw722H8$@2R");
+
             // Check if we saved a token
             try {
                 Path tokenPath = AppData.resolve(Paths.get("token.txt"));

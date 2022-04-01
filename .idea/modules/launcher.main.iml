@@ -55,5 +55,11 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Gradle: com.tianti:applogger:1.6.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jasypt:jasypt:1.9.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.9.0" level="project" />
+    <orderEntry type="library" name="Gradle: de.jensd:fontawesomefx:8.9" level="project" />
+    <orderEntry type="library" name="Gradle: net.harawata:appdirs:1.2.1" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.dev.jna:jna-platform:5.6.0" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.dev.jna:jna:5.6.0" level="project" />
   </component>
 </module>

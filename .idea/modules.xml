@@ -5,9 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/launcher.iml" filepath="$PROJECT_DIR$/.idea/modules/launcher.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/launcher.main.iml" filepath="$PROJECT_DIR$/.idea/modules/launcher.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/launcher.test.iml" filepath="$PROJECT_DIR$/.idea/modules/launcher.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/untitled.iml" filepath="$PROJECT_DIR$/.idea/modules/untitled.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/untitled.main.iml" filepath="$PROJECT_DIR$/.idea/modules/untitled.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/untitled.test.iml" filepath="$PROJECT_DIR$/.idea/modules/untitled.test.iml" />
     </modules>
   </component>
 </project>

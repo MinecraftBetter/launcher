@@ -5,9 +5,6 @@
       <module name="launcher" target="1.8" />
       <module name="launcher.main" target="1.8" />
       <module name="launcher.test" target="1.8" />
-      <module name="untitled" target="1.8" />
-      <module name="untitled.main" target="1.8" />
-      <module name="untitled.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
