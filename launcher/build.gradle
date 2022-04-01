@@ -1,5 +1,17 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.0.0' // https://imperceptiblethoughts.com/shadow/
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'fr.zoxam.launcher.Main'
+    }
+}
+shadowJar {
+    archiveBaseName.set('MinecraftBetter')
+    archiveClassifier.set('')
+    archiveVersion.set('')
 }
 
 group 'fr.zoxam.minecraftbetter'
