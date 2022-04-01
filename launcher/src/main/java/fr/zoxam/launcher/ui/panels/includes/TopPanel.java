@@ -30,14 +30,15 @@ public class TopPanel extends Panel {
         GridPane.setVgrow(titlePanel, Priority.ALWAYS);
 
         InputStream iconStream = Main.class.getResourceAsStream("/minecraftbetter/images/icon.png");
-
-        ImageView icon = new ImageView();
-        titlePanel.getChildren().add(icon);
-        icon.setImage(new Image(iconStream));
-        icon.setFitWidth(18);
-        icon.setPreserveRatio(true);
-        GridPane.setVgrow(icon, Priority.ALWAYS);
-        icon.setTranslateX(5d);
+        if(iconStream != null) {
+            ImageView icon = new ImageView();
+            titlePanel.getChildren().add(icon);
+            icon.setImage(new Image(iconStream));
+            icon.setFitWidth(18);
+            icon.setPreserveRatio(true);
+            GridPane.setVgrow(icon, Priority.ALWAYS);
+            icon.setTranslateX(5d);
+        }
 
         Label title = new Label("Minecraft Better");
         titlePanel.getChildren().add(title);
