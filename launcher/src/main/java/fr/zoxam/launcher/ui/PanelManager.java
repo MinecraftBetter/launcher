@@ -1,6 +1,5 @@
 package fr.zoxam.launcher.ui;
 
-import fr.arinonia.arilibfx.AriLibFX;
 import fr.arinonia.arilibfx.ui.utils.ResizeHelper;
 import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.MinecraftBetterLauncher;
@@ -13,7 +12,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.Console;
 import java.io.InputStream;
 
 public class PanelManager {
@@ -30,7 +28,7 @@ public class PanelManager {
 
     public void init() {
         stage.setTitle("MinecraftBetter");
-        InputStream icon = Main.class.getResourceAsStream("/icon.png");
+        InputStream icon = Main.class.getResourceAsStream("/minecraftbetter/images/icon.png");
         if (icon != null) stage.getIcons().add(new Image(icon));
         stage.setMinWidth(1280);
         stage.setWidth(1280);
@@ -41,7 +39,7 @@ public class PanelManager {
         stage.show();
 
         GridPane layout = new GridPane();
-        Background background = GetBackground("/background.jpg");
+        Background background = GetBackground("/minecraftbetter/images/background.jpg");
         if (background != null) layout.setBackground(background);
 
         stage.setScene(new Scene(layout));

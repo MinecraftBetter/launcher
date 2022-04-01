@@ -5,73 +5,80 @@ import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
+
+import java.io.InputStream;
 
 public class TopPanel extends Panel {
-
-    private GridPane topBar;
-
     @Override
     public void init(PanelManager panelManager) {
         super.init(panelManager);
-        this.topBar = this.layout;
-        this.layout.setStyle("-fx-background-color: rgb(31,35,37);");
+        layout.setStyle("-fx-background-color: rgb(31,35,37);");
+
+        GridPane titlePanel = new GridPane();
+        layout.getChildren().add(titlePanel);
+        GridPane.setHgrow(titlePanel, Priority.ALWAYS);
+        GridPane.setVgrow(titlePanel, Priority.ALWAYS);
+
+        InputStream iconStream = Main.class.getResourceAsStream("/minecraftbetter/images/icon.png");
+
+        ImageView icon = new ImageView();
+        titlePanel.getChildren().add(icon);
+        icon.setImage(new Image(iconStream));
+        icon.setFitWidth(18);
+        icon.setPreserveRatio(true);
+        GridPane.setVgrow(icon, Priority.ALWAYS);
+        //GridPane.setValignment(icon, VPos.CENTER);
+        icon.setTranslateX(5d);
+
+        Label title = new Label("Minecraft Better");
+        titlePanel.getChildren().add(title);
+        title.setTranslateX(25);
+        title.setFont(Font.loadFont(Main.class.getResourceAsStream("/minecraftbetter/fonts/OpenSans-Regular.ttf"), 14.0f));
+        title.setStyle("-fx-text-fill: white;");
+        GridPane.setVgrow(title, Priority.ALWAYS);
 
 
         GridPane topBarButton = new GridPane();
-        this.layout.getChildren().add(topBarButton);
-
+        layout.getChildren().add(topBarButton);
         GridPane.setHgrow(topBarButton, Priority.ALWAYS);
         GridPane.setVgrow(topBarButton, Priority.ALWAYS);
-        Label title = new Label("Minecraft Better");
-        this.layout.getChildren().add(title);
-        title.setTranslateX(17);
-
-        title.setFont(Font.loadFont(Main.class.getResourceAsStream("/ITCAvantGardeStdMd.otf"), 14.0f));
-        title.setStyle("-fx-text-fill: white;");
-        GridPane.setHalignment(title, HPos.LEFT);
-        topBarButton.setMinWidth(100.0d);
-        topBarButton.setMaxWidth(100.0d);
+        topBarButton.setMinWidth(75);
+        topBarButton.setMaxWidth(75);
         GridPane.setHalignment(topBarButton, HPos.RIGHT);
-        MaterialDesignIconView close = new MaterialDesignIconView(MaterialDesignIcon.WINDOW_CLOSE);
-        MaterialDesignIconView fullscreen = new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MAXIMIZE);
-        MaterialDesignIconView hide = new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MINIMIZE);
-        GridPane.setVgrow(close, Priority.ALWAYS);
-        GridPane.setVgrow(fullscreen, Priority.ALWAYS);
-        GridPane.setVgrow(hide, Priority.ALWAYS);
 
-        close.setFill(Color.WHITE);
-        close.setOpacity(0.70f);
-        close.setSize("18px");
-        close.setOnMouseEntered(e-> close.setOpacity(1.0f));
-        close.setOnMouseExited(e-> close.setOpacity(0.70f));
-        close.setOnMouseClicked(e-> System.exit(0));
-        close.setTranslateX(70.0d);
+        MaterialDesignIconView hide = SetupButton(
+                new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MINIMIZE),
+                e -> this.panelManager.getStage().setIconified(true), 0);
+        MaterialDesignIconView fullscreen =  SetupButton(
+                new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MAXIMIZE),
+                e -> this.panelManager.getStage().setMaximized(!this.panelManager.getStage().isMaximized()), 1);
+        MaterialDesignIconView close = SetupButton(
+                new MaterialDesignIconView(MaterialDesignIcon.WINDOW_CLOSE),
+                e -> System.exit(0), 2, "18px");
+        topBarButton.getChildren().addAll(close, fullscreen, hide);
+    }
 
-        fullscreen.setFill(Color.WHITE);
-        fullscreen.setOpacity(0.70f);
-        fullscreen.setSize("16px");
-        fullscreen.setOnMouseEntered(e-> fullscreen.setOpacity(1.0f));
-        fullscreen.setOnMouseExited(e-> fullscreen.setOpacity(0.70f));
-        fullscreen.setOnMouseClicked(e-> this.panelManager.getStage().setMaximized(!this.panelManager.getStage().isMaximized()));
-        fullscreen.setTranslateX(50.0d);
+    MaterialDesignIconView SetupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order) {return SetupButton(btn, onclick, order, "16px");}
 
-        hide.setFill(Color.WHITE);
-        hide.setOpacity(0.70f);
-        hide.setSize("18px");
-        hide.setOnMouseEntered(e-> hide.setOpacity(1.0f));
-        hide.setOnMouseExited(e-> hide.setOpacity(0.70f));
-        hide.setOnMouseClicked(e-> this.panelManager.getStage().setIconified(true));
-        hide.setTranslateX(26.0d);
-        topBarButton.getChildren().addAll(close,fullscreen,hide);
+    MaterialDesignIconView SetupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order, String size) {
+        GridPane.setVgrow(btn, Priority.ALWAYS);
+        btn.setFill(Color.WHITE);
+        btn.setOpacity(0.70f);
+        btn.setSize(size);
+        btn.setOnMouseEntered(e -> btn.setOpacity(1.0f));
+        btn.setOnMouseExited(e -> btn.setOpacity(0.70f));
+        btn.setOnMouseClicked(onclick);
+        btn.setTranslateX(25 * order);
+        return btn;
     }
 }
