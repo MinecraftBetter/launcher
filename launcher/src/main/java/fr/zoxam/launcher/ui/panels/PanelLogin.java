@@ -31,21 +31,23 @@ public class PanelLogin extends Panel {
         textEncryptor = new BasicTextEncryptor();
         textEncryptor.setPassword("uFw722H8$@2R");
 
-        // Check if we saved a token
-        try {
-            Path tokenPath = AppData.resolve(Paths.get("token.txt"));
-            if (Files.exists(tokenPath)) {
-                String encryptedToken = new String(Files.readAllBytes(tokenPath), StandardCharsets.UTF_8);
-                String decryptedToken = textEncryptor.decrypt(encryptedToken);
-                if (tokenConnect(decryptedToken)) {
-                    return;
+        new Thread(() -> {
+            // Check if we saved a token
+            try {
+                Path tokenPath = AppData.resolve(Paths.get("token.txt"));
+                if (Files.exists(tokenPath)) {
+                    String encryptedToken = new String(Files.readAllBytes(tokenPath), StandardCharsets.UTF_8);
+                    String decryptedToken = textEncryptor.decrypt(encryptedToken);
+                    if (tokenConnect(decryptedToken)) {
+                        return;
+                    }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        new Thread(PanelLogin::webConnect).start(); // Open the pop-up asynchronously, so it doesn't freeze the app
+           webConnect(); // Open a login pop-up
+        }).start(); // Makes the requests asynchronously, so it doesn't freeze the app
     }
 
     /**
