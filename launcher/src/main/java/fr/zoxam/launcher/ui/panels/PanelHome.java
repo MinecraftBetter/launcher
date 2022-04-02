@@ -5,21 +5,20 @@ import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,7 +28,7 @@ public class PanelHome extends Panel {
     public MinecraftProfile account;
     private GridPane centerPane;
 
-    public PanelHome(MinecraftProfile account){
+    public PanelHome(MinecraftProfile account) {
         this.account = account;
     }
 
@@ -44,21 +43,6 @@ public class PanelHome extends Panel {
         BackGray.setStyle("-fx-background-color: #151516;-fx-opacity: 33%;");
         layout.getChildren().add(BackGray);
 
-        /*GridPane pagePanel = new GridPane();
-        layout.getChildren().add(pagePanel);
-        pagePanel.setMinWidth(600);
-        pagePanel.setMaxWidth(600);
-        pagePanel.setMinHeight(450);
-        pagePanel.setMaxHeight(450);
-        GridPane.setVgrow(pagePanel, Priority.ALWAYS);
-        GridPane.setHgrow(pagePanel, Priority.ALWAYS);
-        GridPane.setValignment(pagePanel, VPos.CENTER);
-        GridPane.setHalignment(pagePanel, HPos.CENTER);
-        pagePanel.setStyle("-fx-background-color: #181818;");
-
-        Label username = new Label("Welcome " + account.getName());
-        username.setStyle("-fx-text-fill: white;");
-        pagePanel.getChildren().add(username);*/
         // Panneau pour les réseaux sociaux.
         GridPane Social = new GridPane();
         layout.getChildren().add(Social);
@@ -83,7 +67,7 @@ public class PanelHome extends Panel {
         SuivezNous.setTranslateY(-36);
         layout.getChildren().add(SuivezNous);
         // Icon réseaux sociaux
-        Image siteWebImage = new Image(Main.class.getResource("/minecraftbetter/images/Minecraft_Better_Logo_64x.png").toExternalForm());
+        Image siteWebImage = new Image(Main.class.getResource("/minecraftbetter/images/home/minecraft_better.png").toExternalForm());
         ImageView siteWebImageView = new ImageView(siteWebImage);
         GridPane.setVgrow(siteWebImageView, Priority.ALWAYS);
         GridPane.setHgrow(siteWebImageView, Priority.ALWAYS);
@@ -104,14 +88,14 @@ public class PanelHome extends Panel {
         website.setMinHeight(50);
         website.setMaxHeight(50);
         website.setStyle("-fx-background-color: #181818; -fx-text-fill: #5e5e5e; -fx-font-size: 14px;-fx-opacity: 00%;");
-        website.setOnMouseEntered(e->this.layout.setCursor(Cursor.HAND));
+        website.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         website.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         website.setOnMouseClicked(event -> {
             openUrl("http://minecraftbetter.fr");
         });
         layout.getChildren().add(website);
 
-        Image discordImage = new Image(Main.class.getResource("/minecraftbetter/images/discord.png").toExternalForm());
+        Image discordImage = new Image(Main.class.getResource("/minecraftbetter/images/home/discord.png").toExternalForm());
         ImageView discordImageView = new ImageView(discordImage);
         GridPane.setVgrow(discordImageView, Priority.ALWAYS);
         GridPane.setHgrow(discordImageView, Priority.ALWAYS);
@@ -132,14 +116,14 @@ public class PanelHome extends Panel {
         discord.setMinHeight(50);
         discord.setMaxHeight(50);
         discord.setStyle("-fx-background-color: #181818; -fx-text-fill: #5e5e5e; -fx-font-size: 14px;-fx-opacity: 00%;");
-        discord.setOnMouseEntered(e->this.layout.setCursor(Cursor.HAND));
+        discord.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         discord.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         discord.setOnMouseClicked(event -> {
             openUrl("https://discord.com/invite/4TC5eNEkE5");
         });
         layout.getChildren().add(discord);
 
-        Image twitterImage = new Image(Main.class.getResource("/minecraftbetter/images/twitter.png").toExternalForm());
+        Image twitterImage = new Image(Main.class.getResource("/minecraftbetter/images/home/twitter.png").toExternalForm());
         ImageView twitterImageView = new ImageView(twitterImage);
         GridPane.setVgrow(twitterImageView, Priority.ALWAYS);
         GridPane.setHgrow(twitterImageView, Priority.ALWAYS);
@@ -160,14 +144,14 @@ public class PanelHome extends Panel {
         twitter.setMinHeight(50);
         twitter.setMaxHeight(50);
         twitter.setStyle("-fx-background-color: #181818; -fx-text-fill: #5e5e5e; -fx-font-size: 14px;-fx-opacity: 00%;");
-        twitter.setOnMouseEntered(e->this.layout.setCursor(Cursor.HAND));
+        twitter.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         twitter.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         twitter.setOnMouseClicked(event -> {
-            openUrl("https://twitter.com/Minecraftbetter");
+            openUrl("https://twitter.com/Minecraftbetter"); //TODO
         });
         layout.getChildren().add(twitter);
 
-        Image youtubeImage = new Image(Main.class.getResource("/minecraftbetter/images/youtube.png").toExternalForm());
+        Image youtubeImage = new Image(Main.class.getResource("/minecraftbetter/images/home/youtube.png").toExternalForm());
         ImageView youtubeImageView = new ImageView(youtubeImage);
         GridPane.setVgrow(youtubeImageView, Priority.ALWAYS);
         GridPane.setHgrow(youtubeImageView, Priority.ALWAYS);
@@ -188,15 +172,15 @@ public class PanelHome extends Panel {
         youtube.setMinHeight(50);
         youtube.setMaxHeight(50);
         youtube.setStyle("-fx-background-color: #181818; -fx-text-fill: #5e5e5e; -fx-font-size: 14px;-fx-opacity: 00%;");
-        youtube.setOnMouseEntered(e->this.layout.setCursor(Cursor.HAND));
+        youtube.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         youtube.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         youtube.setOnMouseClicked(event -> {
-            openUrl("https://www.youtube.com/channel/Minecraftbetter");
+            openUrl("https://www.youtube.com/channel/Minecraftbetter"); //TODO
         });
         layout.getChildren().add(youtube);
 
         //Bouton Jouer
-        Image playImage = new Image(Main.class.getResource("/minecraftbetter/images/play.png").toExternalForm());
+        Image playImage = new Image(Main.class.getResource("/minecraftbetter/images/home/play.png").toExternalForm());
         ImageView ViewPlayImage = new ImageView(playImage);
         Button Play = new Button("JOUER");
         GridPane.setVgrow(Play, Priority.ALWAYS);
@@ -284,37 +268,65 @@ public class PanelHome extends Panel {
         newText.setTranslateX(420);
         newText.setTranslateY(-53);
         layout.getChildren().add(newText);
-        //cologne réglage
-        /*ColumnConstraints reglage = new ColumnConstraints();
-        reglage.setHalignment(HPos.LEFT);
-        reglage.setMinWidth(133);
-        reglage.setMaxWidth(133);
-        this.layout.getColumnConstraints().addAll(reglage, new ColumnConstraints());
-        //bouton reglage
-        Image reglageImage = new Image("/minecraftbetter/images/reglage.png");
-        ImageView ViewReglageImage = new ImageView(reglageImage);
-        Button reglageButton = new Button();
-        GridPane.setVgrow(reglageButton, Priority.ALWAYS);
-        GridPane.setHgrow(reglageButton, Priority.ALWAYS);
-        GridPane.setHalignment(reglageButton, HPos.LEFT);
-        GridPane.setValignment(reglageButton, VPos.CENTER);
-        reglageButton.setTranslateX(20);
-        reglageButton.setTranslateY(0);
-        reglageButton.setMinHeight(75);
-        reglageButton.setMaxHeight(75);
-        reglageButton.setMinWidth(75);
-        reglageButton.setMaxWidth(75);
-        reglageButton.setStyle("-fx-background-color:#202021;-fx-font-size: 14px;-fx-border-radius: 25 25 25 25;-fx-background-radius: 25 25 25 25;");
-        reglageButton.setGraphic(ViewReglageImage);
-        layout.getChildren().add(reglageButton);*/
 
+        Image settingsIcon = new Image("/minecraftbetter/images/home/settings.png");
+        ImageView settingsImageView = new ImageView(settingsIcon);
+        Button settingsBtn = new Button();
+        settingsImageView.fitWidthProperty().bind(settingsBtn.widthProperty());
+        settingsImageView.fitHeightProperty().bind(settingsBtn.heightProperty());
+        layout.getChildren().add(settingsBtn);
+        settingsBtn.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0), null, null)));
+        settingsBtn.setGraphic(settingsImageView);
+        GridPane.setHalignment(settingsBtn, HPos.LEFT);
+        GridPane.setValignment(settingsBtn, VPos.TOP);
+        settingsBtn.setTranslateX(20);
+        settingsBtn.setTranslateY(20);
+        settingsBtn.setMinWidth(35);
+        settingsBtn.setMaxWidth(35);
+        settingsBtn.setMinHeight(35);
+        settingsBtn.setMaxHeight(35);
+        settingsBtn.setOnMouseClicked(event -> {
+            AnchorPane settingsPanel = new AnchorPane();
+            layout.getChildren().add(settingsPanel);
 
+            Button exitPanel = new Button();
+            settingsPanel.getChildren().add(exitPanel);
+            AnchorPane.setTopAnchor(exitPanel, 0d);
+            AnchorPane.setBottomAnchor(exitPanel, 0d);
+            AnchorPane.setLeftAnchor(exitPanel, 0d);
+            AnchorPane.setRightAnchor(exitPanel, 0d);
+            exitPanel.setOnMouseClicked(e -> {
+                layout.getChildren().remove(settingsPanel);
+            });
+            exitPanel.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.2), null, null)));
+
+            StackPane pagePanel = new StackPane();
+            AnchorPane.setTopAnchor(pagePanel, 0d);
+            AnchorPane.setBottomAnchor(pagePanel, 0d);
+            AnchorPane.setLeftAnchor(pagePanel, 0d);
+            AnchorPane.setRightAnchor(pagePanel, 0d);
+            pagePanel.setPickOnBounds(false);
+            settingsPanel.getChildren().add(pagePanel);
+
+            GridPane settingsPopup = new GridPane();
+            pagePanel.getChildren().add(settingsPopup);
+            settingsPopup.setMinWidth(600);
+            settingsPopup.setMaxWidth(600);
+            settingsPopup.setMinHeight(450);
+            settingsPopup.setMaxHeight(450);
+            StackPane.setAlignment(settingsPopup, Pos.CENTER);
+            settingsPopup.setStyle("-fx-background-color: #181818;");
+
+            Label username = new Label("Welcome " + account.getName());
+            username.setStyle("-fx-text-fill: white;");
+            settingsPopup.getChildren().add(username);
+        });
     }
 
-    private void openUrl(String url){
-        try{
+    private void openUrl(String url) {
+        try {
             Desktop.getDesktop().browse(new URI(url));
-        }catch (IOException | URISyntaxException e){
+        } catch (IOException | URISyntaxException e) {
             Main.logger.warn(e.getMessage());
         }
     }

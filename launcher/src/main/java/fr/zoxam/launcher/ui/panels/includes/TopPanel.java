@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.io.InputStream;
@@ -23,8 +24,13 @@ public class TopPanel extends Panel {
         super.init(panelManager);
         layout.setStyle("-fx-background-color: rgb(31,35,37);");
 
+        GridPane topBar = new GridPane();
+        layout.getChildren().add(topBar);
+        GridPane.setHgrow(topBar, Priority.ALWAYS);
+        GridPane.setVgrow(topBar, Priority.ALWAYS);
+
         GridPane titlePanel = new GridPane();
-        layout.getChildren().add(titlePanel);
+        topBar.getChildren().add(titlePanel);
         GridPane.setHgrow(titlePanel, Priority.ALWAYS);
         GridPane.setVgrow(titlePanel, Priority.ALWAYS);
 
@@ -47,7 +53,7 @@ public class TopPanel extends Panel {
 
 
         GridPane topBarButton = new GridPane();
-        layout.getChildren().add(topBarButton);
+        topBar.getChildren().add(topBarButton);
         GridPane.setHgrow(topBarButton, Priority.ALWAYS);
         GridPane.setVgrow(topBarButton, Priority.ALWAYS);
         topBarButton.setMinWidth(75);
