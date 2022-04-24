@@ -40,7 +40,7 @@ public class PanelHome extends Panel {
     public void init(PanelManager panelManager) {
         super.init(panelManager);
         this.panelManager = panelManager;
-        panelManager.SetBackground("/minecraftbetter/images/background.jpg");
+        panelManager.SetBackground("/minecraftbetter/images/background.png");
 
         StackPane panel = new StackPane();
         GridPane.setHgrow(panel, Priority.ALWAYS);
