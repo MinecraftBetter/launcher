@@ -13,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.io.InputStream;
@@ -60,21 +59,21 @@ public class TopPanel extends Panel {
         topBarButton.setMaxWidth(75);
         GridPane.setHalignment(topBarButton, HPos.RIGHT);
 
-        MaterialDesignIconView hide = SetupButton(
+        MaterialDesignIconView hide = setupButton(
                 new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MINIMIZE),
                 e -> this.panelManager.getStage().setIconified(true), 0);
-        MaterialDesignIconView fullscreen =  SetupButton(
+        MaterialDesignIconView fullscreen =  setupButton(
                 new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MAXIMIZE),
                 e -> this.panelManager.getStage().setMaximized(!this.panelManager.getStage().isMaximized()), 1);
-        MaterialDesignIconView close = SetupButton(
+        MaterialDesignIconView close = setupButton(
                 new MaterialDesignIconView(MaterialDesignIcon.WINDOW_CLOSE),
                 e -> System.exit(0), 2, "18px");
         topBarButton.getChildren().addAll(close, fullscreen, hide);
     }
 
-    MaterialDesignIconView SetupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order) {return SetupButton(btn, onclick, order, "16px");}
+    MaterialDesignIconView setupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order) {return setupButton(btn, onclick, order, "16px");}
 
-    MaterialDesignIconView SetupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order, String size) {
+    MaterialDesignIconView setupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order, String size) {
         GridPane.setVgrow(btn, Priority.ALWAYS);
         btn.setFill(Color.WHITE);
         btn.setOpacity(0.70f);
@@ -82,7 +81,7 @@ public class TopPanel extends Panel {
         btn.setOnMouseEntered(e -> btn.setOpacity(1.0f));
         btn.setOnMouseExited(e -> btn.setOpacity(0.70f));
         btn.setOnMouseClicked(onclick);
-        btn.setTranslateX(25 * order);
+        btn.setTranslateX(25d * order);
         return btn;
     }
 }
