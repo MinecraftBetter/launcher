@@ -48,27 +48,16 @@ public class PanelHome extends Panel {
         panel.setBackground(new Background(new BackgroundFill(new Color(0.08, 0.08, 0.08, 0.33), null, null))); // Darken the background
         layout.getChildren().add(panel);
 
-        // Social
-        StackPane social = panelContent(setupPanel(300, 100, 400, 0, "Suivez-nous", panel));
-        int btnSpacing = 300 / 4; // Panel size / number of btn
-        Button website = setupSocialBtn("/minecraftbetter/images/home/minecraft_better.png", 0);
-        website.setOnMouseClicked(event -> openUrl("https://minecraftbetter.fr"));
-        social.getChildren().add(website);
-        Button discord = setupSocialBtn("/minecraftbetter/images/home/discord.png", btnSpacing);
-        discord.setOnMouseClicked(event -> openUrl("https://discord.com/invite/4TC5eNEkE5"));
-        social.getChildren().add(discord);
-        Button twitter = setupSocialBtn("/minecraftbetter/images/home/twitter.png", btnSpacing * 2d);
-        twitter.setOnMouseClicked(event -> {}); //TODO
-        social.getChildren().add(twitter);
-        Button youtube = setupSocialBtn("/minecraftbetter/images/home/youtube.png", btnSpacing * 3d);
-        youtube.setOnMouseClicked(event -> {}); // TODO
-        social.getChildren().add(youtube);
+        ImageView logo = new ImageView(new Image(Objects.requireNonNull(Main.class.getResource("/minecraftbetter/images/home/banner.png")).toExternalForm()));
+        StackPane.setAlignment(logo, Pos.TOP_CENTER);
+        logo.setTranslateY(50);
+        logo.setFitHeight(100);
+        logo.setPreserveRatio(true);
+        panel.getChildren().add(logo);
 
-        // Server information
-        setupPanel(300, 200, 400, 200, "Serveur", panel);
-
+        //region Left side
         // News
-        StackPane news = setupPanel(600, 400, -140, 125, "Nouvelles", panel);
+        StackPane news = setupPanel(600, 400, -175, 125, "Nouvelles", panel);
 
         // Install/Launch Btn
         boolean installed = Files.exists(MinecraftDir);
@@ -84,6 +73,33 @@ public class PanelHome extends Panel {
         play.setStyle("-fx-background-color:#fd000f; -fx-text-fill: #FFFF; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 45; -fx-background-radius: 45;");
         play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
+        //endregion
+
+        //region Right side
+        double rightWidth = 300;
+        double rightX = -news.getTranslateX() + (news.getMinWidth() - rightWidth) / 2;
+        // Social
+        StackPane social = panelContent(setupPanel(rightWidth, 100, rightX, news.getTranslateY() - (news.getMinHeight() - 100) / 2, "Suivez-nous", panel));
+        int btnSpacing = 300 / 4; // Panel size / number of btn
+        Button website = setupSocialBtn("/minecraftbetter/images/home/website.png", 0);
+        website.setOnMouseClicked(event -> openUrl("https://minecraftbetter.fr"));
+        social.getChildren().add(website);
+        Button discord = setupSocialBtn("/minecraftbetter/images/home/discord.png", btnSpacing);
+        discord.setOnMouseClicked(event -> openUrl("https://discord.com/invite/4TC5eNEkE5"));
+        social.getChildren().add(discord);
+        Button twitter = setupSocialBtn("/minecraftbetter/images/home/twitter.png", btnSpacing * 2d);
+        twitter.setOnMouseClicked(event -> {}); //TODO
+        social.getChildren().add(twitter);
+        Button youtube = setupSocialBtn("/minecraftbetter/images/home/youtube.png", btnSpacing * 3d);
+        youtube.setOnMouseClicked(event -> {}); // TODO
+        social.getChildren().add(youtube);
+
+        // Server information
+        StackPane server = setupPanel(rightWidth, 250, rightX, news.getTranslateY() + (news.getMinHeight() - 250) / 2, "Serveur", panel);
+        Label username = new Label("Connecté en tant que " + account.getName());
+        username.setStyle("-fx-text-fill: white;");
+        server.getChildren().add(username);
+        //endregion
 
         // Settings
         MaterialDesignIconView settingsIcon = new MaterialDesignIconView(MaterialDesignIcon.SETTINGS);
@@ -98,44 +114,11 @@ public class PanelHome extends Panel {
         settingsBtn.setMaxSize(35, 35);
         settingsBtn.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         settingsBtn.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
-        settingsBtn.setOnMouseClicked(event -> {
-            AnchorPane settingsPanel = new AnchorPane();
-            layout.getChildren().add(settingsPanel);
-
-            Button exitPanel = new Button();
-            settingsPanel.getChildren().add(exitPanel);
-            AnchorPane.setTopAnchor(exitPanel, 0d);
-            AnchorPane.setBottomAnchor(exitPanel, 0d);
-            AnchorPane.setLeftAnchor(exitPanel, 0d);
-            AnchorPane.setRightAnchor(exitPanel, 0d);
-            exitPanel.setOnMouseClicked(e -> layout.getChildren().remove(settingsPanel));
-            exitPanel.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.2), null, null)));
-
-            StackPane pagePanel = new StackPane();
-            AnchorPane.setTopAnchor(pagePanel, 0d);
-            AnchorPane.setBottomAnchor(pagePanel, 0d);
-            AnchorPane.setLeftAnchor(pagePanel, 0d);
-            AnchorPane.setRightAnchor(pagePanel, 0d);
-            pagePanel.setPickOnBounds(false);
-            settingsPanel.getChildren().add(pagePanel);
-
-            GridPane settingsPopup = new GridPane();
-            pagePanel.getChildren().add(settingsPopup);
-            settingsPopup.setMinWidth(600);
-            settingsPopup.setMaxWidth(600);
-            settingsPopup.setMinHeight(450);
-            settingsPopup.setMaxHeight(450);
-            StackPane.setAlignment(settingsPopup, Pos.CENTER);
-            settingsPopup.setStyle("-fx-background-color: #181818;");
-
-            Label username = new Label("Welcome " + account.getName());
-            username.setStyle("-fx-text-fill: white;");
-            settingsPopup.getChildren().add(username);
-        });
+        settingsBtn.setOnMouseClicked(event -> settingPopup(layout));
     }
 
-
-    private StackPane setupPanel(double w, double h, double x, double y, String text, Pane parent){
+    //region Home Panels
+    private StackPane setupPanel(double w, double h, double x, double y, String text, Pane parent) {
         StackPane panel = new StackPane();
         parent.getChildren().add(panel);
         panel.setMinSize(w, h);
@@ -174,6 +157,7 @@ public class PanelHome extends Panel {
 
         return content;
     }
+    //endregion
 
     private Button setupSocialBtn(String img, double x) {
         int size = 50;
@@ -193,6 +177,35 @@ public class PanelHome extends Panel {
         btn.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
 
         return btn;
+    }
+
+
+    private void settingPopup(Pane parent) {
+        AnchorPane settingsPanel = new AnchorPane();
+        parent.getChildren().add(settingsPanel);
+
+        Button exitPanel = new Button();
+        settingsPanel.getChildren().add(exitPanel);
+        AnchorPane.setTopAnchor(exitPanel, 0d);
+        AnchorPane.setBottomAnchor(exitPanel, 0d);
+        AnchorPane.setLeftAnchor(exitPanel, 0d);
+        AnchorPane.setRightAnchor(exitPanel, 0d);
+        exitPanel.setOnMouseClicked(e -> parent.getChildren().remove(settingsPanel));
+        exitPanel.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.4), null, null)));
+
+        StackPane pagePanel = new StackPane();
+        AnchorPane.setTopAnchor(pagePanel, 0d);
+        AnchorPane.setBottomAnchor(pagePanel, 0d);
+        AnchorPane.setLeftAnchor(pagePanel, 0d);
+        AnchorPane.setRightAnchor(pagePanel, 0d);
+        pagePanel.setPickOnBounds(false);
+        settingsPanel.getChildren().add(pagePanel);
+
+        StackPane settingsPopup = setupPanel(900, 600, 0, 0, "Paramètres", pagePanel);
+
+        Label username = new Label("TODO");
+        username.setStyle("-fx-text-fill: white;");
+        settingsPopup.getChildren().add(username);
     }
 
     private void openUrl(String url) {

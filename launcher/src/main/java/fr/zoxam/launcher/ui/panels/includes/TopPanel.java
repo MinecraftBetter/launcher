@@ -61,14 +61,11 @@ public class TopPanel extends Panel {
 
         MaterialDesignIconView hide = setupButton(
                 new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MINIMIZE),
-                e -> this.panelManager.getStage().setIconified(true), 0);
-        MaterialDesignIconView fullscreen =  setupButton(
-                new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MAXIMIZE),
-                e -> this.panelManager.getStage().setMaximized(!this.panelManager.getStage().isMaximized()), 1);
+                e -> this.panelManager.getStage().setIconified(true), 1);
         MaterialDesignIconView close = setupButton(
                 new MaterialDesignIconView(MaterialDesignIcon.WINDOW_CLOSE),
                 e -> System.exit(0), 2, "18px");
-        topBarButton.getChildren().addAll(close, fullscreen, hide);
+        topBarButton.getChildren().addAll(close, hide);
     }
 
     MaterialDesignIconView setupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order) {return setupButton(btn, onclick, order, "16px");}

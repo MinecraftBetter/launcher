@@ -34,9 +34,12 @@ public class PanelManager {
         InputStream icon = Main.class.getResourceAsStream("/minecraftbetter/images/icon.png");
         if (icon != null) stage.getIcons().add(new Image(icon));
         stage.setMinWidth(1280);
+        stage.setMaxWidth(1280);
         stage.setWidth(1280);
         stage.setMinHeight(720);
+        stage.setMaxHeight(720);
         stage.setHeight(720);
+        stage.setResizable(false);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.centerOnScreen();
         stage.show();
