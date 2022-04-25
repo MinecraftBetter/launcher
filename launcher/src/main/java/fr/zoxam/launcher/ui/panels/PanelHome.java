@@ -6,11 +6,15 @@ import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
+import fr.zoxam.launcher.utils.Images;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -58,41 +62,27 @@ public class PanelHome extends Panel {
         //region Left side
         // News
         StackPane news = setupPanel(600, 400, -175, 125, "Nouvelles", panel);
-
-        // Install/Launch Btn
-        boolean installed = Files.exists(MinecraftDir);
-        MaterialDesignIconView viewPlayImage = new MaterialDesignIconView(installed ? MaterialDesignIcon.PLAY : MaterialDesignIcon.DOWNLOAD);
-        viewPlayImage.setSize("24px");
-        viewPlayImage.setFill(new Color(1, 1, 1, 1));
-        Button play = new Button(installed ? "JOUER" : "INSTALLER", viewPlayImage);
-        news.getChildren().add(play);
-        StackPane.setAlignment(play, Pos.TOP_LEFT);
-        play.setPrefSize(200, 50);
-        play.setTranslateX(0);
-        play.setTranslateY(-play.getPrefHeight() - 15);
-        play.setStyle("-fx-background-color:#fd000f; -fx-text-fill: #FFFF; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 45; -fx-background-radius: 45;");
-        play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
-        play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         //endregion
 
         //region Right side
         double rightWidth = 300;
         double rightX = -news.getTranslateX() + (news.getMinWidth() - rightWidth) / 2;
         // Social
-        StackPane social = panelContent(setupPanel(rightWidth, 100, rightX, news.getTranslateY() - (news.getMinHeight() - 100) / 2, "Suivez-nous", panel));
+        StackPane social = setupPanel(rightWidth, 100, rightX, news.getTranslateY() - (news.getMinHeight() - 100) / 2, "Suivez-nous", panel);
+        StackPane socialContent = panelContent(social);
         int btnSpacing = 300 / 4; // Panel size / number of btn
         Button website = setupSocialBtn("/minecraftbetter/images/home/website.png", 0);
         website.setOnMouseClicked(event -> openUrl("https://minecraftbetter.fr"));
-        social.getChildren().add(website);
+        socialContent.getChildren().add(website);
         Button discord = setupSocialBtn("/minecraftbetter/images/home/discord.png", btnSpacing);
         discord.setOnMouseClicked(event -> openUrl("https://discord.com/invite/4TC5eNEkE5"));
-        social.getChildren().add(discord);
+        socialContent.getChildren().add(discord);
         Button twitter = setupSocialBtn("/minecraftbetter/images/home/twitter.png", btnSpacing * 2d);
         twitter.setOnMouseClicked(event -> {}); //TODO
-        social.getChildren().add(twitter);
+        socialContent.getChildren().add(twitter);
         Button youtube = setupSocialBtn("/minecraftbetter/images/home/youtube.png", btnSpacing * 3d);
         youtube.setOnMouseClicked(event -> {}); // TODO
-        social.getChildren().add(youtube);
+        socialContent.getChildren().add(youtube);
 
         // Server information
         StackPane server = setupPanel(rightWidth, 250, rightX, news.getTranslateY() + (news.getMinHeight() - 250) / 2, "Serveur", panel);
@@ -115,6 +105,42 @@ public class PanelHome extends Panel {
         settingsBtn.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         settingsBtn.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         settingsBtn.setOnMouseClicked(event -> settingPopup(layout));
+
+        // Install/Launch Btn
+        boolean installed = Files.exists(MinecraftDir);
+        MaterialDesignIconView viewPlayImage = new MaterialDesignIconView(installed ? MaterialDesignIcon.PLAY : MaterialDesignIcon.DOWNLOAD);
+        viewPlayImage.setSize("24px");
+        viewPlayImage.setFill(new Color(1, 1, 1, 1));
+        Button play = new Button(installed ? "JOUER" : "INSTALLER", viewPlayImage);
+        news.getChildren().add(play);
+        StackPane.setAlignment(play, Pos.TOP_LEFT);
+        play.setPrefSize(200, 50);
+        play.setTranslateX(0);
+        play.setTranslateY(-play.getPrefHeight() - 15);
+        play.setStyle("-fx-background-color:#fd000f; -fx-text-fill: #FFFF; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 45; -fx-background-radius: 45;");
+        play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
+        play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
+        play.setOnMouseClicked(event -> {
+            if (installed) return; //TODO: Launch the game
+
+            play.setDisable(true);
+
+
+            ProgressBar installationProgress = new ProgressBar(0.1);
+            installationProgress.setStyle("-fx-accent: red;");
+            double progressLeftX = news.getTranslateX() - news.getWidth() / 2 + play.getTranslateX() + play.getWidth() + 15;
+            double progressRightX = social.getTranslateX() + social.getWidth() / 2;
+            installationProgress.setPrefSize(Math.abs(progressLeftX) + Math.abs(progressRightX), 25);
+            installationProgress.setTranslateX((progressLeftX + progressRightX) / 2);
+            installationProgress.setTranslateY(play.getTranslateY() + play.getHeight() / 2 + news.getTranslateY() - news.getHeight() / 2);
+            Label progressText = new Label();
+            progressText.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            progressText.textProperty().bind(installationProgress.progressProperty().multiply(100).asString("%02.0f%%"));
+            DoubleBinding progressTextPos = installationProgress.progressProperty().multiply(progressRightX-progressLeftX).add(progressLeftX);
+            progressText.translateXProperty().bind(Bindings.max(progressTextPos.subtract(30), progressLeftX + 30));
+            progressText.translateYProperty().bind(installationProgress.translateYProperty());
+            panel.getChildren().addAll(installationProgress, progressText);
+        });
     }
 
     //region Home Panels
@@ -162,7 +188,7 @@ public class PanelHome extends Panel {
     private Button setupSocialBtn(String img, double x) {
         int size = 50;
 
-        ImageView imgView = new ImageView(new Image(Objects.requireNonNull(Main.class.getResource(img)).toExternalForm()));
+        ImageView imgView = Images.getImageViewFromRessources(img);
         imgView.setFitHeight(size - 15d);
         imgView.setPreserveRatio(true);
 

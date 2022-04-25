@@ -45,6 +45,7 @@ public class PanelManager {
         stage.show();
 
         layout = new GridPane();
+        layout.getStylesheets().add(Main.class.getResource("/minecraftbetter/stylesheets/root.css").toExternalForm());
         SetBackground(new Color(0.2,0.2,0.2,1));
 
         stage.setScene(new Scene(layout));
