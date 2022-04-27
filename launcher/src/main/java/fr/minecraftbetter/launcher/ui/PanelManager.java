@@ -1,7 +1,6 @@
 package fr.minecraftbetter.launcher.ui;
 
 import fr.arinonia.arilibfx.ui.utils.ResizeHelper;
-import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.MinecraftBetterLauncher;
 import fr.minecraftbetter.launcher.ui.panel.IPanel;
 import fr.minecraftbetter.launcher.ui.panels.includes.TopPanel;
@@ -28,7 +27,7 @@ public class PanelManager {
     }
 
     public void init() {
-        stage.setTitle("MinecraftBetter");
+        stage.setTitle("Minecraft Better");
         stage.getIcons().add(Resources.getImage("/minecraftbetter/images/icon.png"));
         stage.setMinWidth(1280);
         stage.setMaxWidth(1280);
@@ -42,7 +41,7 @@ public class PanelManager {
         stage.show();
 
         layout = new GridPane();
-        layout.getStylesheets().add(Main.class.getResource("/minecraftbetter/stylesheets/root.css").toExternalForm());
+        layout.getStylesheets().add(Resources.getResource("/minecraftbetter/stylesheets/root.css"));
         setBackground(new Color(0.2,0.2,0.2,1));
 
         stage.setScene(new Scene(layout));

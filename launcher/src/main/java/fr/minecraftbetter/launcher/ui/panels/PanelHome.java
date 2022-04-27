@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class PanelHome extends Panel {
-    public static final Path MinecraftDir = PanelLogin.AppData.resolve(Paths.get("minecraft"));
+    public static final Path MinecraftDir = Main.AppData.resolve(Paths.get("minecraft"));
 
     PanelManager panelManager;
     MinecraftProfile account;
@@ -236,7 +236,7 @@ public class PanelHome extends Panel {
         try {
             Desktop.getDesktop().browse(new URI(url));
         } catch (IOException | URISyntaxException e) {
-            Main.logger.warn(e.getMessage());
+            Main.logger.warning(e.getMessage());
         }
     }
 }

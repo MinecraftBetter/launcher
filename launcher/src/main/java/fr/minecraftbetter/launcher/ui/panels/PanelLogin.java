@@ -4,6 +4,7 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
+import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
 import fr.minecraftbetter.launcher.utils.Resources;
@@ -11,7 +12,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
-import net.harawata.appdirs.AppDirsFactory;
 import org.jasypt.util.text.BasicTextEncryptor;
 
 import java.io.IOException;
@@ -19,21 +19,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 
 
 public class PanelLogin extends Panel {
 
-    public MicrosoftAuthenticator authenticator;
-    public BasicTextEncryptor textEncryptor;
-    public static final Path AppData = Paths.get(AppDirsFactory.getInstance().getUserDataDir("MinecraftBetter", null, null, true));
-
-    public PanelManager panelManager;
+    static final MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
+    static final BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
 
     @Override
     public void init(PanelManager panelManager) {
         super.init(panelManager);
-        this.panelManager = panelManager;
-        System.out.printf("AppData path: %1$s%n", AppData);
+        Main.logger.info("AppData path: " + Main.AppData);
 
         MediaPlayer mediaPlayer = new MediaPlayer(Resources.getMedia("/minecraftbetter/images/intro.mp4"));
         MediaView mediaView = new MediaView(mediaPlayer);
@@ -44,17 +41,15 @@ public class PanelLogin extends Panel {
         mediaPlayer.play();
 
         new Thread(() -> {
-            authenticator = new MicrosoftAuthenticator();
-            textEncryptor = new BasicTextEncryptor();
             textEncryptor.setPassword("uFw722H8$@2R");
 
             // Check if we saved a token
             try {
-                Path tokenPath = AppData.resolve(Paths.get("token.txt"));
+                Path tokenPath = Main.AppData.resolve(Paths.get("token.txt"));
                 if (Files.exists(tokenPath)) {
                     String encryptedToken = new String(Files.readAllBytes(tokenPath), StandardCharsets.UTF_8);
                     String decryptedToken = textEncryptor.decrypt(encryptedToken);
-                    if (tokenConnect(decryptedToken)) {
+                    if (Boolean.TRUE.equals(tokenConnect(decryptedToken))) {
                         return;
                     }
                 }
@@ -96,15 +91,15 @@ public class PanelLogin extends Panel {
         // Save the token
         try {
             String encryptedToken = textEncryptor.encrypt(result.getRefreshToken());
-            if (!Files.exists(AppData)) Files.createDirectory(AppData);
-            Path file = Files.write(AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
-            System.out.printf("Written encrypted token to %1$s%n", file);
+            if (!Files.exists(Main.AppData)) Files.createDirectory(Main.AppData);
+            Path file = Files.write(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
+            Main.logger.info(() -> MessageFormat.format( "Written encrypted token to {0}", file));
         } catch (IOException e) {
             e.printStackTrace(); // Couldn't write
         }
 
         MinecraftProfile account = result.getProfile();
-        System.out.printf("Connected as %1$s%n", account.getName());
+        Main.logger.info(() -> MessageFormat.format("Connected as {0}", account.getName()));
         Platform.runLater(() -> panelManager.showPanel(new PanelHome(account)));
     }
 }
