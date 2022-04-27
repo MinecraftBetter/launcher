@@ -1,12 +1,12 @@
-package fr.zoxam.launcher.ui.panels;
+package fr.minecraftbetter.launcher.ui.panels;
 
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
-import fr.zoxam.launcher.Main;
-import fr.zoxam.launcher.ui.PanelManager;
-import fr.zoxam.launcher.ui.panel.Panel;
-import fr.zoxam.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.ui.PanelManager;
+import fr.minecraftbetter.launcher.ui.panel.Panel;
+import fr.minecraftbetter.launcher.utils.Resources;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;

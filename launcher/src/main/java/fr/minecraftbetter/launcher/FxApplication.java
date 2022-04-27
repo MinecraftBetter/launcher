@@ -1,4 +1,4 @@
-package fr.zoxam.launcher;
+package fr.minecraftbetter.launcher;
 
 import javafx.application.Application;
 import javafx.stage.Stage;

@@ -1,10 +1,10 @@
-package fr.zoxam.launcher.ui.panels.includes;
+package fr.minecraftbetter.launcher.ui.panels.includes;
 
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
-import fr.zoxam.launcher.Main;
-import fr.zoxam.launcher.ui.PanelManager;
-import fr.zoxam.launcher.ui.panel.Panel;
+import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.ui.PanelManager;
+import fr.minecraftbetter.launcher.ui.panel.Panel;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;

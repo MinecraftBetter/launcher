@@ -1,6 +1,6 @@
-package fr.zoxam.launcher.utils;
+package fr.minecraftbetter.launcher.utils;
 
-import fr.zoxam.launcher.Main;
+import fr.minecraftbetter.launcher.Main;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;

@@ -1,4 +1,4 @@
-package fr.zoxam.launcher;
+package fr.minecraftbetter.launcher;
 
 
 import fr.arinonia.arilibfx.utils.AriLogger;

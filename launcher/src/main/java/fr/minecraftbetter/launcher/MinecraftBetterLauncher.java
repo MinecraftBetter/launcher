@@ -1,7 +1,7 @@
-package fr.zoxam.launcher;
+package fr.minecraftbetter.launcher;
 
-import fr.zoxam.launcher.ui.PanelManager;
-import fr.zoxam.launcher.ui.panels.PanelLogin;
+import fr.minecraftbetter.launcher.ui.PanelManager;
+import fr.minecraftbetter.launcher.ui.panels.PanelLogin;
 import javafx.stage.Stage;
 
 public class MinecraftBetterLauncher {

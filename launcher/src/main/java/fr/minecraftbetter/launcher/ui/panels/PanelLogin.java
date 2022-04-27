@@ -1,12 +1,12 @@
-package fr.zoxam.launcher.ui.panels;
+package fr.minecraftbetter.launcher.ui.panels;
 
 import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
-import fr.zoxam.launcher.ui.PanelManager;
-import fr.zoxam.launcher.ui.panel.Panel;
-import fr.zoxam.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.ui.PanelManager;
+import fr.minecraftbetter.launcher.ui.panel.Panel;
+import fr.minecraftbetter.launcher.utils.Resources;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.media.MediaPlayer;

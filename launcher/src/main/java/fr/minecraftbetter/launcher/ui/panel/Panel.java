@@ -1,6 +1,6 @@
-package fr.zoxam.launcher.ui.panel;
+package fr.minecraftbetter.launcher.ui.panel;
 
-import fr.zoxam.launcher.ui.PanelManager;
+import fr.minecraftbetter.launcher.ui.PanelManager;
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;

@@ -1,11 +1,11 @@
-package fr.zoxam.launcher.ui;
+package fr.minecraftbetter.launcher.ui;
 
 import fr.arinonia.arilibfx.ui.utils.ResizeHelper;
-import fr.zoxam.launcher.Main;
-import fr.zoxam.launcher.MinecraftBetterLauncher;
-import fr.zoxam.launcher.ui.panel.IPanel;
-import fr.zoxam.launcher.ui.panels.includes.TopPanel;
-import fr.zoxam.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.MinecraftBetterLauncher;
+import fr.minecraftbetter.launcher.ui.panel.IPanel;
+import fr.minecraftbetter.launcher.ui.panels.includes.TopPanel;
+import fr.minecraftbetter.launcher.utils.Resources;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;

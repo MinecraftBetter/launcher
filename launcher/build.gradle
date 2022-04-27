@@ -5,7 +5,7 @@ plugins {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'fr.zoxam.launcher.Main'
+        attributes 'Main-Class': 'fr.minecraftbetter.launcher.Main'
     }
 }
 shadowJar {
@@ -14,7 +14,7 @@ shadowJar {
     archiveVersion.set('')
 }
 
-group 'fr.zoxam.minecraftbetter'
+group 'fr.minecraftbetter.launcher'
 version '0.1'
 
 repositories {

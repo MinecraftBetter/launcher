@@ -1,6 +1,6 @@
-package fr.zoxam.launcher.ui.panel;
+package fr.minecraftbetter.launcher.ui.panel;
 
-import fr.zoxam.launcher.ui.PanelManager;
+import fr.minecraftbetter.launcher.ui.PanelManager;
 import javafx.scene.layout.GridPane;
 
 public interface IPanel {
