@@ -5,15 +5,13 @@ import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.MinecraftBetterLauncher;
 import fr.zoxam.launcher.ui.panel.IPanel;
 import fr.zoxam.launcher.ui.panels.includes.TopPanel;
+import fr.zoxam.launcher.utils.Resources;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import java.io.InputStream;
 
 public class PanelManager {
 
@@ -31,8 +29,7 @@ public class PanelManager {
 
     public void init() {
         stage.setTitle("MinecraftBetter");
-        InputStream icon = Main.class.getResourceAsStream("/minecraftbetter/images/icon.png");
-        if (icon != null) stage.getIcons().add(new Image(icon));
+        stage.getIcons().add(Resources.getImage("/minecraftbetter/images/icon.png"));
         stage.setMinWidth(1280);
         stage.setMaxWidth(1280);
         stage.setWidth(1280);
@@ -46,7 +43,7 @@ public class PanelManager {
 
         layout = new GridPane();
         layout.getStylesheets().add(Main.class.getResource("/minecraftbetter/stylesheets/root.css").toExternalForm());
-        SetBackground(new Color(0.2,0.2,0.2,1));
+        setBackground(new Color(0.2,0.2,0.2,1));
 
         stage.setScene(new Scene(layout));
 
@@ -72,20 +69,12 @@ public class PanelManager {
     }
 
 
-    public Boolean SetBackground(Color color) {
+    public Boolean setBackground(Color color) {
         layout.setBackground(new Background(new BackgroundFill(color, null, null)));
         return true;
     }
-    public Boolean SetBackground(String resource){
-        InputStream stream = Main.class.getResourceAsStream(resource);
-        if (stream == null) return false;
-
-        BackgroundImage background = new BackgroundImage(new Image(stream),
-                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                new BackgroundSize(100, 100, true, true, false, true));
-
-        layout.setBackground(new Background(background));
+    public Boolean setBackground(String resource){
+        layout.setBackground(Resources.getBackground(resource));
         return true;
     }
 

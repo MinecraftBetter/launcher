@@ -6,7 +6,7 @@ import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
-import fr.zoxam.launcher.utils.Images;
+import fr.zoxam.launcher.utils.Resources;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
@@ -16,7 +16,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Separator;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -28,7 +27,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 public class PanelHome extends Panel {
     public static final Path MinecraftDir = PanelLogin.AppData.resolve(Paths.get("minecraft"));
@@ -44,7 +42,7 @@ public class PanelHome extends Panel {
     public void init(PanelManager panelManager) {
         super.init(panelManager);
         this.panelManager = panelManager;
-        panelManager.SetBackground("/minecraftbetter/images/background.png");
+        panelManager.setBackground("/minecraftbetter/images/background.png");
 
         StackPane panel = new StackPane();
         GridPane.setHgrow(panel, Priority.ALWAYS);
@@ -52,7 +50,7 @@ public class PanelHome extends Panel {
         panel.setBackground(new Background(new BackgroundFill(new Color(0.08, 0.08, 0.08, 0.33), null, null))); // Darken the background
         layout.getChildren().add(panel);
 
-        ImageView logo = new ImageView(new Image(Objects.requireNonNull(Main.class.getResource("/minecraftbetter/images/home/banner.png")).toExternalForm()));
+        ImageView logo = Resources.getImageView("/minecraftbetter/images/home/banner.png");
         StackPane.setAlignment(logo, Pos.TOP_CENTER);
         logo.setTranslateY(50);
         logo.setFitHeight(100);
@@ -188,7 +186,7 @@ public class PanelHome extends Panel {
     private Button setupSocialBtn(String img, double x) {
         int size = 50;
 
-        ImageView imgView = Images.getImageViewFromRessources(img);
+        ImageView imgView = Resources.getImageView(img);
         imgView.setFitHeight(size - 15d);
         imgView.setPreserveRatio(true);
 

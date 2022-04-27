@@ -4,12 +4,11 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
-import fr.zoxam.launcher.Main;
 import fr.zoxam.launcher.ui.PanelManager;
 import fr.zoxam.launcher.ui.panel.Panel;
+import fr.zoxam.launcher.utils.Resources;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import net.harawata.appdirs.AppDirsFactory;
@@ -36,8 +35,7 @@ public class PanelLogin extends Panel {
         this.panelManager = panelManager;
         System.out.printf("AppData path: %1$s%n", AppData);
 
-        Media media = new Media(Main.class.getResource("/minecraftbetter/images/intro.mp4").toString());
-        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        MediaPlayer mediaPlayer = new MediaPlayer(Resources.getMedia("/minecraftbetter/images/intro.mp4"));
         MediaView mediaView = new MediaView(mediaPlayer);
         layout.getChildren().add(mediaView);
         mediaView.fitWidthProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "width"));
