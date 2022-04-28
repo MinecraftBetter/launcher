@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.logging.Level;
 
 
 public class PanelLogin extends Panel {
@@ -54,7 +55,7 @@ public class PanelLogin extends Panel {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Main.logger.log(Level.WARNING, "Couldn't read the token", e);
             }
 
             webConnect(); // Open a login pop-up
@@ -69,7 +70,7 @@ public class PanelLogin extends Panel {
             connected(authenticator.loginWithWebview());
             return true;
         } catch (MicrosoftAuthenticationException e) {
-            e.printStackTrace(); /* Error (user closed the popup, ...) TODO: Handle this */
+            Main.logger.log(Level.WARNING, "Connection using a webview failed", e); /* Error (user closed the popup, ...) TODO: Handle this */
         }
         return false;
     }
@@ -81,8 +82,9 @@ public class PanelLogin extends Panel {
         try {
             connected(authenticator.loginWithRefreshToken(token));
             return true;
-        } catch (MicrosoftAuthenticationException e) {
-            e.printStackTrace(); /* Unknown error TODO: Handle this */
+        }
+        catch (MicrosoftAuthenticationException e) {
+            Main.logger.log(Level.WARNING, "Connection using token failed", e); /* Unknown error TODO: Handle this */
         }
         return false;
     }
@@ -95,7 +97,7 @@ public class PanelLogin extends Panel {
             Path file = Files.write(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
             Main.logger.info(() -> MessageFormat.format( "Written encrypted token to {0}", file));
         } catch (IOException e) {
-            e.printStackTrace(); // Couldn't write
+            Main.logger.log(Level.WARNING, "Couldn't write the token", e);
         }
 
         MinecraftProfile account = result.getProfile();
