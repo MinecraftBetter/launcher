@@ -65,7 +65,7 @@ public class MinecraftManager {
 
     public void startInstall() {
         try {Files.createDirectories(installationPath);} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn't create/access installation path {0}", installationPath));
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access installation path {0}", installationPath));
         }
         new Thread(() -> {
             for (; status < actions.size(); status++) {
@@ -75,6 +75,7 @@ public class MinecraftManager {
             }
             Platform.runLater(() -> {
                 progress.accept(new Progress(1, "Installation done"));
+                Main.logger.info("Installation done");
                 complete.run();
             });
         }).start();
@@ -97,7 +98,7 @@ public class MinecraftManager {
         assert manifest != null;
         progression(1 / 3d);
 
-        Main.logger.fine(() -> MessageFormat.format("Processing {0} releases", manifest.size()));
+        Main.logger.fine(() -> MessageFormat.format("Processing {0} releases", manifest.getAsJsonArray("versions").size()));
         for (JsonElement vE : manifest.getAsJsonArray("versions")) {
             JsonObject versionMeta = vE.getAsJsonObject();
             if (!Objects.equals(versionMeta.get("id").getAsString(), WANTED_MINECRAFT_VERSION)) continue;

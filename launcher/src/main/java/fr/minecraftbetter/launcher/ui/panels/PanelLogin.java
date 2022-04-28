@@ -55,7 +55,7 @@ public class PanelLogin extends Panel {
                     }
                 }
             } catch (IOException e) {
-                Main.logger.log(Level.WARNING, "Couldn't read the token", e);
+                Main.logger.log(Level.WARNING, "Couldn''t read the token", e);
             }
 
             webConnect(); // Open a login pop-up
@@ -97,7 +97,7 @@ public class PanelLogin extends Panel {
             Path file = Files.write(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
             Main.logger.info(() -> MessageFormat.format( "Written encrypted token to {0}", file));
         } catch (IOException e) {
-            Main.logger.log(Level.WARNING, "Couldn't write the token", e);
+            Main.logger.log(Level.WARNING, "Couldn''t write the token", e);
         }
 
         MinecraftProfile account = result.getProfile();

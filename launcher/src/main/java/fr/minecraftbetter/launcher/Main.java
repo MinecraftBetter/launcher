@@ -7,9 +7,14 @@ import net.harawata.appdirs.AppDirsFactory;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.*;
+import java.util.Arrays;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Main {
@@ -21,15 +26,21 @@ public class Main {
         logger.setUseParentHandlers(false);
         Formatter loggingFormat = new LogFormatter();
         OutConsoleHandler consoleHandler = new OutConsoleHandler(loggingFormat);
+        try {consoleHandler.setEncoding("UTF-8");} catch (UnsupportedEncodingException e) {e.printStackTrace();}
         consoleHandler.setLevel(Level.ALL);
         logger.addHandler(consoleHandler);
 
         try {
             FileHandler fileHandler = new FileHandler(AppData.resolve("logs.txt").toString());
             fileHandler.setFormatter(loggingFormat);
+            fileHandler.setLevel(Level.ALL);
+            fileHandler.setEncoding("UTF-8");
             logger.addHandler(fileHandler);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) { e.printStackTrace(); }
+
+        if (Arrays.asList(args).contains("--debug")) {
+            logger.setLevel(Level.ALL);
+            logger.config("---- Debug mode ----");
         }
 
         try {
