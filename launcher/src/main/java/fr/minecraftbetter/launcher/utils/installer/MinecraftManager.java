@@ -7,11 +7,12 @@ import fr.minecraftbetter.launcher.utils.http.HTTP;
 import javafx.application.Platform;
 import javafx.util.Pair;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -117,8 +118,10 @@ public class MinecraftManager {
     private void installMinecraft() {
         assert versionProfile != null;
         File minecraft = installationPath.resolve("minecraft.jar").toFile();
-
         JsonObject client = versionProfile.get("downloads").getAsJsonObject().get("client").getAsJsonObject();
+
+        if (Boolean.TRUE.equals(checkIntegrity(minecraft, client.get("sha1").getAsString()))) return;
+
         try {
             HTTP.getFile(
                     client.get("url").getAsString(),
@@ -147,5 +150,42 @@ public class MinecraftManager {
 
     private void installMods() {
         //TODO
+    }
+
+    private String calculateSha1(File file) {
+        MessageDigest digest;
+        try {digest = MessageDigest.getInstance("SHA-1");} catch (NoSuchAlgorithmException e) {
+            Main.logger.log(Level.SEVERE, "Error getting SHA1 algorithm", e);
+            return null;
+        }
+        try (InputStream fis = new FileInputStream(file)) {
+            int n = 0;
+            byte[] buffer = new byte[8192];
+            while (n != -1) {
+                n = fis.read(buffer);
+                if (n > 0) digest.update(buffer, 0, n);
+            }
+            return new HexBinaryAdapter().marshal(digest.digest());
+        } catch (FileNotFoundException e) {
+            Main.logger.log(Level.SEVERE, "Error opening file", e);
+            return null;
+        } catch (IOException e) {
+            Main.logger.log(Level.WARNING, "IO error", e);
+            return null;
+        }
+    }
+
+    private Boolean checkIntegrity(File file, String sha) {
+        if (!file.exists()) return false;
+
+        Main.logger.fine(() -> MessageFormat.format("Found existing installation at {0}", file.getAbsolutePath()));
+        String fileSha = calculateSha1(file);
+        if (fileSha == null) return false;
+        if (Objects.equals(fileSha.toLowerCase(), sha.toLowerCase())) {
+            Main.logger.fine("SHA-1 matching, skipping");
+            return true;
+        }
+        Main.logger.fine(() -> MessageFormat.format("SHA-1 aren''t matching, found {0} expected {1}", fileSha.toLowerCase(), sha.toLowerCase()));
+        return false;
     }
 }
