@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: fr.litarvan:openauth:1.1.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/fr.litarvan/openauth/1.1.2/69fd50290accf71e8c8c3459cc19feedf6fcc171/openauth-1.1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/fr.litarvan/openauth/1.1.2/32103d0c865ef8e7b56c59c31f20b3aa54c63d90/openauth-1.1.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

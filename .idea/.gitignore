@@ -6,3 +6,10 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+
+
+# --- Custom --- #
+
+
+# Sonarlint
+/sonarlint/issuestore
