@@ -7,6 +7,7 @@ import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
 import fr.minecraftbetter.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
@@ -119,12 +120,15 @@ public class PanelHome extends Panel {
         play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         play.setOnMouseClicked(event -> {
-            if (installed) return; //TODO: Launch the game
+
+            MinecraftManager minecraftManager = new MinecraftManager(MinecraftDir);
+
+            if (installed && Boolean.TRUE.equals(minecraftManager.startGame())) return;
 
             play.setDisable(true);
+            play.setText("INSTALLATION");
 
-
-            ProgressBar installationProgress = new ProgressBar(0.1);
+            ProgressBar installationProgress = new ProgressBar();
             installationProgress.setStyle("-fx-accent: red;");
             double progressLeftX = news.getTranslateX() - news.getWidth() / 2 + play.getTranslateX() + play.getWidth() + 15;
             double progressRightX = social.getTranslateX() + social.getWidth() / 2;
@@ -134,10 +138,31 @@ public class PanelHome extends Panel {
             Label progressText = new Label();
             progressText.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
             progressText.textProperty().bind(installationProgress.progressProperty().multiply(100).asString("%02.0f%%"));
-            DoubleBinding progressTextPos = installationProgress.progressProperty().multiply(progressRightX-progressLeftX).add(progressLeftX);
+            DoubleBinding progressTextPos = installationProgress.progressProperty().multiply(progressRightX - progressLeftX).add(progressLeftX);
             progressText.translateXProperty().bind(Bindings.max(progressTextPos.subtract(30), progressLeftX + 30));
             progressText.translateYProperty().bind(installationProgress.translateYProperty());
             panel.getChildren().addAll(installationProgress, progressText);
+
+            Label installationStatus = new Label();
+            installationStatus.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            StackPane.setAlignment(installationStatus, Pos.BOTTOM_LEFT);
+            installationStatus.setTranslateX(5);
+            installationStatus.setTranslateY(-5);
+            panel.getChildren().add(installationStatus);
+
+            minecraftManager.setProgress(p -> {
+                installationProgress.setProgress(p.getPercentage());
+                installationStatus.setText(p.getStatus());
+            });
+            minecraftManager.setComplete(() -> {
+                panel.getChildren().removeAll(installationProgress, progressText, installationStatus);
+
+                viewPlayImage.setIcon(MaterialDesignIcon.PLAY);
+                play.setText("JOUER");
+                play.setDisable(false);
+            });
+            minecraftManager.startInstall();
+
         });
     }
 
