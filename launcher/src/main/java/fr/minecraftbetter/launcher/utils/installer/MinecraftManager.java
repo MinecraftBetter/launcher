@@ -1,22 +1,28 @@
 package fr.minecraftbetter.launcher.utils.installer;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
 import javafx.application.Platform;
 import javafx.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 
 /** Installs Minecraft and it's dependencies **/
@@ -120,7 +126,7 @@ public class MinecraftManager {
         File minecraft = installationPath.resolve("minecraft.jar").toFile();
         JsonObject client = versionProfile.get("downloads").getAsJsonObject().get("client").getAsJsonObject();
 
-        if (Boolean.TRUE.equals(checkIntegrity(minecraft, client.get("sha1").getAsString()))) return;
+        if (checkIntegrity(minecraft, client.get("sha1").getAsString())) return;
 
         try {
             HTTP.getFile(
@@ -136,12 +142,72 @@ public class MinecraftManager {
 
     private void installMinecraftLibraries() {
         assert versionProfile != null;
-        //TODO
+        Path libsPath = installationPath.resolve("libraries/");
+        if (!tryCreateFolder(libsPath)) return;
+
+        JsonArray libs = versionProfile.get("libraries").getAsJsonArray();
+        for (int i = 0; i < libs.size(); i++) {
+            JsonObject lib = libs.get(i).getAsJsonObject();
+            String libName = lib.get("name").getAsString();
+            double libProgress = i / (double) libs.size();
+            progression(libProgress, libName);
+            JsonObject libInfo = lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject();
+            File libPath = libsPath.resolve(libInfo.get("path").getAsString()).toFile();
+            if (checkIntegrity(libPath, libInfo.get("sha1").getAsString())) continue;
+
+            try {
+                Files.createDirectories(libPath.getParentFile().toPath());
+                HTTP.getFile(
+                        libInfo.get("url").getAsString(),
+                        new FileOutputStream(libPath),
+                        p -> progression(libProgress + p.getPercentage() / libs.size(), MessageFormat.format("{0} - {1}", libName, p)));
+                Main.logger.fine(() -> MessageFormat.format("Successfully downloaded {0} to {1}", libName, libPath.getAbsolutePath()));
+            } catch (IOException e) {Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while downloading {0}", libName));}
+        }
     }
 
     private void installMinecraftAssets() {
         assert versionProfile != null;
-        //TODO
+        Path assetsPath = installationPath.resolve("assets/");
+
+        JsonObject assetIndexInfo = versionProfile.get("assetIndex").getAsJsonObject();
+        Path assetIndexes = assetsPath.resolve("indexes");
+        if (!tryCreateFolder(assetIndexes)) return;
+        File index = assetIndexes.resolve(assetIndexInfo.get("id").getAsString() + ".json").toFile();
+        if (!checkIntegrity(index, assetIndexInfo.get("sha1").getAsString()) && !HTTP.downloadFile(assetIndexInfo.get("url").getAsString(), index, null)) return;
+        JsonObject assetIndex;
+        try {assetIndex = JsonParser.parseReader(new FileReader(index)).getAsJsonObject();} catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while reading {0}", index));
+            return;
+        }
+
+        int fi = -1;
+        for (Map.Entry<String, JsonElement> folderE : assetIndex.entrySet()) {
+            fi += 1;
+            Path assetFolderPath = assetsPath.resolve(folderE.getKey());
+            if (!tryCreateFolder(assetFolderPath)) return;
+
+            JsonObject folder = folderE.getValue().getAsJsonObject();
+            int i = -1;
+            for (Map.Entry<String, JsonElement> assetE : folder.entrySet()) {
+                i += 1;
+                JsonObject asset = assetE.getValue().getAsJsonObject();
+                String assetHash = asset.get("hash").getAsString();
+                Path assetRelativePath = Paths.get(assetHash.substring(0, 2), assetHash);
+                File assetFile = assetFolderPath.resolve(assetRelativePath).toFile();
+
+                int finalI = i;
+                int finalFi = fi;
+                DoubleUnaryOperator assetProgress = (double p) -> ((finalI + p) / folder.size() + finalFi) / assetIndex.size();
+                progression(assetProgress.applyAsDouble(0), assetE.getKey());
+                if (checkIntegrity(assetFile, assetHash) || !tryCreateFolder(assetFile.getParentFile().toPath())) continue;
+
+                HTTP.downloadFile(
+                            "https://resources.download.minecraft.net/" + assetRelativePath,
+                            assetFile,
+                            p -> progression(assetProgress.applyAsDouble(p.getPercentage()), MessageFormat.format("{0} - {1}", assetE.getKey(), p)));
+            }
+        }
     }
 
     private void installFabric() {
@@ -150,6 +216,15 @@ public class MinecraftManager {
 
     private void installMods() {
         //TODO
+    }
+
+    @NotNull
+    private Boolean tryCreateFolder(Path path) {
+        try {Files.createDirectories(path);} catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access folder at {0}", path.toAbsolutePath()));
+            return false;
+        }
+        return true;
     }
 
     private String calculateSha1(File file) {
@@ -165,7 +240,7 @@ public class MinecraftManager {
                 n = fis.read(buffer);
                 if (n > 0) digest.update(buffer, 0, n);
             }
-            return new HexBinaryAdapter().marshal(digest.digest());
+            return new HexBinaryAdapter().marshal(digest.digest()).toLowerCase();
         } catch (FileNotFoundException e) {
             Main.logger.log(Level.SEVERE, "Error opening file", e);
             return null;
@@ -175,17 +250,18 @@ public class MinecraftManager {
         }
     }
 
+    @NotNull
     private Boolean checkIntegrity(File file, String sha) {
         if (!file.exists()) return false;
 
         Main.logger.fine(() -> MessageFormat.format("Found existing installation at {0}", file.getAbsolutePath()));
         String fileSha = calculateSha1(file);
         if (fileSha == null) return false;
-        if (Objects.equals(fileSha.toLowerCase(), sha.toLowerCase())) {
+        if (Objects.equals(fileSha, sha.toLowerCase())) {
             Main.logger.fine("SHA-1 matching, skipping");
             return true;
         }
-        Main.logger.fine(() -> MessageFormat.format("SHA-1 aren''t matching, found {0} expected {1}", fileSha.toLowerCase(), sha.toLowerCase()));
+        Main.logger.fine(() -> MessageFormat.format("SHA-1 aren''t matching, found {0} expected {1}", fileSha, sha.toLowerCase()));
         return false;
     }
 }

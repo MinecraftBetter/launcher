@@ -4,17 +4,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.minecraftbetter.launcher.Main;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.MessageFormat;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /** A utility class to make HTTP requests **/
 public class HTTP {
-    private HTTP() { throw new IllegalStateException("Utility class"); }
+    private HTTP() {throw new IllegalStateException("Utility class");}
 
     public static Response get(String url) {
         OkHttpClient client = new OkHttpClient();
@@ -25,15 +24,17 @@ public class HTTP {
             return null;
         }
     }
-    public static JsonObject getAsJSON(String url){
+
+    public static JsonObject getAsJSON(String url) {
         Response response = get(url);
-        if(response == null) return null;
+        if (response == null) return null;
         ResponseBody body = response.body();
-        if(body == null) return null;
+        if (body == null) return null;
         else return JsonParser.parseReader(body.charStream()).getAsJsonObject();
     }
 
     private static final int CHUNK_SIZE = 1024;
+
     public static void getFile(String url, OutputStream outputStream, Consumer<DownloadProgress> progress) throws IOException {
         Response response = get(url);
         assert response != null;
@@ -47,8 +48,20 @@ public class HTTP {
             while ((readBytes = input.read(dataBuffer)) != -1) {
                 totalBytes += readBytes;
                 outputStream.write(dataBuffer, 0, readBytes);
-                progress.accept(new DownloadProgress(totalBytes, responseBody.contentLength()));
+                if (progress != null) progress.accept(new DownloadProgress(totalBytes, responseBody.contentLength()));
             }
+        }
+    }
+
+    @NotNull
+    public static Boolean downloadFile(String url, File outputFile, Consumer<DownloadProgress> progress) {
+        try {
+            getFile(url, new FileOutputStream(outputFile), progress);
+            Main.logger.fine(() -> MessageFormat.format("Saved to {0}", outputFile));
+            return true;
+        } catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while downloading {0}", outputFile));
+            return false;
         }
     }
 }
