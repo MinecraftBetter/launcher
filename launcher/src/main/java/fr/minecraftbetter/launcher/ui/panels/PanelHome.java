@@ -34,9 +34,11 @@ public class PanelHome extends Panel {
 
     PanelManager panelManager;
     MinecraftProfile account;
+    String accessToken;
 
-    public PanelHome(MinecraftProfile account) {
+    public PanelHome(MinecraftProfile account, String accessToken) {
         this.account = account;
+        this.accessToken = accessToken;
     }
 
     @Override
@@ -121,9 +123,13 @@ public class PanelHome extends Panel {
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         play.setOnMouseClicked(event -> {
 
-            MinecraftManager minecraftManager = new MinecraftManager(MinecraftDir);
+            MinecraftManager minecraftManager = new MinecraftManager(MinecraftDir, account, accessToken);
 
-            if (installed && Boolean.TRUE.equals(minecraftManager.startGame())) return;
+            if (installed){
+                MinecraftManager.StartStatus status = minecraftManager.startGame();
+                if (status == MinecraftManager.StartStatus.ERROR) Main.logger.severe("Couldn't start Minecraft");
+                if (status != MinecraftManager.StartStatus.INCOMPLETE_INSTALL) return;
+            }
 
             play.setDisable(true);
             play.setText("INSTALLATION");

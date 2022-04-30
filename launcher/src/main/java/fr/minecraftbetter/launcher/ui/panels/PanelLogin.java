@@ -102,6 +102,6 @@ public class PanelLogin extends Panel {
 
         MinecraftProfile account = result.getProfile();
         Main.logger.info(() -> MessageFormat.format("Connected as {0}", account.getName()));
-        Platform.runLater(() -> panelManager.showPanel(new PanelHome(account)));
+        Platform.runLater(() -> panelManager.showPanel(new PanelHome(account, result.getAccessToken())));
     }
 }
