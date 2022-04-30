@@ -8,6 +8,7 @@ import net.harawata.appdirs.AppDirsFactory;
 import javax.swing.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -31,12 +32,13 @@ public class Main {
         logger.addHandler(consoleHandler);
 
         try {
+            Files.createDirectories(AppData);
             FileHandler fileHandler = new FileHandler(AppData.resolve("logs.txt").toString());
             fileHandler.setFormatter(loggingFormat);
             fileHandler.setLevel(Level.ALL);
             fileHandler.setEncoding("UTF-8");
             logger.addHandler(fileHandler);
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) {e.printStackTrace();}
 
         if (Arrays.asList(args).contains("--debug")) {
             logger.setLevel(Level.ALL);
