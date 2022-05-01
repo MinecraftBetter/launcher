@@ -40,7 +40,6 @@ public class MinecraftManager {
     private final File minecraftFile;
     private final Path libsPath;
     private final Path assetsPath;
-    private final Path nativesPath;
     ArrayList<Pair<Runnable, String>> actions;
 
     public MinecraftManager(Path installationPath, MinecraftProfile account, String accessToken) {
@@ -48,12 +47,11 @@ public class MinecraftManager {
         this.accessToken = accessToken;
 
         this.installationPath = installationPath;
-        javaPath = installationPath.resolve("../jre/");
+        javaPath = installationPath.resolve("../jre/").toAbsolutePath();
         minecraftFile = installationPath.resolve("minecraft.jar").toFile();
         profilesPath = installationPath.resolve("profiles/");
         libsPath = installationPath.resolve("libraries/");
         assetsPath = installationPath.resolve("assets/");
-        nativesPath = installationPath.resolve("natives/");
 
         actions = new ArrayList<>();
         actions.add(new Pair<>(this::getVersionProfile, "Initializing"));
@@ -131,14 +129,13 @@ public class MinecraftManager {
 
         StringBuilder libsToLoad = new StringBuilder();
         try (Stream<Path> libs = Files.find(libsPath, 25, (f, a) -> f.toFile().getName().endsWith(".jar"))) {
-            for (Path lib : libs.collect(Collectors.toList())) {
-                libsToLoad.append(lib).append(";");
-            }
+            for (Path lib : libs.collect(Collectors.toList()))
+                libsToLoad.append(installationPath.relativize(lib)).append(";");
         } catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error while reading libraries", e);
             return StartStatus.ERROR;
         }
-        libsToLoad.append(minecraftFile.toPath());
+        libsToLoad.append(installationPath.relativize(minecraftFile.toPath()));
 
         ArrayList<String> commands = new ArrayList<>();
         commands.add(JavaManager.getJre(javaPath));
@@ -146,7 +143,7 @@ public class MinecraftManager {
         commands.add(versionProfile.get("mainClass").getAsString());
         commands.addAll(compileArguments(arguments.get("game").getAsJsonArray(), libsToLoad.toString()));
 
-        builder.directory(minecraftFile.getParentFile());
+        builder.directory(installationPath.toFile());
         builder.command(commands);
 
         StringBuilder entireCommand = new StringBuilder();
@@ -155,6 +152,7 @@ public class MinecraftManager {
 
         Main.logger.info("Launching Minecraft");
         Main.logger.fine(() -> "Arguments: " + entireCommand);
+        builder.redirectErrorStream(true);
         try {builder.start();} catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error starting Minecraft", e);
         }
@@ -179,7 +177,7 @@ public class MinecraftManager {
         values.put("resolution_width", "1280");
         values.put("resolution_height", "720");
         //JWM
-        values.put("natives_directory", nativesPath.toString());
+        values.put("natives_directory", libsPath.toString());
         values.put("launcher_name", "MinecraftBetter");
         values.put("launcher_version", "1.0");
         values.put("classpath", classpath);
