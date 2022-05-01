@@ -35,6 +35,7 @@ dependencies {
     implementation group: 'de.jensd', name: 'fontawesomefx', version: '8.9' // https://mvnrepository.com/artifact/de.jensd/fontawesomefx
     implementation group: 'net.harawata', name: 'appdirs', version: '1.2.1' // https://mvnrepository.com/artifact/net.harawata/appdirs
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9' // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '2.10.0' // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
     implementation 'fr.litarvan:openauth:1.1.2' // https://github.com/Litarvan/OpenAuth
     implementation("com.squareup.okhttp3:okhttp:4.9.3") // https://square.github.io/okhttp/
 }

@@ -10,15 +10,13 @@ import fr.minecraftbetter.launcher.utils.http.HTTP;
 import javafx.application.Platform;
 import javafx.util.Pair;
 import org.apache.commons.text.StringSubstitutor;
-import org.jetbrains.annotations.NotNull;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
@@ -31,12 +29,13 @@ import java.util.stream.Stream;
 public class MinecraftManager {
     public static final String MINECRAFT_VERSION_MANIFEST_API = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     public static final String WANTED_MINECRAFT_VERSION = "1.18.2";
-    public static final String JAVA_EXECUTABLE = "C:\\Users\\evan\\.jdks\\openjdk-18.0.1\\bin\\java.exe";
+    public static final String WANTED_JAVA_VERSION = "18";
 
     private final MinecraftProfile account;
     private final String accessToken;
 
     private final Path installationPath;
+    private final Path javaPath;
     private final Path profilesPath;
     private final File minecraftFile;
     private final Path libsPath;
@@ -49,6 +48,7 @@ public class MinecraftManager {
         this.accessToken = accessToken;
 
         this.installationPath = installationPath;
+        javaPath = installationPath.resolve("../jre/");
         minecraftFile = installationPath.resolve("minecraft.jar").toFile();
         profilesPath = installationPath.resolve("profiles/");
         libsPath = installationPath.resolve("libraries/");
@@ -57,6 +57,7 @@ public class MinecraftManager {
 
         actions = new ArrayList<>();
         actions.add(new Pair<>(this::getVersionProfile, "Initializing"));
+        actions.add(new Pair<>(() -> JavaManager.installJava(javaPath, WANTED_JAVA_VERSION, this::progression), "Installing Java " + WANTED_JAVA_VERSION));
         actions.add(new Pair<>(this::installMinecraft, "Installing Minecraft"));
         actions.add(new Pair<>(this::installMinecraftLibraries, "Installing Minecraft libraries"));
         actions.add(new Pair<>(this::installMinecraftAssets, "Installing Minecraft assets"));
@@ -109,7 +110,7 @@ public class MinecraftManager {
 
     private static boolean checked = false;
 
-    public boolean verifyInstall() {
+    public static boolean verifyInstall() {
         if (!checked) {
             // TODO: Really check
             checked = true;
@@ -140,7 +141,7 @@ public class MinecraftManager {
         libsToLoad.append(minecraftFile.toPath());
 
         ArrayList<String> commands = new ArrayList<>();
-        commands.add(JAVA_EXECUTABLE);
+        commands.add(JavaManager.getJre(javaPath));
         commands.addAll(compileArguments(arguments.get("jvm").getAsJsonArray(), libsToLoad.toString()));
         commands.add(versionProfile.get("mainClass").getAsString());
         commands.addAll(compileArguments(arguments.get("game").getAsJsonArray(), libsToLoad.toString()));
@@ -191,7 +192,7 @@ public class MinecraftManager {
             if (arg.isJsonPrimitive()) argValues.add(arg.getAsString());
             else if (arg.isJsonObject()) {
                 JsonObject argData = arg.getAsJsonObject();
-                if (!checkRule(argData)) continue;
+                if (!checkRules(argData)) continue;
                 JsonElement argValuesE = argData.get("value");
                 if (argValuesE.isJsonArray()) argValues = argValuesE.getAsJsonArray();
                 else argValues.add(argValuesE.getAsString());
@@ -205,29 +206,32 @@ public class MinecraftManager {
         return args;
     }
 
-    public boolean checkRule(JsonObject node) {
+    public boolean checkRules(JsonObject node) {
+        if (!node.has("rules")) return true;
+        for (JsonElement ruleE : node.get("rules").getAsJsonArray()) {
+            JsonObject rule = ruleE.getAsJsonObject();
+            if (ruleIsUnmatched(rule)) return false;
+        }
+        return true;
+    }
+
+    private boolean ruleIsUnmatched(JsonObject rule) {
         Map<String, Boolean> features = new HashMap<>();
         features.put("is_demo_user", false); // Not a demo
         features.put("has_custom_resolution", true);
 
-        if (!node.has("rules")) return true;
-        boolean ruleUnmatched = false;
-        for (JsonElement ruleE : node.get("rules").getAsJsonArray()) {
-            JsonObject rule = ruleE.getAsJsonObject();
-            boolean allow = Objects.equals(rule.get("action").getAsString(), "allow");
+        boolean allow = Objects.equals(rule.get("action").getAsString(), "allow");
 
-            if (rule.has("os")) {
-                for (Map.Entry<String, JsonElement> osRule : rule.get("os").getAsJsonObject().entrySet())
-                    if (System.getProperty("os." + osRule.getKey()).matches(osRule.getValue().getAsString())) ruleUnmatched = !allow;
-                    else if (allow) ruleUnmatched = true;
-            } else if (rule.has("features")) {
-                for (Map.Entry<String, JsonElement> featureRule : rule.get("features").getAsJsonObject().entrySet())
-                    if (features.containsKey(featureRule.getKey()) && Boolean.TRUE.equals(features.get(featureRule.getKey()))) ruleUnmatched = !allow;
-                    else if (allow) ruleUnmatched = true;
-            } else ruleUnmatched = !allow;
-            if (ruleUnmatched) break;
-        }
-        return !ruleUnmatched;
+        if (rule.has("os")) {
+            for (Map.Entry<String, JsonElement> osRule : rule.get("os").getAsJsonObject().entrySet())
+                if (System.getProperty("os." + osRule.getKey()).matches(osRule.getValue().getAsString())) return !allow;
+                else if (allow) return true;
+        } else if (rule.has("features")) {
+            for (Map.Entry<String, JsonElement> featureRule : rule.get("features").getAsJsonObject().entrySet())
+                if (features.containsKey(featureRule.getKey()) && Boolean.TRUE.equals(features.get(featureRule.getKey()))) return !allow;
+                else if (allow) return true;
+        } else return !allow;
+        return false;
     }
 
 
@@ -243,7 +247,7 @@ public class MinecraftManager {
             }
         } catch (IOException e) {Main.logger.log(Level.WARNING, "Error while reading profile", e);}
 
-        JsonObject manifest = HTTP.getAsJSON(MINECRAFT_VERSION_MANIFEST_API);
+        JsonObject manifest = HTTP.getAsJSONObject(MINECRAFT_VERSION_MANIFEST_API);
         assert manifest != null;
         progression(1 / 3d);
 
@@ -255,7 +259,7 @@ public class MinecraftManager {
             Main.logger.fine(() -> MessageFormat.format("Found {0} metadata", WANTED_MINECRAFT_VERSION));
             Main.logger.finest(versionMeta::toString);
             progression(2 / 3d);
-            versionProfile = HTTP.getAsJSON(versionMeta.get("url").getAsString());
+            versionProfile = HTTP.getAsJSONObject(versionMeta.get("url").getAsString());
             Main.logger.fine(() -> MessageFormat.format("Got {0} profile", WANTED_MINECRAFT_VERSION));
             Main.logger.finest(versionProfile::toString);
             assert versionProfile != null;
@@ -264,34 +268,25 @@ public class MinecraftManager {
         }
     }
 
+
     private void installMinecraft() {
         assert versionProfile != null;
         JsonObject client = versionProfile.get("downloads").getAsJsonObject().get("client").getAsJsonObject();
-
-        if (checkIntegrity(minecraftFile, client.get("sha1").getAsString())) return;
-
-        try {
-            HTTP.getFile(
-                    client.get("url").getAsString(),
-                    new FileOutputStream(minecraftFile),
-                    p -> progression(p.getPercentage(), p.toString()));
-        } catch (IOException e) {
-            Main.logger.log(Level.SEVERE, "Error while downloading Minecraft", e);
-            return;
-        }
+        if (Utils.checkIntegrity(minecraftFile, client.get("sha1").getAsString())) return;
+        HTTP.downloadFile(client.get("url").getAsString(), minecraftFile, p -> progression(p.getPercentage(), p.toString()));
         Main.logger.fine(() -> MessageFormat.format("Successfully downloaded Minecraft to {0}", minecraftFile.getAbsolutePath()));
     }
 
     private void installMinecraftLibraries() {
         assert versionProfile != null;
-        if (!tryCreateFolder(libsPath)) return;
+        if (!Utils.tryCreateFolder(libsPath)) return;
 
         JsonArray libs = versionProfile.get("libraries").getAsJsonArray();
         for (int i = 0; i < libs.size(); i++) {
             JsonObject lib = libs.get(i).getAsJsonObject();
             String libName = lib.get("name").getAsString();
             progression(i / (double) libs.size(), libName);
-            if (!checkRule(lib)) continue;
+            if (!checkRules(lib)) continue;
 
             downloadLib(lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject(), i, libs.size(), libName);
             if (lib.has("natives")) {
@@ -306,16 +301,11 @@ public class MinecraftManager {
 
     private void downloadLib(JsonObject libInfo, int i, double total, String libName) {
         File libPath = libsPath.resolve(libInfo.get("path").getAsString()).toFile();
-        if (checkIntegrity(libPath, libInfo.get("sha1").getAsString())) return;
+        if (Utils.checkIntegrity(libPath, libInfo.get("sha1").getAsString())) return;
+        if (!Utils.tryCreateFolder(libPath.getParentFile().toPath())) return;
 
-        try {
-            Files.createDirectories(libPath.getParentFile().toPath());
-            HTTP.getFile(
-                    libInfo.get("url").getAsString(),
-                    new FileOutputStream(libPath),
-                    p -> progression((i + p.getPercentage()) / total, MessageFormat.format("{0} - {1}", libName, p)));
-            Main.logger.fine(() -> MessageFormat.format("Successfully downloaded {0} to {1}", libName, libPath.getAbsolutePath()));
-        } catch (IOException e) {Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while downloading {0}", libName));}
+        HTTP.downloadFile(libInfo.get("url").getAsString(), libPath,
+                p -> progression((i + p.getPercentage()) / total, MessageFormat.format("{0} - {1}", libName, p)));
     }
 
     private void installMinecraftAssets() {
@@ -323,9 +313,9 @@ public class MinecraftManager {
 
         JsonObject assetIndexInfo = versionProfile.get("assetIndex").getAsJsonObject();
         Path assetIndexes = assetsPath.resolve("indexes");
-        if (!tryCreateFolder(assetIndexes)) return;
+        if (!Utils.tryCreateFolder(assetIndexes)) return;
         File index = assetIndexes.resolve(assetIndexInfo.get("id").getAsString() + ".json").toFile();
-        if (!checkIntegrity(index, assetIndexInfo.get("sha1").getAsString()) && !HTTP.downloadFile(assetIndexInfo.get("url").getAsString(), index, null)) return;
+        if (!Utils.checkIntegrity(index, assetIndexInfo.get("sha1").getAsString()) && !HTTP.downloadFile(assetIndexInfo.get("url").getAsString(), index, null)) return;
         JsonObject assetIndex;
         try {assetIndex = JsonParser.parseReader(new FileReader(index)).getAsJsonObject();} catch (IOException e) {
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while reading {0}", index));
@@ -336,7 +326,7 @@ public class MinecraftManager {
         for (Map.Entry<String, JsonElement> folderE : assetIndex.entrySet()) {
             fi += 1;
             Path assetFolderPath = assetsPath.resolve(folderE.getKey());
-            if (!tryCreateFolder(assetFolderPath)) return;
+            if (!Utils.tryCreateFolder(assetFolderPath)) return;
 
             JsonObject folder = folderE.getValue().getAsJsonObject();
             int i = -1;
@@ -351,7 +341,7 @@ public class MinecraftManager {
                 int finalFi = fi;
                 DoubleUnaryOperator assetProgress = (double p) -> ((finalI + p) / folder.size() + finalFi) / assetIndex.size();
                 progression(assetProgress.applyAsDouble(0), assetE.getKey());
-                if (checkIntegrity(assetFile, assetHash) || !tryCreateFolder(assetFile.getParentFile().toPath())) continue;
+                if (Utils.checkIntegrity(assetFile, assetHash) || !Utils.tryCreateFolder(assetFile.getParentFile().toPath())) continue;
 
                 HTTP.downloadFile(
                         "https://resources.download.minecraft.net/" + assetRelativePath,
@@ -367,52 +357,5 @@ public class MinecraftManager {
 
     private void installMods() {
         //TODO
-    }
-
-    @NotNull
-    private Boolean tryCreateFolder(Path path) {
-        try {Files.createDirectories(path);} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access folder at {0}", path.toAbsolutePath()));
-            return false;
-        }
-        return true;
-    }
-
-    private String calculateSha1(File file) {
-        MessageDigest digest;
-        try {digest = MessageDigest.getInstance("SHA-1");} catch (NoSuchAlgorithmException e) {
-            Main.logger.log(Level.SEVERE, "Error getting SHA1 algorithm", e);
-            return null;
-        }
-        try (InputStream fis = new FileInputStream(file)) {
-            int n = 0;
-            byte[] buffer = new byte[8192];
-            while (n != -1) {
-                n = fis.read(buffer);
-                if (n > 0) digest.update(buffer, 0, n);
-            }
-            return new HexBinaryAdapter().marshal(digest.digest()).toLowerCase();
-        } catch (FileNotFoundException e) {
-            Main.logger.log(Level.SEVERE, "Error opening file", e);
-            return null;
-        } catch (IOException e) {
-            Main.logger.log(Level.WARNING, "IO error", e);
-            return null;
-        }
-    }
-
-    @NotNull
-    private Boolean checkIntegrity(File file, String sha) {
-        if (!file.exists()) return false;
-
-        Main.logger.fine(() -> MessageFormat.format("Found existing installation at {0}", file.getAbsolutePath()));
-        String fileSha = calculateSha1(file);
-        if (fileSha == null) return false;
-        if (Objects.equals(fileSha, sha.toLowerCase())) {
-            Main.logger.fine("SHA-1 matching, skipping");
-            return true;
-        }
-        Main.logger.fine(() -> MessageFormat.format("SHA-1 aren''t matching, found {0} expected {1}", fileSha, sha.toLowerCase()));
-        return false;
     }
 }

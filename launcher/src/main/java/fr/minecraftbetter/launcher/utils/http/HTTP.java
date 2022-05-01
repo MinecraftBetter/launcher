@@ -1,5 +1,7 @@
 package fr.minecraftbetter.launcher.utils.http;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.minecraftbetter.launcher.Main;
@@ -25,12 +27,20 @@ public class HTTP {
         }
     }
 
-    public static JsonObject getAsJSON(String url) {
+    public static JsonElement getAsJSON(String url) {
         Response response = get(url);
         if (response == null) return null;
         ResponseBody body = response.body();
         if (body == null) return null;
-        else return JsonParser.parseReader(body.charStream()).getAsJsonObject();
+        else return JsonParser.parseReader(body.charStream());
+    }
+    public static JsonObject getAsJSONObject(String url) {
+        JsonElement json = getAsJSON(url);
+        return json == null ? null : json.getAsJsonObject();
+    }
+    public static JsonArray getAsJSONArray(String url) {
+        JsonElement json = getAsJSON(url);
+        return json == null ? null : json.getAsJsonArray();
     }
 
     private static final int CHUNK_SIZE = 1024;
