@@ -26,12 +26,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class PanelHome extends Panel {
-    public static final Path MinecraftDir = Main.AppData.resolve(Paths.get("minecraft"));
-
     PanelManager panelManager;
     MinecraftProfile account;
     String accessToken;
@@ -108,7 +104,8 @@ public class PanelHome extends Panel {
         settingsBtn.setOnMouseClicked(event -> settingPopup(layout));
 
         // Install/Launch Btn
-        boolean installed = Files.exists(MinecraftDir);
+        MinecraftManager minecraftManager = new MinecraftManager(Main.AppData, account, accessToken);
+        boolean installed = Files.exists(minecraftManager.getMinecraftPath());
         MaterialDesignIconView viewPlayImage = new MaterialDesignIconView(installed ? MaterialDesignIcon.PLAY : MaterialDesignIcon.DOWNLOAD);
         viewPlayImage.setSize("24px");
         viewPlayImage.setFill(new Color(1, 1, 1, 1));
@@ -123,9 +120,8 @@ public class PanelHome extends Panel {
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         play.setOnMouseClicked(event -> {
 
-            MinecraftManager minecraftManager = new MinecraftManager(MinecraftDir, account, accessToken);
 
-            if (installed){
+            if (installed) {
                 MinecraftManager.StartStatus status = minecraftManager.startGame();
                 if (status == MinecraftManager.StartStatus.ERROR) Main.logger.severe("Couldn't start Minecraft");
                 if (status != MinecraftManager.StartStatus.INCOMPLETE_INSTALL) return;

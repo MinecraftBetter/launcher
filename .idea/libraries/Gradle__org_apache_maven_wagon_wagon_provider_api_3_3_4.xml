@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.maven.wagon:wagon-provider-api:3.3.4">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven.wagon/wagon-provider-api/3.3.4/7a99fdaa534aa8c01f01a447fe1c7af5cfc7b0d5/wagon-provider-api-3.3.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven.wagon/wagon-provider-api/3.3.4/f5547df1e2b4777f08d3f243bdc760226ecb616d/wagon-provider-api-3.3.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

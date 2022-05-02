@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.maven.resolver:maven-resolver-util:1.4.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven.resolver/maven-resolver-util/1.4.1/3f6d4f4bc3e24b46a776b47ccfeaed9d2ed01549/maven-resolver-util-1.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven.resolver/maven-resolver-util/1.4.1/b9aa20c8934ecc48d3b306be2960386fc76ac7d0/maven-resolver-util-1.4.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

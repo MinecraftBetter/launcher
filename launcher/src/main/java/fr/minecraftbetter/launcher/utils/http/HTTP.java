@@ -43,7 +43,7 @@ public class HTTP {
         return json == null ? null : json.getAsJsonArray();
     }
 
-    private static final int CHUNK_SIZE = 1024;
+    public static final int CHUNK_SIZE = 1024;
 
     public static void getFile(String url, OutputStream outputStream, Consumer<DownloadProgress> progress) throws IOException {
         Response response = get(url);

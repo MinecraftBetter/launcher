@@ -3,63 +3,54 @@ package fr.minecraftbetter.launcher.utils.installer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
-import fr.minecraftbetter.launcher.utils.http.HTTP;
 import javafx.application.Platform;
 import javafx.util.Pair;
 import org.apache.commons.text.StringSubstitutor;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** Installs Minecraft and it's dependencies **/
 public class MinecraftManager {
-    public static final String MINECRAFT_VERSION_MANIFEST_API = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     public static final String WANTED_MINECRAFT_VERSION = "1.18.2";
     public static final String WANTED_JAVA_VERSION = "18";
 
     private final MinecraftProfile account;
     private final String accessToken;
 
-    private final Path installationPath;
-    private final Path javaPath;
-    private final Path profilesPath;
-    private final File minecraftFile;
-    private final Path libsPath;
-    private final Path assetsPath;
+    final Path javaPath;
+    final Path minecraftPath;
     ArrayList<Pair<Runnable, String>> actions;
+
+    final MinecraftInstaller minecraftInstaller;
+    final FabricInstaller fabricInstaller;
 
     public MinecraftManager(Path installationPath, MinecraftProfile account, String accessToken) {
         this.account = account;
         this.accessToken = accessToken;
 
-        this.installationPath = installationPath;
-        javaPath = installationPath.resolve("../jre/").toAbsolutePath();
-        minecraftFile = installationPath.resolve("minecraft.jar").toFile();
-        profilesPath = installationPath.resolve("profiles/");
-        libsPath = installationPath.resolve("libraries/");
-        assetsPath = installationPath.resolve("assets/");
+        javaPath = installationPath.resolve("jre/").toAbsolutePath();
+        minecraftPath = installationPath.resolve("minecraft/").toAbsolutePath();
+
+        minecraftInstaller = new MinecraftInstaller(this, minecraftPath);
+        fabricInstaller = new FabricInstaller(this);
 
         actions = new ArrayList<>();
-        actions.add(new Pair<>(this::getVersionProfile, "Initializing"));
+        actions.add(new Pair<>(minecraftInstaller::getProfile, "Initializing"));
         actions.add(new Pair<>(() -> JavaManager.installJava(javaPath, WANTED_JAVA_VERSION, this::progression), "Installing Java " + WANTED_JAVA_VERSION));
-        actions.add(new Pair<>(this::installMinecraft, "Installing Minecraft"));
-        actions.add(new Pair<>(this::installMinecraftLibraries, "Installing Minecraft libraries"));
-        actions.add(new Pair<>(this::installMinecraftAssets, "Installing Minecraft assets"));
-        actions.add(new Pair<>(this::installFabric, "Installing Fabric"));
+        actions.add(new Pair<>(minecraftInstaller::installMinecraft, "Installing Minecraft"));
+        actions.add(new Pair<>(minecraftInstaller::installLibs, "Installing Minecraft libraries"));
+        actions.add(new Pair<>(minecraftInstaller::installAssets, "Installing Minecraft assets"));
+        actions.add(new Pair<>(fabricInstaller::getProfile, "Installing Fabric profile"));
+        actions.add(new Pair<>(fabricInstaller::installLibs, "Installing Fabric"));
         actions.add(new Pair<>(this::installMods, "Installing mods"));
     }
 
@@ -73,12 +64,14 @@ public class MinecraftManager {
 
     public void setComplete(Runnable complete) {this.complete = complete;}
 
+    public Path getMinecraftPath(){ return minecraftPath;}
 
-    private void progression() {progression(0);}
 
-    private void progression(double percentage) {progression(percentage, null);}
+    void progression() {progression(0);}
 
-    private void progression(double percentage, String detail) {
+    void progression(double percentage) {progression(percentage, null);}
+
+    void progression(double percentage, String detail) {
         if (progress == null) return;
         Platform.runLater(() -> progress.accept(new Progress(
                 percentage,
@@ -89,8 +82,8 @@ public class MinecraftManager {
 
 
     public void startInstall() {
-        try {Files.createDirectories(installationPath);} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access installation path {0}", installationPath));
+        try {Files.createDirectories(minecraftPath);} catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access installation path {0}", minecraftPath));
         }
         new Thread(() -> {
             for (; status < actions.size(); status++) {
@@ -121,29 +114,28 @@ public class MinecraftManager {
     public StartStatus startGame() {
         if (!verifyInstall()) return StartStatus.INCOMPLETE_INSTALL;
 
-        if (versionProfile == null) getVersionProfile(); // Used to get launch arguments of Minecraft
-        JsonObject arguments = versionProfile.get("arguments").getAsJsonObject();
-
         ProcessBuilder builder = new ProcessBuilder();
 
 
         StringBuilder libsToLoad = new StringBuilder();
-        try (Stream<Path> libs = Files.find(libsPath, 25, (f, a) -> f.toFile().getName().endsWith(".jar"))) {
+        try (Stream<Path> libs = Files.find(minecraftInstaller.libsPath, 25, (f, a) -> f.toFile().getName().endsWith(".jar"))) {
             for (Path lib : libs.collect(Collectors.toList()))
-                libsToLoad.append(installationPath.relativize(lib)).append(";");
+                libsToLoad.append(minecraftPath.relativize(lib)).append(";");
         } catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error while reading libraries", e);
             return StartStatus.ERROR;
         }
-        libsToLoad.append(installationPath.relativize(minecraftFile.toPath()));
+        libsToLoad.append(minecraftPath.relativize(minecraftInstaller.minecraftFile.toPath()));
 
         ArrayList<String> commands = new ArrayList<>();
         commands.add(JavaManager.getJre(javaPath));
-        commands.addAll(compileArguments(arguments.get("jvm").getAsJsonArray(), libsToLoad.toString()));
-        commands.add(versionProfile.get("mainClass").getAsString());
-        commands.addAll(compileArguments(arguments.get("game").getAsJsonArray(), libsToLoad.toString()));
+        commands.addAll(compileArguments(minecraftInstaller.getJWMArguments(), libsToLoad.toString()));
+        commands.addAll(compileArguments(fabricInstaller.getJWMArguments(), libsToLoad.toString()));
+        commands.add(fabricInstaller.getMainClass());
+        commands.addAll(compileArguments(minecraftInstaller.getGameArguments(), libsToLoad.toString()));
+        commands.addAll(compileArguments(fabricInstaller.getGameArguments(), libsToLoad.toString()));
 
-        builder.directory(installationPath.toFile());
+        builder.directory(minecraftPath.toFile());
         builder.command(commands);
 
         StringBuilder entireCommand = new StringBuilder();
@@ -164,10 +156,10 @@ public class MinecraftManager {
         Map<String, String> values = new HashMap<>();
         // Game
         values.put("auth_player_name", account.getName());
-        values.put("version_name", versionProfile.get("id").getAsString());
-        values.put("game_directory", installationPath.toString());
-        values.put("assets_root", assetsPath.toString());
-        values.put("assets_index_name", versionProfile.getAsJsonObject("assetIndex").get("id").getAsString());
+        values.put("version_name", fabricInstaller.getID());
+        values.put("game_directory", minecraftPath.toString());
+        values.put("assets_root", minecraftInstaller.assetsPath.toString());
+        values.put("assets_index_name", minecraftInstaller.getAssetIndexID());
         values.put("auth_uuid", account.getId());
         values.put("auth_access_token", accessToken);
         values.put("clientid", "0"); //TODO
@@ -177,7 +169,7 @@ public class MinecraftManager {
         values.put("resolution_width", "1280");
         values.put("resolution_height", "720");
         //JWM
-        values.put("natives_directory", libsPath.toString());
+        values.put("natives_directory", minecraftInstaller.libsPath.toString());
         values.put("launcher_name", "MinecraftBetter");
         values.put("launcher_version", "1.0");
         values.put("classpath", classpath);
@@ -230,127 +222,6 @@ public class MinecraftManager {
                 else if (allow) return true;
         } else return !allow;
         return false;
-    }
-
-
-    private JsonObject versionProfile;
-
-    private void getVersionProfile() {
-        Path profile = profilesPath.resolve(WANTED_MINECRAFT_VERSION + ".json");
-        try {
-            Files.createDirectories(profilesPath);
-            if (Files.exists(profile)) {
-                versionProfile = JsonParser.parseReader(new FileReader(profile.toFile())).getAsJsonObject();
-                return;
-            }
-        } catch (IOException e) {Main.logger.log(Level.WARNING, "Error while reading profile", e);}
-
-        JsonObject manifest = HTTP.getAsJSONObject(MINECRAFT_VERSION_MANIFEST_API);
-        assert manifest != null;
-        progression(1 / 3d);
-
-        Main.logger.fine(() -> MessageFormat.format("Processing {0} releases", manifest.getAsJsonArray("versions").size()));
-        for (JsonElement vE : manifest.getAsJsonArray("versions")) {
-            JsonObject versionMeta = vE.getAsJsonObject();
-            if (!Objects.equals(versionMeta.get("id").getAsString(), WANTED_MINECRAFT_VERSION)) continue;
-
-            Main.logger.fine(() -> MessageFormat.format("Found {0} metadata", WANTED_MINECRAFT_VERSION));
-            Main.logger.finest(versionMeta::toString);
-            progression(2 / 3d);
-            versionProfile = HTTP.getAsJSONObject(versionMeta.get("url").getAsString());
-            Main.logger.fine(() -> MessageFormat.format("Got {0} profile", WANTED_MINECRAFT_VERSION));
-            Main.logger.finest(versionProfile::toString);
-            assert versionProfile != null;
-            try {Files.write(profile, versionProfile.toString().getBytes());} catch (IOException e) {Main.logger.log(Level.WARNING, "Error while writing profile", e);}
-            return;
-        }
-    }
-
-
-    private void installMinecraft() {
-        assert versionProfile != null;
-        JsonObject client = versionProfile.get("downloads").getAsJsonObject().get("client").getAsJsonObject();
-        if (Utils.checkIntegrity(minecraftFile, client.get("sha1").getAsString())) return;
-        HTTP.downloadFile(client.get("url").getAsString(), minecraftFile, p -> progression(p.getPercentage(), p.toString()));
-        Main.logger.fine(() -> MessageFormat.format("Successfully downloaded Minecraft to {0}", minecraftFile.getAbsolutePath()));
-    }
-
-    private void installMinecraftLibraries() {
-        assert versionProfile != null;
-        if (!Utils.tryCreateFolder(libsPath)) return;
-
-        JsonArray libs = versionProfile.get("libraries").getAsJsonArray();
-        for (int i = 0; i < libs.size(); i++) {
-            JsonObject lib = libs.get(i).getAsJsonObject();
-            String libName = lib.get("name").getAsString();
-            progression(i / (double) libs.size(), libName);
-            if (!checkRules(lib)) continue;
-
-            downloadLib(lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject(), i, libs.size(), libName);
-            if (lib.has("natives")) {
-                for (Map.Entry<String, JsonElement> nativeCat : lib.get("natives").getAsJsonObject().entrySet()) {
-                    if (!System.getProperty("os.name").toLowerCase().contains(nativeCat.getKey())) continue;
-                    JsonObject nativeInfo = lib.get("downloads").getAsJsonObject().get("classifiers").getAsJsonObject().get(nativeCat.getValue().getAsString()).getAsJsonObject();
-                    downloadLib(nativeInfo, i, libs.size(), libName);
-                }
-            }
-        }
-    }
-
-    private void downloadLib(JsonObject libInfo, int i, double total, String libName) {
-        File libPath = libsPath.resolve(libInfo.get("path").getAsString()).toFile();
-        if (Utils.checkIntegrity(libPath, libInfo.get("sha1").getAsString())) return;
-        if (!Utils.tryCreateFolder(libPath.getParentFile().toPath())) return;
-
-        HTTP.downloadFile(libInfo.get("url").getAsString(), libPath,
-                p -> progression((i + p.getPercentage()) / total, MessageFormat.format("{0} - {1}", libName, p)));
-    }
-
-    private void installMinecraftAssets() {
-        assert versionProfile != null;
-
-        JsonObject assetIndexInfo = versionProfile.get("assetIndex").getAsJsonObject();
-        Path assetIndexes = assetsPath.resolve("indexes");
-        if (!Utils.tryCreateFolder(assetIndexes)) return;
-        File index = assetIndexes.resolve(assetIndexInfo.get("id").getAsString() + ".json").toFile();
-        if (!Utils.checkIntegrity(index, assetIndexInfo.get("sha1").getAsString()) && !HTTP.downloadFile(assetIndexInfo.get("url").getAsString(), index, null)) return;
-        JsonObject assetIndex;
-        try {assetIndex = JsonParser.parseReader(new FileReader(index)).getAsJsonObject();} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while reading {0}", index));
-            return;
-        }
-
-        int fi = -1;
-        for (Map.Entry<String, JsonElement> folderE : assetIndex.entrySet()) {
-            fi += 1;
-            Path assetFolderPath = assetsPath.resolve(folderE.getKey());
-            if (!Utils.tryCreateFolder(assetFolderPath)) return;
-
-            JsonObject folder = folderE.getValue().getAsJsonObject();
-            int i = -1;
-            for (Map.Entry<String, JsonElement> assetE : folder.entrySet()) {
-                i += 1;
-                JsonObject asset = assetE.getValue().getAsJsonObject();
-                String assetHash = asset.get("hash").getAsString();
-                Path assetRelativePath = Paths.get(assetHash.substring(0, 2), assetHash);
-                File assetFile = assetFolderPath.resolve(assetRelativePath).toFile();
-
-                int finalI = i;
-                int finalFi = fi;
-                DoubleUnaryOperator assetProgress = (double p) -> ((finalI + p) / folder.size() + finalFi) / assetIndex.size();
-                progression(assetProgress.applyAsDouble(0), assetE.getKey());
-                if (Utils.checkIntegrity(assetFile, assetHash) || !Utils.tryCreateFolder(assetFile.getParentFile().toPath())) continue;
-
-                HTTP.downloadFile(
-                        "https://resources.download.minecraft.net/" + assetRelativePath,
-                        assetFile,
-                        p -> progression(assetProgress.applyAsDouble(p.getPercentage()), MessageFormat.format("{0} - {1}", assetE.getKey(), p)));
-            }
-        }
-    }
-
-    private void installFabric() {
-        //TODO
     }
 
     private void installMods() {

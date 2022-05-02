@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.maven.resolver:maven-resolver-spi:1.4.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven.resolver/maven-resolver-spi/1.4.1/905a024ff050e804a8a4df53eeee63cc7d153438/maven-resolver-spi-1.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven.resolver/maven-resolver-spi/1.4.1/3c93cefc97f3bdc9b9b4ee86146af4cbd262159d/maven-resolver-spi-1.4.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

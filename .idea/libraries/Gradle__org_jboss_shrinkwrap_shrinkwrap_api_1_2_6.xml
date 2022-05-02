@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.jboss.shrinkwrap:shrinkwrap-api:1.2.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.shrinkwrap/shrinkwrap-api/1.2.6/39916427fc0d7f0db64499e36b0f3bdd97c0ee1b/shrinkwrap-api-1.2.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.shrinkwrap/shrinkwrap-api/1.2.6/1871863cc1447db04af99098f0aa97d693026a9e/shrinkwrap-api-1.2.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

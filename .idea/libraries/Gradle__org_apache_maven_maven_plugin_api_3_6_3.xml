@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.maven:maven-plugin-api:3.6.3">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven/maven-plugin-api/3.6.3/63fe5967b9c4c1b6fa6004be76e1c939e8bd1d6/maven-plugin-api-3.6.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.maven/maven-plugin-api/3.6.3/e4e1f4410e32611cdee1f543476adde05acaf732/maven-plugin-api-3.6.3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
