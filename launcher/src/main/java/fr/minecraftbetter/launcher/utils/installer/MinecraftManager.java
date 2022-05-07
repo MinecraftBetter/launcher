@@ -32,6 +32,7 @@ public class MinecraftManager {
 
     final MinecraftInstaller minecraftInstaller;
     final FabricInstaller fabricInstaller;
+    final MCBetterInstaller mcBetterInstaller;
 
     public MinecraftManager(Path installationPath, MinecraftProfile account, String accessToken) {
         this.account = account;
@@ -42,6 +43,7 @@ public class MinecraftManager {
 
         minecraftInstaller = new MinecraftInstaller(this, minecraftPath);
         fabricInstaller = new FabricInstaller(this);
+        mcBetterInstaller = new MCBetterInstaller(this);
 
         actions = new ArrayList<>();
         actions.add(new Pair<>(minecraftInstaller::getProfile, "Initializing"));
@@ -51,7 +53,7 @@ public class MinecraftManager {
         actions.add(new Pair<>(minecraftInstaller::installAssets, "Installing Minecraft assets"));
         actions.add(new Pair<>(fabricInstaller::getProfile, "Installing Fabric profile"));
         actions.add(new Pair<>(fabricInstaller::installLibs, "Installing Fabric"));
-        actions.add(new Pair<>(this::installMods, "Installing mods"));
+        actions.add(new Pair<>(mcBetterInstaller::installMods, "Installing mods and config"));
     }
 
     private Consumer<Progress> progress;
@@ -222,9 +224,5 @@ public class MinecraftManager {
                 else if (allow) return true;
         } else return !allow;
         return false;
-    }
-
-    private void installMods() {
-        //TODO
     }
 }
