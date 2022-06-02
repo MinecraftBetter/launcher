@@ -92,13 +92,15 @@ public class FabricInstaller {
 
                 Path from = dep.asFile().toPath();
                 Path to = libDir.resolve(depInfo.getVersion()).resolve(dep.asFile().getName());
+                try { Files.createDirectories(to.getParent()); } catch (IOException e) {
+                    Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error creating directory {0}", to.toAbsolutePath()));
+                }
                 try (Stream<Path> libsInDir = Files.find(libDir, 4, (p, a) -> p.toFile().getName().endsWith(".jar"))){
                     if (libsInDir.count() > 0) {
                         Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", libDir, depInfo.toCanonicalForm()));
                         continue;
                     }
 
-                    Files.createDirectories(to.getParent());
                     if (!Files.exists(to)) Files.copy(from, to);
                 } catch (IOException e) {
                     Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error copying {0} to {1}", from.toAbsolutePath(), to.toAbsolutePath()));
@@ -119,7 +121,10 @@ public class FabricInstaller {
 
     public JsonArray getJWMArguments() {
         assert versionProfile != null;
-        return versionProfile.get("arguments").getAsJsonObject().get("jvm").getAsJsonArray();
+        JsonArray args = new JsonArray();
+        args.add("-DFabricMcEmu=net.minecraft.client.main.Main");
+        // return versionProfile.get("arguments").getAsJsonObject().get("jvm").getAsJsonArray();
+        return args;
     }
 
     public JsonArray getGameArguments() {
