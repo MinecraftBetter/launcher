@@ -146,6 +146,7 @@ public class MinecraftManager {
 
         Main.logger.info("Launching Minecraft");
         Main.logger.fine(() -> "Arguments: " + entireCommand);
+        builder.redirectOutput(Main.AppData.resolve("minecraftLogs.txt").toFile());
         builder.redirectErrorStream(true);
         try {builder.start();} catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error starting Minecraft", e);
@@ -179,7 +180,6 @@ public class MinecraftManager {
 
         List<String> args = new ArrayList<>();
         for (JsonElement arg : argsJson) {
-
             JsonArray argValues = new JsonArray();
             if (arg.isJsonPrimitive()) argValues.add(arg.getAsString());
             else if (arg.isJsonObject()) {
