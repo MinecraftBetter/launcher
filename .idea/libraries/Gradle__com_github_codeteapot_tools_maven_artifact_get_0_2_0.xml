@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.codeteapot.tools:maven-artifact-get:0.2.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.codeteapot.tools/maven-artifact-get/0.2.0/3ba31123a8c00ef180ec5fee13104ad1335bee83/maven-artifact-get-0.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.codeteapot.tools/maven-artifact-get/0.2.0/dfd36962624e1cbb6d30f8d28bd73323f6243e37/maven-artifact-get-0.2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

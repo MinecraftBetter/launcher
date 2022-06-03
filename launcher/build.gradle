@@ -8,7 +8,9 @@ jar {
         attributes 'Main-Class': 'fr.minecraftbetter.launcher.Main'
     }
 }
-shadowJar {
+shadowJar{
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
     archiveBaseName.set("MinecraftBetter")
     archiveClassifier.set('')
     archiveVersion.set('')
@@ -37,17 +39,8 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9' // https://mvnrepository.com/artifact/org.apache.commons/commons-text
     implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '2.10.0' // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
 
-// https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-depchain
-    testImplementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-depchain', version: '3.1.4', ext: 'pom'
 
-    implementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-api', version: '3.1.4' // https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-api
-    implementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-api-maven', version: '3.1.4' // https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-api-maven
-    implementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-spi', version: '3.1.4' // https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-spi
-    implementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-spi-maven', version: '3.1.4' // https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-spi-maven
-    testImplementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-impl-maven', version: '3.1.4' // https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-impl-maven
-
-    implementation group: 'org.jboss.shrinkwrap.resolver', name: 'shrinkwrap-resolver-maven-plugin', version: '3.1.4'     // https://mvnrepository.com/artifact/org.jboss.shrinkwrap.resolver/shrinkwrap-resolver-maven-plugin
-
+    implementation "com.github.codeteapot.tools:maven-artifact-get:0.2.0"
 
 
     implementation 'fr.litarvan:openauth:1.1.2' // https://github.com/Litarvan/OpenAuth

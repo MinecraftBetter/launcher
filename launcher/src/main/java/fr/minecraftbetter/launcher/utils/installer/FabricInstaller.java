@@ -1,20 +1,25 @@
 package fr.minecraftbetter.launcher.utils.installer;
 
+import com.github.codeteapot.tools.artifact.Artifact;
+import com.github.codeteapot.tools.artifact.ArtifactCoordinates;
+import com.github.codeteapot.tools.artifact.ArtifactRepository;
+import com.github.codeteapot.tools.artifact.ArtifactRepositoryException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.http.DownloadProgress;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenCoordinate;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -22,6 +27,7 @@ public class FabricInstaller {
 
     public static final String FABRIC_VERSIONS_API = "https://meta.fabricmc.net/v2/versions/loader/{0}";
     public static final String FABRIC_PROFILE_API = "https://meta.fabricmc.net/v2/versions/loader/{0}/{1}/profile/json";
+    public static final String MAVEN_CENTRAL_REPOSITORY = "https://repo.maven.apache.org/maven2/";
 
     private JsonObject versionProfile;
     private final MinecraftManager minecraftManager;
@@ -73,40 +79,58 @@ public class FabricInstaller {
 
     public void installLibs() {
         assert versionProfile != null;
+
         int i = -1;
         JsonArray libs = versionProfile.get("libraries").getAsJsonArray();
         for (JsonElement libE : libs) {
             i += 1;
             JsonObject lib = libE.getAsJsonObject();
-            MavenResolvedArtifact[] libDep = Maven.configureResolver()
-                    .withRemoteRepo("fabricMaven", lib.get("url").getAsString(), "default")
-                    .withMavenCentralRepo(true)
-                    .resolve(lib.get("name").getAsString()).withTransitivity().asResolvedArtifact();
-            for (MavenResolvedArtifact dep : libDep) {
-                MavenCoordinate depInfo = dep.getCoordinate();
-                Main.logger.fine(() -> "Installing " + depInfo.toCanonicalForm());
-                minecraftManager.progression(i / (double) libs.size(), depInfo.toCanonicalForm());
-                Path libDir = libsPath
-                        .resolve(depInfo.getGroupId().replace('.', '/'))
-                        .resolve(depInfo.getArtifactId());
-
-                Path from = dep.asFile().toPath();
-                Path to = libDir.resolve(depInfo.getVersion()).resolve(dep.asFile().getName());
-                try { Files.createDirectories(to.getParent()); } catch (IOException e) {
-                    Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error creating directory {0}", to.toAbsolutePath()));
-                }
-                try (Stream<Path> libsInDir = Files.find(libDir, 4, (p, a) -> p.toFile().getName().endsWith(".jar"))){
-                    if (libsInDir.count() > 0) {
-                        Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", libDir, depInfo.toCanonicalForm()));
-                        continue;
-                    }
-
-                    if (!Files.exists(to)) Files.copy(from, to);
-                } catch (IOException e) {
-                    Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error copying {0} to {1}", from.toAbsolutePath(), to.toAbsolutePath()));
-                }
-            }
+            String[] libNameParts = lib.get("name").getAsString().split(":");
+            ArtifactCoordinates coords = new ArtifactCoordinates(libNameParts[0], libNameParts[1], libNameParts[2]);
+            int finalI = i;
+            downloadLib(coords, lib.get("url").getAsString(), libsPath,
+                    progress -> minecraftManager.progression(finalI / (double) libs.size(), coords.getArtifactId() + " - " + progress.getPercentage()));
         }
+    }
+
+    private boolean downloadLib(ArtifactCoordinates coords, String repoURL, Path installationPath, Consumer<DownloadProgress> progress) {
+        Main.logger.fine(() -> MessageFormat.format("Installing {0}", coords.getArtifactId()));
+
+        ArtifactRepository repo;
+        try {
+            repo = new ArtifactRepository(new URL(repoURL));
+        } catch (MalformedURLException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error parsing url {0}", repoURL));
+            return false;
+        }
+        Artifact artifact;
+        try {
+            artifact = repo.get(coords);
+        } catch (ArtifactRepositoryException | IOException e) {
+            if (!repoURL.equals(MAVEN_CENTRAL_REPOSITORY))
+                return downloadLib(coords, MAVEN_CENTRAL_REPOSITORY, installationPath, progress); // Try to download with Maven Central Repository
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error getting artifact {0}", coords.getArtifactId()));
+            return false;
+        }
+
+        Path path = installationPath.resolve(coords.getGroupId().replace('.', '/')).resolve(coords.getArtifactId());
+        try {Files.createDirectories(path);} catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error creating directory {0}", path.toAbsolutePath()));
+        }
+
+        Path libFile = path.resolve(artifact.getLocation().getFile());
+        try (Stream<Path> libsInDir = Files.find(installationPath, 4, (p, a) -> p.toFile().getName().endsWith(".jar"))) {
+            if (libsInDir.findAny().isPresent())
+                Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", installationPath, coords.getArtifactId()));
+            else if (!Files.exists(libFile))
+                HTTP.downloadFile(artifact.getLocation().toString(), libFile.toFile(), progress);
+        } catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while search for {0} in local files", coords.getArtifactId()));
+        }
+
+
+        for (ArtifactCoordinates dep : artifact.getDependencies()) downloadLib(dep, repoURL, installationPath, progress);
+        return true;
     }
 
     public String getID() {
