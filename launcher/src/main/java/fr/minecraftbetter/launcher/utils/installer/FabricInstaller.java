@@ -89,12 +89,13 @@ public class FabricInstaller {
             ArtifactCoordinates coords = new ArtifactCoordinates(libNameParts[0], libNameParts[1], libNameParts[2]);
             int finalI = i;
             downloadLib(coords, lib.get("url").getAsString(), libsPath,
-                    progress -> minecraftManager.progression(finalI / (double) libs.size(), coords.getArtifactId() + " - " + progress.getPercentage()));
+                    progress -> minecraftManager.progression(finalI / (double) libs.size(), coords.getArtifactId() + " - " + progress));
         }
     }
 
     private boolean downloadLib(ArtifactCoordinates coords, String repoURL, Path installationPath, Consumer<DownloadProgress> progress) {
         Main.logger.fine(() -> MessageFormat.format("Installing {0}", coords.getArtifactId()));
+        progress.accept(new DownloadProgress());
 
         ArtifactRepository repo;
         try {
