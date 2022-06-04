@@ -70,7 +70,7 @@ public class HTTP {
             Main.logger.fine(() -> MessageFormat.format("Saved to {0}", outputFile));
             return true;
         } catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while downloading {0}", outputFile));
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while downloading {0} to {1}", url, outputFile));
             return false;
         }
     }

@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -116,11 +117,12 @@ public class FabricInstaller {
         }
 
         Path path = installationPath.resolve(coords.getGroupId().replace('.', '/')).resolve(coords.getArtifactId());
-        try {Files.createDirectories(path);} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error creating directory {0}", path.toAbsolutePath()));
+        Path fileUrl = Paths.get(artifact.getLocation().getFile());
+        Path libFile = path.resolve(coords.getVersion()).resolve(fileUrl.getFileName());
+        try {Files.createDirectories(libFile.getParent());} catch (IOException e) {
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error creating directory {0}", libFile.getParent().toAbsolutePath()));
         }
 
-        Path libFile = path.resolve(artifact.getLocation().getFile());
         try (Stream<Path> libsInDir = Files.find(path, 4, (p, a) -> p.toFile().getName().endsWith(".jar"))) {
             Optional<Path> match = libsInDir.findAny();
             if (match.isPresent())
