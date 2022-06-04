@@ -117,7 +117,7 @@ public class FabricInstaller {
         }
 
         Path path = installationPath.resolve(coords.getGroupId().replace('.', '/')).resolve(coords.getArtifactId());
-        Path fileUrl = Paths.get(artifact.getLocation().getFile());
+        Path fileUrl = Paths.get(artifact.getLocation().getFile().replace(".pom", ".jar"));
         Path libFile = path.resolve(coords.getVersion()).resolve(fileUrl.getFileName());
         try {Files.createDirectories(libFile.getParent());} catch (IOException e) {
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error creating directory {0}", libFile.getParent().toAbsolutePath()));
@@ -128,7 +128,7 @@ public class FabricInstaller {
             if (match.isPresent())
                 Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", match.get(), coords.getArtifactId()));
             else if (!Files.exists(libFile))
-                HTTP.downloadFile(artifact.getLocation().toString(), libFile.toFile(), progress);
+                HTTP.downloadFile(artifact.getLocation().toString().replace(".pom", ".jar"), libFile.toFile(), progress);
         } catch (IOException e) {
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while search for {0} in local files", coords.getArtifactId()));
         }
