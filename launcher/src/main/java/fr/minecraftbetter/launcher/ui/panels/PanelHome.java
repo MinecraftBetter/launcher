@@ -75,10 +75,10 @@ public class PanelHome extends Panel {
         discord.setOnMouseClicked(event -> openUrl("https://discord.com/invite/4TC5eNEkE5"));
         socialContent.getChildren().add(discord);
         Button twitter = setupSocialBtn("/minecraftbetter/images/home/twitter.png", btnSpacing * 2d);
-        twitter.setOnMouseClicked(event -> {}); //TODO
+        twitter.setOnMouseClicked(event -> openUrl("https://twitter.com/MinecraftBeuteu"));
         socialContent.getChildren().add(twitter);
         Button youtube = setupSocialBtn("/minecraftbetter/images/home/youtube.png", btnSpacing * 3d);
-        youtube.setOnMouseClicked(event -> {}); // TODO
+        youtube.setOnMouseClicked(event -> openUrl("https://www.youtube.com/channel/UCBIuyqGUDez-ksy7DPupJ6w"));
         socialContent.getChildren().add(youtube);
 
         // Server information
