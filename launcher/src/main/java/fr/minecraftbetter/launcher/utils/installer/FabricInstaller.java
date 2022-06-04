@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -120,9 +121,10 @@ public class FabricInstaller {
         }
 
         Path libFile = path.resolve(artifact.getLocation().getFile());
-        try (Stream<Path> libsInDir = Files.find(installationPath, 4, (p, a) -> p.toFile().getName().endsWith(".jar"))) {
-            if (libsInDir.findAny().isPresent())
-                Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", installationPath, coords.getArtifactId()));
+        try (Stream<Path> libsInDir = Files.find(path, 4, (p, a) -> p.toFile().getName().endsWith(".jar"))) {
+            Optional<Path> match = libsInDir.findAny();
+            if (match.isPresent())
+                Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", match.get(), coords.getArtifactId()));
             else if (!Files.exists(libFile))
                 HTTP.downloadFile(artifact.getLocation().toString(), libFile.toFile(), progress);
         } catch (IOException e) {
