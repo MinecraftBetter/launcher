@@ -1,6 +1,13 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '5.0.0' // https://imperceptiblethoughts.com/shadow/
+    id "org.sonarqube" version "3.3"
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "MinecraftBetter_launcher_AYFOMBWtKkKwzWrfa7lu"
+    }
 }
 
 jar {
