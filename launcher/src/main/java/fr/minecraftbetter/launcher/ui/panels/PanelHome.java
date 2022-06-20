@@ -1,7 +1,5 @@
 package fr.minecraftbetter.launcher.ui.panels;
 
-import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
-import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
@@ -20,6 +18,9 @@ import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
+import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.*;
 import java.io.IOException;
@@ -89,8 +90,9 @@ public class PanelHome extends Panel {
         //endregion
 
         // Settings
-        MaterialDesignIconView settingsIcon = new MaterialDesignIconView(MaterialDesignIcon.SETTINGS);
-        settingsIcon.setSize("35px");
+        FontIcon settingsIcon = new FontIcon(FluentUiFilledMZ.SETTINGS_28);
+        settingsIcon.setIconSize(35);
+        settingsIcon.setIconColor(new Color(1, 1, 1, 1));
         Button settingsBtn = new Button("", settingsIcon);
         StackPane.setAlignment(settingsBtn, Pos.TOP_LEFT);
         panel.getChildren().add(settingsBtn);
@@ -106,8 +108,8 @@ public class PanelHome extends Panel {
         // Install/Launch Btn
         MinecraftManager minecraftManager = new MinecraftManager(Main.AppData, account, accessToken);
         boolean installed = Files.exists(minecraftManager.getMinecraftPath());
-        MaterialDesignIconView viewPlayImage = new MaterialDesignIconView(installed ? MaterialDesignIcon.PLAY : MaterialDesignIcon.DOWNLOAD);
-        viewPlayImage.setSize("24px");
+        FontIcon viewPlayImage = new FontIcon(installed ? FluentUiFilledMZ.PLAY_24 : FluentUiFilledAL.ARROW_DOWNLOAD_24);
+        viewPlayImage.setIconSize(24);
         viewPlayImage.setFill(new Color(1, 1, 1, 1));
         Button play = new Button(installed ? "JOUER" : "INSTALLER", viewPlayImage);
         news.getChildren().add(play);
@@ -128,6 +130,7 @@ public class PanelHome extends Panel {
             }
 
             play.setDisable(true);
+            viewPlayImage.setIconCode(FluentUiFilledAL.ARROW_DOWNLOAD_24);
             play.setText("INSTALLATION");
 
             ProgressBar installationProgress = new ProgressBar();
@@ -159,7 +162,7 @@ public class PanelHome extends Panel {
             minecraftManager.setComplete(() -> {
                 panel.getChildren().removeAll(installationProgress, progressText, installationStatus);
 
-                viewPlayImage.setIcon(MaterialDesignIcon.PLAY);
+                viewPlayImage.setIconCode(FluentUiFilledMZ.PLAY_24);
                 play.setText("JOUER");
                 play.setDisable(false);
             });

@@ -1,7 +1,6 @@
 package fr.minecraftbetter.launcher.utils.installer;
 
 import fr.minecraftbetter.launcher.Main;
-
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.io.*;
 import java.nio.file.Files;

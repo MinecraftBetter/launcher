@@ -1,7 +1,5 @@
 package fr.minecraftbetter.launcher.ui.panels.includes;
 
-import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
-import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
@@ -14,6 +12,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
+import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.InputStream;
 
@@ -59,22 +60,22 @@ public class TopPanel extends Panel {
         topBarButton.setMaxWidth(75);
         GridPane.setHalignment(topBarButton, HPos.RIGHT);
 
-        MaterialDesignIconView hide = setupButton(
-                new MaterialDesignIconView(MaterialDesignIcon.WINDOW_MINIMIZE),
+        FontIcon hide = setupButton(
+                new FontIcon(FluentUiFilledMZ.MINIMIZE_28),
                 e -> this.panelManager.getStage().setIconified(true), 1);
-        MaterialDesignIconView close = setupButton(
-                new MaterialDesignIconView(MaterialDesignIcon.WINDOW_CLOSE),
-                e -> System.exit(0), 2, "18px");
+        FontIcon close = setupButton(
+                new FontIcon(FluentUiFilledAL.DISMISS_28),
+                e -> System.exit(0), 2, 18);
         topBarButton.getChildren().addAll(close, hide);
     }
 
-    MaterialDesignIconView setupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order) {return setupButton(btn, onclick, order, "16px");}
+    FontIcon setupButton(FontIcon btn, EventHandler<? super MouseEvent> onclick, int order) {return setupButton(btn, onclick, order, 16);}
 
-    MaterialDesignIconView setupButton(MaterialDesignIconView btn, EventHandler<? super MouseEvent> onclick, int order, String size) {
+    FontIcon setupButton(FontIcon btn, EventHandler<? super MouseEvent> onclick, int order, int size) {
         GridPane.setVgrow(btn, Priority.ALWAYS);
         btn.setFill(Color.WHITE);
         btn.setOpacity(0.70f);
-        btn.setSize(size);
+        btn.setIconSize(size);
         btn.setOnMouseEntered(e -> btn.setOpacity(1.0f));
         btn.setOnMouseExited(e -> btn.setOpacity(0.70f));
         btn.setOnMouseClicked(onclick);

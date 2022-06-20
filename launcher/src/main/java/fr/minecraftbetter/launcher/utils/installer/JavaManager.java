@@ -61,7 +61,7 @@ public class JavaManager {
             } catch (FileNotFoundException e) {
                 Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while reading {0}", jreMetadata));
             } catch (IOException e) {
-                Main.logger.log(Level.SEVERE, "Couldn''t delete the old jre", e);
+                Main.logger.log(Level.SEVERE, "Couldn't delete the old jre", e);
             }
         }
         return false;
