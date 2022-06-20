@@ -3,6 +3,7 @@ package fr.minecraftbetter.launcher.ui;
 import fr.minecraftbetter.launcher.MinecraftBetterLauncher;
 import fr.minecraftbetter.launcher.ui.panel.IPanel;
 import fr.minecraftbetter.launcher.ui.panels.includes.TopPanel;
+import fr.minecraftbetter.launcher.utils.ResizeHelper;
 import fr.minecraftbetter.launcher.utils.Resources;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -56,6 +57,7 @@ public class PanelManager {
         layout.add(centerPanel, 0, 1);
         GridPane.setVgrow(centerPanel, Priority.ALWAYS);
         GridPane.setHgrow(centerPanel, Priority.ALWAYS);
+        ResizeHelper.addResizeListener(stage);
     }
 
     public void showPanel(IPanel panel) {
