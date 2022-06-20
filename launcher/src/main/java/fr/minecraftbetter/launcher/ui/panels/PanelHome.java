@@ -69,7 +69,7 @@ public class PanelHome extends Panel {
         StackPane socialContent = panelContent(social);
         int btnSpacing = 300 / 4; // Panel size / number of btn
         Button website = setupSocialBtn("/minecraftbetter/images/home/website.png", 0);
-        website.setOnMouseClicked(event -> openUrl("https://minecraftbetter.fr"));
+        website.setOnMouseClicked(event -> openUrl("https://minecraftbetter.com"));
         socialContent.getChildren().add(website);
         Button discord = setupSocialBtn("/minecraftbetter/images/home/discord.png", btnSpacing);
         discord.setOnMouseClicked(event -> openUrl("https://discord.com/invite/4TC5eNEkE5"));
