@@ -26,14 +26,14 @@ jobs:
           arguments: |
             build
             --stacktrace
-      - name: Sonarqube
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: 7.1
-          build-root-directory: launcher
-          arguments: |
-            sonarqube
-            --info
+      #- name: Sonarqube
+      #  uses: gradle/gradle-build-action@v2
+      #  with:
+      #    gradle-version: 7.1
+      #    build-root-directory: launcher
+      #    arguments: |
+      #      sonarqube
+      #      --info
       - name: Gradle generate JAR
         uses: gradle/gradle-build-action@v2
         with:
