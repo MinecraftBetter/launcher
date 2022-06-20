@@ -5,6 +5,7 @@ import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
 import fr.minecraftbetter.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
@@ -27,9 +28,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
 
 public class PanelHome extends Panel {
-    PanelManager panelManager;
     MinecraftProfile account;
     String accessToken;
 
@@ -121,12 +122,27 @@ public class PanelHome extends Panel {
         play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         play.setOnMouseClicked(event -> {
-
-
             if (installed) {
-                MinecraftManager.StartStatus status = minecraftManager.startGame();
-                if (status == MinecraftManager.StartStatus.ERROR) Main.logger.severe("Couldn't start Minecraft");
-                if (status != MinecraftManager.StartStatus.INCOMPLETE_INSTALL) return;
+                play.setDisable(true);
+                MinecraftInstance instance = minecraftManager.startGame();
+                if (instance.getStatus() == MinecraftInstance.StartStatus.ERROR) {
+                    Main.logger.severe("Couldn't start Minecraft");
+                    play.setDisable(false);
+                }
+                else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED){
+                    viewPlayImage.setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
+                    play.setText("LANCÉ");
+                    instance.onExit((error, process) -> {
+                        if (Boolean.TRUE.equals(error)){
+                            Main.logger.severe("An error has occurred during Minecraft execution " + process.errorReader().lines().collect(Collectors.joining("\n")));
+                        }
+                        else Main.logger.fine("Minecraft has been exited");
+                        play.setDisable(false);
+                        viewPlayImage.setIconCode(FluentUiFilledMZ.PLAY_24);
+                        play.setText("JOUER");
+                    });
+                }
+                if (instance.getStatus() != MinecraftInstance.StartStatus.INCOMPLETE_INSTALL) return;
             }
 
             play.setDisable(true);

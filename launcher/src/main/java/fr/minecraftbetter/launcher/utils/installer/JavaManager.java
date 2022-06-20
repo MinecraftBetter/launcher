@@ -26,9 +26,11 @@ public class JavaManager {
     public static final String JAVA_EXECUTABLE = SystemUtils.IS_OS_WINDOWS ? "bin/java.exe" : "bin/java";
 
     public static String getJre(Path javaPath) {
-        for (File elem : Objects.requireNonNull(javaPath.toFile().listFiles()))
-            if (elem.isDirectory())
-                return elem.toPath().resolve(JAVA_EXECUTABLE).toString();
+        File[] files = javaPath.toFile().listFiles();
+        if (files != null)
+            for (File elem : files)
+                if (elem.isDirectory())
+                    return elem.toPath().resolve(JAVA_EXECUTABLE).toString();
         return "java";
     }
 

@@ -16,7 +16,6 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MinecraftManager {
@@ -111,21 +110,19 @@ public class MinecraftManager {
         } else return true;
     }
 
-    public enum StartStatus {STARTED, ERROR, INCOMPLETE_INSTALL}
-
-    public StartStatus startGame() {
-        if (!verifyInstall()) return StartStatus.INCOMPLETE_INSTALL;
+    public MinecraftInstance startGame() {
+        if (!verifyInstall()) return new MinecraftInstance(MinecraftInstance.StartStatus.INCOMPLETE_INSTALL);
 
         ProcessBuilder builder = new ProcessBuilder();
 
 
         StringBuilder libsToLoad = new StringBuilder();
         try (Stream<Path> libs = Files.find(minecraftInstaller.libsPath, 25, (f, a) -> f.toFile().getName().endsWith(".jar"))) {
-            for (Path lib : libs.collect(Collectors.toList()))
+            for (Path lib : libs.toList())
                 libsToLoad.append(minecraftPath.relativize(lib)).append(";");
         } catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error while reading libraries", e);
-            return StartStatus.ERROR;
+            return new MinecraftInstance(MinecraftInstance.StartStatus.ERROR);
         }
         libsToLoad.append(minecraftPath.relativize(minecraftInstaller.minecraftFile.toPath()));
 
@@ -148,11 +145,13 @@ public class MinecraftManager {
         Main.logger.fine(() -> "Arguments: " + entireCommand);
         builder.redirectOutput(Main.AppData.resolve("minecraftLogs.txt").toFile());
         builder.redirectErrorStream(true);
-        try {builder.start();} catch (IOException e) {
+        try {
+            return new MinecraftInstance(MinecraftInstance.StartStatus.STARTED, builder.start());
+        } catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error starting Minecraft", e);
+            return new MinecraftInstance(MinecraftInstance.StartStatus.ERROR);
         }
 
-        return StartStatus.STARTED;
     }
 
     public List<String> compileArguments(JsonArray argsJson, String classpath) {
@@ -226,3 +225,4 @@ public class MinecraftManager {
         return false;
     }
 }
+

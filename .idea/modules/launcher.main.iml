@@ -9,15 +9,15 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-media:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:win:17.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-media:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.tianti:applogger:1.6.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.kordamp.ikonli:ikonli-fluentui-pack:12.3.1" level="project" />
     <orderEntry type="library" name="Gradle: org.kordamp.ikonli:ikonli-javafx:12.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.kordamp.ikonli:ikonli-fluentui-pack:12.3.1" level="project" />
     <orderEntry type="library" name="Gradle: javax.xml.bind:jaxb-api:2.3.1" level="project" />
     <orderEntry type="library" name="Gradle: com.sun.xml.bind:jaxb-core:2.3.0" level="project" />
     <orderEntry type="library" name="Gradle: com.sun.xml.bind:jaxb-impl:2.3.0" level="project" />
