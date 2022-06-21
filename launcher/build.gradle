@@ -49,9 +49,9 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-fluentui-pack:12.3.1'  // https://kordamp.org/ikonli/cheat-sheet-fluentui.html
 
     // JAX-B dependencies for JDK 9+
-    implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
-    implementation 'com.sun.xml.bind:jaxb-core:4.0.0'
-    implementation 'com.sun.xml.bind:jaxb-impl:4.0.0'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'com.sun.xml.bind:jaxb-core:2.3.0'
+    implementation 'com.sun.xml.bind:jaxb-impl:2.3.0'
 
 
     implementation group: 'org.jasypt', name: 'jasypt', version: '1.9.3' // https://mvnrepository.com/artifact/org.jasypt/jasypt
