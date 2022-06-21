@@ -12,7 +12,7 @@ sonarqube {
 }
 javafx {
     version = "17.0.1"
-    modules = [ 'javafx.controls', "javafx.media" ]
+    modules = [ 'javafx.controls', "javafx.media", "javafx.swing", "javafx.web" ]
 }
 
 jar {
@@ -34,7 +34,7 @@ version '0.1'
 repositories {
     mavenCentral()
     maven {
-        url 'https://litarvan.github.io/maven'
+        url 'https://api.minecraftbetter.com/minecraftbetter/maven/'
     }
 }
 
@@ -64,7 +64,7 @@ dependencies {
     implementation "com.github.codeteapot.tools:maven-artifact-get:0.2.0"
 
 
-    implementation 'fr.litarvan:openauth:1.1.2' // https://github.com/Litarvan/OpenAuth
+    implementation 'fr.litarvan:openauth:1.1.3' // https://github.com/MinecraftBetter/OpenAuth
     implementation("com.squareup.okhttp3:okhttp:4.9.3") // https://square.github.io/okhttp/
 }
 

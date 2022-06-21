@@ -26,5 +26,10 @@
       <option name="name" value="maven" />
       <option name="url" value="https://litarvan.github.io/maven" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://api.minecraftbetter.com/minecraftbetter/maven/" />
+    </remote-repository>
   </component>
 </project>

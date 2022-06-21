@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.openjfx:javafx-media:17.0.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.openjfx/javafx-media/17.0.1/c4a23d303999761aa0a96b294fb54de21896e123/javafx-media-17.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.openjfx/javafx-media/17.0.1/ac1d2cf398722057e305ce5ea67f82c62224975d/javafx-media-17.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
