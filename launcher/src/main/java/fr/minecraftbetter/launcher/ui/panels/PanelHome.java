@@ -109,10 +109,10 @@ public class PanelHome extends Panel {
         // Install/Launch Btn
         MinecraftManager minecraftManager = new MinecraftManager(Main.AppData, account, accessToken);
         boolean installed = Files.exists(minecraftManager.getMinecraftPath());
-        FontIcon viewPlayImage = new FontIcon(installed ? FluentUiFilledMZ.PLAY_24 : FluentUiFilledAL.ARROW_DOWNLOAD_24);
+        FontIcon viewPlayImage = new FontIcon(installed ? FluentUiFilledAL.DOCUMENT_AUTOSAVE_24 : FluentUiFilledAL.ARROW_DOWNLOAD_24);
         viewPlayImage.setIconSize(24);
         viewPlayImage.setFill(new Color(1, 1, 1, 1));
-        Button play = new Button(installed ? "JOUER" : "INSTALLER", viewPlayImage);
+        Button play = new Button(installed ? "VERIFIER" : "INSTALLER", viewPlayImage);
         news.getChildren().add(play);
         StackPane.setAlignment(play, Pos.TOP_LEFT);
         play.setPrefSize(200, 50);
@@ -124,12 +124,14 @@ public class PanelHome extends Panel {
         play.setOnMouseClicked(event -> {
             if (installed) {
                 play.setDisable(true);
+                Main.logger.fine("The launch of Minecraft has been requested");
                 MinecraftInstance instance = minecraftManager.startGame();
                 if (instance.getStatus() == MinecraftInstance.StartStatus.ERROR) {
                     Main.logger.severe("Couldn't start Minecraft");
                     play.setDisable(false);
                 }
                 else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED){
+                    Main.logger.fine("Minecraft has been started");
                     viewPlayImage.setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
                     play.setText("LANCÉ");
                     instance.onExit((error, process) -> {
@@ -143,6 +145,7 @@ public class PanelHome extends Panel {
                     });
                 }
                 if (instance.getStatus() != MinecraftInstance.StartStatus.INCOMPLETE_INSTALL) return;
+                Main.logger.warning("The current installation of Minecraft is incomplete");
             }
 
             play.setDisable(true);

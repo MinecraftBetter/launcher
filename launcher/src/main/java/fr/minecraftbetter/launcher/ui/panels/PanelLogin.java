@@ -48,12 +48,14 @@ public class PanelLogin extends Panel {
             try {
                 Path tokenPath = Main.AppData.resolve(Paths.get("token.txt"));
                 if (Files.exists(tokenPath)) {
+                    Main.logger.info("Logging in with a token");
                     String encryptedToken = new String(Files.readAllBytes(tokenPath), StandardCharsets.UTF_8);
                     String decryptedToken = textEncryptor.decrypt(encryptedToken);
                     if (Boolean.TRUE.equals(tokenConnect(decryptedToken))) {
                         return;
                     }
                 }
+                else Main.logger.info("No token is saved");
             } catch (IOException e) {
                 Main.logger.log(Level.WARNING, "Couldn''t read the token", e);
             }
@@ -67,6 +69,7 @@ public class PanelLogin extends Panel {
      */
     private Boolean webConnect() {
         try {
+            Main.logger.info("Logging in with a web pop-up");
             connected(authenticator.loginWithWebview());
             return true;
         } catch (MicrosoftAuthenticationException e) {
@@ -94,7 +97,7 @@ public class PanelLogin extends Panel {
         try {
             String encryptedToken = textEncryptor.encrypt(result.getRefreshToken());
             if (!Files.exists(Main.AppData)) Files.createDirectory(Main.AppData);
-            Path file = Files.write(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken.getBytes(StandardCharsets.UTF_8));
+            Path file = Files.writeString(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken);
             Main.logger.info(() -> MessageFormat.format( "Written encrypted token to {0}", file));
         } catch (IOException e) {
             Main.logger.log(Level.WARNING, "Couldn''t write the token", e);

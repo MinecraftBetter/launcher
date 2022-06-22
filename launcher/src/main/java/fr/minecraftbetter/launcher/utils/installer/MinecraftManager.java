@@ -111,11 +111,14 @@ public class MinecraftManager {
     }
 
     public MinecraftInstance startGame() {
+        Main.logger.fine("Verifying Minecraft installation");
         if (!verifyInstall()) return new MinecraftInstance(MinecraftInstance.StartStatus.INCOMPLETE_INSTALL);
 
+        Main.logger.fine("Building the Minecraft execution command");
         ProcessBuilder builder = new ProcessBuilder();
 
 
+        Main.logger.finer("Building dependencies");
         StringBuilder libsToLoad = new StringBuilder();
         try (Stream<Path> libs = Files.find(minecraftInstaller.libsPath, 25, (f, a) -> f.toFile().getName().endsWith(".jar"))) {
             for (Path lib : libs.toList())
@@ -125,7 +128,9 @@ public class MinecraftManager {
             return new MinecraftInstance(MinecraftInstance.StartStatus.ERROR);
         }
         libsToLoad.append(minecraftPath.relativize(minecraftInstaller.minecraftFile.toPath()));
+        Main.logger.finest(libsToLoad::toString);
 
+        Main.logger.finer("Building arguments");
         ArrayList<String> commands = new ArrayList<>();
         commands.add(JavaManager.getJre(javaPath));
         commands.addAll(compileArguments(minecraftInstaller.getJWMArguments(), libsToLoad.toString()));
@@ -133,16 +138,13 @@ public class MinecraftManager {
         commands.add(fabricInstaller.getMainClass());
         commands.addAll(compileArguments(minecraftInstaller.getGameArguments(), libsToLoad.toString()));
         commands.addAll(compileArguments(fabricInstaller.getGameArguments(), libsToLoad.toString()));
+        Main.logger.finest(() -> String.join(" ", commands));
 
         builder.directory(minecraftPath.toFile());
         builder.command(commands);
 
-        StringBuilder entireCommand = new StringBuilder();
-        for (String command : commands)
-            entireCommand.append(command).append(" ");
-
         Main.logger.info("Launching Minecraft");
-        Main.logger.fine(() -> "Arguments: " + entireCommand);
+        Main.logger.fine(() -> "Launching from directory: " + minecraftPath);
         builder.redirectOutput(Main.AppData.resolve("minecraftLogs.txt").toFile());
         builder.redirectErrorStream(true);
         try {

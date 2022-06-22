@@ -6,6 +6,13 @@
         <language minSize="61" name="Java" />
       </Languages>
     </inspection_tool>
+    <inspection_tool class="GradlePackageUpdate" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="excludeList">
+        <list>
+          <option value="javax.xml.bind:jaxb-api" />
+        </list>
+      </option>
+    </inspection_tool>
     <inspection_tool class="UnusedReturnValue" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="highestModifier" value="protected" />
     </inspection_tool>
