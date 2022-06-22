@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.text.MessageFormat;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -18,7 +19,7 @@ public class HTTP {
     private HTTP() {throw new IllegalStateException("Utility class");}
 
     public static Response get(String url) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).build();
         Request request = new Request.Builder().url(url).build();
         Main.logger.fine(() -> MessageFormat.format("GET request to {0}", request.url()));
         try {return client.newCall(request).execute();} catch (IOException e) {
