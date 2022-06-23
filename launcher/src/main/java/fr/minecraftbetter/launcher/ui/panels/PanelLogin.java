@@ -15,7 +15,6 @@ import javafx.scene.media.MediaView;
 import org.jasypt.util.text.BasicTextEncryptor;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,8 +47,7 @@ public class PanelLogin extends Panel {
             try {
                 Path tokenPath = Main.AppData.resolve(Paths.get("token.txt"));
                 if (Files.exists(tokenPath)) {
-                    Main.logger.info("Logging in with a token");
-                    String encryptedToken = new String(Files.readAllBytes(tokenPath), StandardCharsets.UTF_8);
+                    String encryptedToken = Files.readString(tokenPath);
                     String decryptedToken = textEncryptor.decrypt(encryptedToken);
                     if (Boolean.TRUE.equals(tokenConnect(decryptedToken))) {
                         return;
@@ -83,6 +81,7 @@ public class PanelLogin extends Panel {
      */
     private Boolean tokenConnect(String token) {
         try {
+            Main.logger.info("Logging in with a token");
             connected(authenticator.loginWithRefreshToken(token));
             return true;
         }
