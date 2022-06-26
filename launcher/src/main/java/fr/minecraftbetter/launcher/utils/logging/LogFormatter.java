@@ -1,6 +1,6 @@
 package fr.minecraftbetter.launcher.utils.logging;
 
-import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
@@ -10,7 +10,8 @@ public class LogFormatter extends SimpleFormatter {
 
     @Override
     public synchronized String format(LogRecord lr) {
-        String trace = lr.getThrown() == null ? "" : MessageFormat.format(", {0} ({1})", lr.getThrown().getMessage(), lr.getThrown().getCause());
+        String trace = lr.getThrown() == null ? "" : " " + lr.getThrown().getMessage() +" (" + lr.getThrown().getCause() + ")\n\t"
+                + String.join("\n\t", Arrays.stream(lr.getThrown().getStackTrace()).map(StackTraceElement::toString).toList());
         return String.format(FORMAT, new Date(lr.getMillis()), lr.getLevel().getLocalizedName(), lr.getMessage(), trace);
     }
 }
