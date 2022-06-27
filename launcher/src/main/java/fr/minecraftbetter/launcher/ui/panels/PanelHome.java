@@ -9,6 +9,8 @@ import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import fr.minecraftbetter.launcher.utils.news.NewsRepr;
+import fr.minecraftbetter.launcher.utils.server.Player;
+import fr.minecraftbetter.launcher.utils.server.ServerInfo;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
@@ -97,10 +99,18 @@ public class PanelHome extends Panel {
         socialContent.getChildren().add(youtube);
 
         // Server information
+        ServerInfo serverInfo = new ServerInfo();
         StackPane server = setupPanel(rightWidth, 250, rightX, news.getTranslateY() + (news.getMinHeight() - 250) / 2, "Serveur", panel);
+        StackPane serverContent = panelContent(server);
+        VBox serverBox = new VBox(10);
+        serverContent.getChildren().add(serverBox);
         Label username = new Label("Connecté en tant que " + account.getName());
-        username.setStyle("-fx-text-fill: white;");
-        server.getChildren().add(username);
+        Label playerCount = new Label(serverInfo.playersOnline + " joueurs / " + serverInfo.playersMax);
+        ListView<Player> playerList = new ListView<>();
+        ObservableList<Player> playerData = FXCollections.observableArrayList(serverInfo.players);
+        playerList.setItems(playerData);
+        playerList.setCellFactory(view -> new Player());
+        serverBox.getChildren().addAll(username, playerCount, playerList);
         //endregion
 
         // Settings
