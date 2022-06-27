@@ -43,9 +43,21 @@ jobs:
           arguments: |
             shadowJar
             --stacktrace
+         
+      - name: Create installer
+        uses: team-mst/mst-inno-setup-wrapper@v1
+        with:
+          script-name: setup.iss
+          working-directory: launcher
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.0.0
         with:
-          name: MinecraftBetter
+          name: MinecraftBetter-jar
           path: launcher/build/libs/MinecraftBetter.jar
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: MinecraftBetter-exe
+          path: launcher/build/MinecraftBetter-installer.exe
+
