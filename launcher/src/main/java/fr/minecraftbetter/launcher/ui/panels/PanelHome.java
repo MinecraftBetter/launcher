@@ -78,6 +78,7 @@ public class PanelHome extends Panel {
         //region Right side
         double rightWidth = 300;
         double rightX = -news.getTranslateX() + (news.getMinWidth() - rightWidth) / 2;
+
         // Social
         StackPane social = setupPanel(rightWidth, 100, rightX, news.getTranslateY() - (news.getMinHeight() - 100) / 2, "Suivez-nous", panel);
         StackPane socialContent = panelContent(social);
@@ -130,7 +131,7 @@ public class PanelHome extends Panel {
         play.setPrefSize(200, 50);
         play.setTranslateX(0);
         play.setTranslateY(-play.getPrefHeight() - 15);
-        play.setStyle("-fx-background-color:#fd000f; -fx-text-fill: #FFFF; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 45; -fx-background-radius: 45;");
+        play.setStyle("-fx-background-color:#fd000f; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 45; -fx-background-radius: 45;");
         play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         play.setOnMouseClicked(event -> {
@@ -141,16 +142,14 @@ public class PanelHome extends Panel {
                 if (instance.getStatus() == MinecraftInstance.StartStatus.ERROR) {
                     Main.logger.severe("Couldn't start Minecraft");
                     play.setDisable(false);
-                }
-                else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED){
+                } else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED) {
                     Main.logger.fine("Minecraft has been started");
                     viewPlayImage.setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
                     play.setText("LANCÉ");
                     instance.onExit((error, process) -> {
-                        if (Boolean.TRUE.equals(error)){
+                        if (Boolean.TRUE.equals(error)) {
                             Main.logger.severe("An error has occurred during Minecraft execution " + process.errorReader().lines().collect(Collectors.joining("\n")));
-                        }
-                        else Main.logger.fine("Minecraft has been exited");
+                        } else Main.logger.fine("Minecraft has been exited");
                         play.setDisable(false);
                         viewPlayImage.setIconCode(FluentUiFilledMZ.PLAY_24);
                         play.setText("JOUER");
@@ -172,7 +171,7 @@ public class PanelHome extends Panel {
             installationProgress.setTranslateX((progressLeftX + progressRightX) / 2);
             installationProgress.setTranslateY(play.getTranslateY() + play.getHeight() / 2 + news.getTranslateY() - news.getHeight() / 2);
             Label progressText = new Label();
-            progressText.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            progressText.setStyle("-fx-font-weight: bold;");
             progressText.textProperty().bind(installationProgress.progressProperty().multiply(100).asString("%02.0f%%"));
             DoubleBinding progressTextPos = installationProgress.progressProperty().multiply(progressRightX - progressLeftX).add(progressLeftX);
             progressText.translateXProperty().bind(Bindings.max(progressTextPos.subtract(30), progressLeftX + 30));
@@ -180,7 +179,7 @@ public class PanelHome extends Panel {
             panel.getChildren().addAll(installationProgress, progressText);
 
             Label installationStatus = new Label();
-            installationStatus.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            installationStatus.setStyle("-fx-font-weight: bold;");
             StackPane.setAlignment(installationStatus, Pos.BOTTOM_LEFT);
             installationStatus.setTranslateX(5);
             installationStatus.setTranslateY(-5);
@@ -210,7 +209,7 @@ public class PanelHome extends Panel {
         StackPane.setAlignment(panel, Pos.CENTER);
         panel.setTranslateX(x);
         panel.setTranslateY(y);
-        panel.setStyle("-fx-background-color: #202021 ; -fx-border-radius: 10; -fx-background-radius: 10;");
+        panel.setStyle("-fx-background-color: #202021; -fx-border-radius: 10; -fx-background-radius: 10;");
 
         Separator line = new Separator();
         StackPane.setAlignment(line, Pos.TOP_CENTER);
@@ -222,7 +221,7 @@ public class PanelHome extends Panel {
 
         Label label = new Label(text);
         StackPane.setAlignment(label, Pos.TOP_CENTER);
-        label.setStyle("-fx-background-color:#202021; -fx-text-fill: #FFFF; -fx-font-size: 18px; -fx-opacity: 100%; -fx-font-weight: bold; -fx-: #d4cfd0;");
+        label.setStyle("-fx-background-color:#202021; -fx-font-size: 18px; -fx-opacity: 100%; -fx-font-weight: bold; -fx-: #d4cfd0;");
         label.setTranslateY(5);
         label.setPadding(new Insets(0, 10, 0, 10));
         panel.getChildren().add(label);
@@ -256,7 +255,7 @@ public class PanelHome extends Panel {
         btn.setTranslateY(0);
         btn.setMinSize(size, size);
         btn.setMaxSize(size, size);
-        btn.setStyle("-fx-background-color: #2A2A2A; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 10;");
+        btn.setStyle("-fx-background-color: #2A2A2A; -fx-font-size: 14px; -fx-background-radius: 10;");
         btn.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         btn.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
 
@@ -288,7 +287,6 @@ public class PanelHome extends Panel {
         StackPane settingsPopup = setupPanel(900, 600, 0, 0, "Paramètres", pagePanel);
 
         Label username = new Label("TODO");
-        username.setStyle("-fx-text-fill: white;");
         settingsPopup.getChildren().add(username);
     }
 

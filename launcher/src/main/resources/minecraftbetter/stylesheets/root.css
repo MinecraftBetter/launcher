@@ -1,3 +1,9 @@
+.root {
+    -fx-text-base-color: white;
+    -fx-text-inner-color: white;
+    -fx-text-background-color: white;
+}
+
 /* Progress bar */
 .progress-bar > .track {
     -fx-background-color: #2A2A2A;
