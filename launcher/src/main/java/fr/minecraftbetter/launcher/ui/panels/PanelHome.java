@@ -134,7 +134,7 @@ public class PanelHome extends Panel {
         play.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         play.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
         play.setOnMouseClicked(event -> {
-            if (installed) {
+            if (Files.exists(minecraftManager.getMinecraftPath())) {
                 play.setDisable(true);
                 Main.logger.fine("The launch of Minecraft has been requested");
                 MinecraftInstance instance = minecraftManager.startGame();
@@ -198,7 +198,6 @@ public class PanelHome extends Panel {
                 play.setDisable(false);
             });
             minecraftManager.startInstall();
-
         });
     }
 
