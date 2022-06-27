@@ -1,5 +1,6 @@
 package fr.minecraftbetter.launcher.utils.logging;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.LogRecord;
@@ -10,8 +11,15 @@ public class LogFormatter extends SimpleFormatter {
 
     @Override
     public synchronized String format(LogRecord lr) {
-        String trace = lr.getThrown() == null ? "" : " " + lr.getThrown().getMessage() +" (" + lr.getThrown().getCause() + ")\n\t"
-                + String.join("\n\t", Arrays.stream(lr.getThrown().getStackTrace()).map(StackTraceElement::toString).toList());
-        return String.format(FORMAT, new Date(lr.getMillis()), lr.getLevel().getLocalizedName(), lr.getMessage(), trace);
+        Throwable thrown = lr.getThrown();
+        ArrayList<String> traces = new ArrayList<>();
+        while (thrown != null){
+            traces.add(("→ " + "\t".repeat(traces.size() + 1)) + thrown.getMessage()
+                    + "\n\t" + ("\t".repeat(traces.size() + 1))
+                    + String.join("\n\t" + ("\t".repeat(traces.size() + 1)), Arrays.stream(lr.getThrown().getStackTrace()).map(StackTraceElement::toString).toList()));
+            thrown = thrown.getCause();
+        }
+        String trace = traces.isEmpty() ? "" : "\n" + String.join("\n", traces);
+        return String.format(FORMAT, new Date(lr.getMillis()), lr.getLevel().getName(), lr.getMessage(), trace);
     }
 }
