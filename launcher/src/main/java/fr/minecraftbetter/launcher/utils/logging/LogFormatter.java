@@ -16,7 +16,7 @@ public class LogFormatter extends SimpleFormatter {
         while (thrown != null){
             traces.add(("→ " + "\t".repeat(traces.size() + 1)) + thrown.getMessage()
                     + "\n\t" + ("\t".repeat(traces.size() + 1))
-                    + String.join("\n\t" + ("\t".repeat(traces.size() + 1)), Arrays.stream(lr.getThrown().getStackTrace()).map(StackTraceElement::toString).toList()));
+                    + String.join("\n\t" + ("\t".repeat(traces.size() + 1)), Arrays.stream(thrown.getStackTrace()).map(StackTraceElement::toString).toList()));
             thrown = thrown.getCause();
         }
         String trace = traces.isEmpty() ? "" : "\n" + String.join("\n", traces);
