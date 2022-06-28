@@ -103,14 +103,18 @@ public class PanelHome extends Panel {
         StackPane server = setupPanel(rightWidth, 250, rightX, news.getTranslateY() + (news.getMinHeight() - 250) / 2, "Serveur", panel);
         StackPane serverContent = panelContent(server);
         VBox serverBox = new VBox(10);
+        serverBox.setPadding(new Insets(10, 0, 0, 0));
         serverContent.getChildren().add(serverBox);
         Label username = new Label("Connecté en tant que " + account.getName());
-        Label playerCount = new Label(serverInfo.playersOnline + " joueurs / " + serverInfo.playersMax);
+        Separator line = drawLine(rightWidth - 30);
+        Label playerCount = new Label(serverInfo.playersOnline + " joueur" + (serverInfo.playersOnline > 1 ? "s" : "") + " / " + serverInfo.playersMax);
+        playerCount.prefWidthProperty().bind(serverContent.widthProperty());
+        playerCount.setAlignment(Pos.CENTER);
         ListView<Player> playerList = new ListView<>();
         ObservableList<Player> playerData = FXCollections.observableArrayList(serverInfo.players);
         playerList.setItems(playerData);
         playerList.setCellFactory(view -> new Player());
-        serverBox.getChildren().addAll(username, playerCount, playerList);
+        serverBox.getChildren().addAll(username, line, playerCount, playerList);
         //endregion
 
         // Settings
@@ -221,12 +225,9 @@ public class PanelHome extends Panel {
         panel.setTranslateY(y);
         panel.setStyle("-fx-background-color: #202021; -fx-border-radius: 10; -fx-background-radius: 10;");
 
-        Separator line = new Separator();
-        StackPane.setAlignment(line, Pos.TOP_CENTER);
-        line.setMinWidth(w - 30);
-        line.setMaxWidth(w - 30);
+        Separator line = drawLine(w - 30);
         line.setTranslateY(20);
-        line.setStyle("-fx-opacity: 30%;");
+        StackPane.setAlignment(line, Pos.TOP_CENTER);
         panel.getChildren().add(line);
 
         Label label = new Label(text);
@@ -237,6 +238,14 @@ public class PanelHome extends Panel {
         panel.getChildren().add(label);
 
         return panel;
+    }
+
+    private Separator drawLine(double w) {
+        Separator line = new Separator();
+        line.setMinWidth(w);
+        line.setMaxWidth(w);
+        line.setOpacity(0.3); // 30%
+        return line;
     }
 
     private StackPane panelContent(StackPane panel) {
