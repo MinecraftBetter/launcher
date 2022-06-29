@@ -3,6 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2' // https://imperceptiblethoughts.com/shadow/
     id "org.sonarqube" version "3.3"
     id 'org.openjfx.javafxplugin' version '0.0.10'
+    id "io.github.rockerhieu.versionberg" version "1.0.2" // https://github.com/rockerhieu/Versionberg/
 }
 
 sonarqube {
@@ -12,24 +13,32 @@ sonarqube {
 }
 javafx {
     version = "17.0.1"
-    modules = [ 'javafx.controls', "javafx.media", "javafx.swing", "javafx.web" ]
+    modules = ['javafx.controls', "javafx.media", "javafx.swing", "javafx.web"]
 }
+versionberg {
+    gitDir new File(project.rootProject.rootDir, "../.git")
+    major 1
+    minor 0
+    nameTemplate '${major}.${minor}.${commitCount}.${commitSha}'
+    codeTemplate '(((${major} * 100) + ${minor}) * 100) * 100000 + ${build}'
+}
+
+group 'fr.minecraftbetter.launcher'
+version versionberg.name
 
 jar {
     manifest {
-        attributes 'Main-Class': 'fr.minecraftbetter.launcher.Main'
+        attributes 'Main-Class': 'fr.minecraftbetter.launcher.Main',
+                'Implementation-Version': project.version
     }
 }
-shadowJar{
+shadowJar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     archiveBaseName.set("MinecraftBetter")
     archiveClassifier.set('')
     archiveVersion.set('')
 }
-
-group 'fr.minecraftbetter.launcher'
-version '0.1'
 
 repositories {
     mavenCentral()
