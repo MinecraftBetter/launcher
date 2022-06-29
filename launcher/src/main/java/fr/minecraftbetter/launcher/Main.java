@@ -1,5 +1,6 @@
 package fr.minecraftbetter.launcher;
 
+import fr.minecraftbetter.launcher.utils.logging.CustomLevels;
 import fr.minecraftbetter.launcher.utils.logging.LogFormatter;
 import fr.minecraftbetter.launcher.utils.logging.OutConsoleHandler;
 import javafx.application.Application;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -40,6 +42,26 @@ public class Main {
             logger.addHandler(fileHandler);
         } catch (IOException e) {e.printStackTrace();}
 
+
+        // Logs info
+        String logo = """
+                 __       __ __                                               ______    __          _______             __       __                      \s
+                |  \\     /  \\  \\                                             /      \\  |  \\        |       \\           |  \\     |  \\                     \s
+                | ▓▓\\   /  ▓▓\\▓▓_______   ______   _______  ______   ______ |  ▓▓▓▓▓▓\\_| ▓▓_       | ▓▓▓▓▓▓▓\\ ______  _| ▓▓_   _| ▓▓_    ______   ______ \s
+                | ▓▓▓\\ /  ▓▓▓  \\       \\ /      \\ /       \\/      \\ |      \\| ▓▓_  \\▓▓   ▓▓ \\      | ▓▓__/ ▓▓/      \\|   ▓▓ \\ |   ▓▓ \\  /      \\ /      \\\s
+                | ▓▓▓▓\\  ▓▓▓▓ ▓▓ ▓▓▓▓▓▓▓\\  ▓▓▓▓▓▓\\  ▓▓▓▓▓▓▓  ▓▓▓▓▓▓\\ \\▓▓▓▓▓▓\\ ▓▓ \\    \\▓▓▓▓▓▓      | ▓▓    ▓▓  ▓▓▓▓▓▓\\\\▓▓▓▓▓▓  \\▓▓▓▓▓▓ |  ▓▓▓▓▓▓\\  ▓▓▓▓▓▓\\
+                | ▓▓\\▓▓ ▓▓ ▓▓ ▓▓ ▓▓  | ▓▓ ▓▓    ▓▓ ▓▓     | ▓▓   \\▓▓/      ▓▓ ▓▓▓▓     | ▓▓ __     | ▓▓▓▓▓▓▓\\ ▓▓    ▓▓ | ▓▓ __  | ▓▓ __| ▓▓    ▓▓ ▓▓   \\▓▓
+                | ▓▓ \\▓▓▓| ▓▓ ▓▓ ▓▓  | ▓▓ ▓▓▓▓▓▓▓▓ ▓▓_____| ▓▓     |  ▓▓▓▓▓▓▓ ▓▓       | ▓▓|  \\    | ▓▓__/ ▓▓ ▓▓▓▓▓▓▓▓ | ▓▓|  \\ | ▓▓|  \\ ▓▓▓▓▓▓▓▓ ▓▓     \s
+                | ▓▓  \\▓ | ▓▓ ▓▓ ▓▓  | ▓▓\\▓▓     \\\\▓▓     \\ ▓▓      \\▓▓    ▓▓ ▓▓        \\▓▓  ▓▓    | ▓▓    ▓▓\\▓▓     \\  \\▓▓  ▓▓  \\▓▓  ▓▓\\▓▓     \\ ▓▓     \s
+                 \\▓▓      \\▓▓\\▓▓\\▓▓   \\▓▓ \\▓▓▓▓▓▓▓ \\▓▓▓▓▓▓▓\\▓▓       \\▓▓▓▓▓▓▓\\▓▓         \\▓▓▓▓      \\▓▓▓▓▓▓▓  \\▓▓▓▓▓▓▓   \\▓▓▓▓    \\▓▓▓▓  \\▓▓▓▓▓▓▓\\▓▓     \s
+                """;
+        String versionText = "Version " + getBuildVersion();
+        String copyrightText = "© " + Calendar.getInstance().get(Calendar.YEAR) + " Minecraft Better";
+        logger.log(CustomLevels.NoFormatting, () -> logo
+                + "\n" + " ".repeat((138 - versionText.length()) / 2) + versionText
+                + "\n" + " ".repeat((138 - copyrightText.length()) / 2) + copyrightText
+                + "\n\n");
+
         if (Arrays.asList(args).contains("--debug")) {
             logger.setLevel(Level.ALL);
             logger.config("---- Debug mode ----");
@@ -54,4 +76,6 @@ public class Main {
             JOptionPane.showMessageDialog(null, "Une erreur avec java à été détectée.\n" + e.getMessage(), "Erreur Java", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    public static String getBuildVersion() {return Main.class.getPackage().getImplementationVersion();}
 }

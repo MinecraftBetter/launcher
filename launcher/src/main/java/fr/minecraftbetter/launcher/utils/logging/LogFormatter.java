@@ -11,9 +11,11 @@ public class LogFormatter extends SimpleFormatter {
 
     @Override
     public synchronized String format(LogRecord lr) {
+        if (lr.getLevel() == CustomLevels.NoFormatting) return lr.getMessage() + "\n";
+
         Throwable thrown = lr.getThrown();
         ArrayList<String> traces = new ArrayList<>();
-        while (thrown != null){
+        while (thrown != null) {
             traces.add(("→ " + "\t".repeat(traces.size() + 1)) + thrown.getMessage()
                     + "\n\t" + ("\t".repeat(traces.size() + 1))
                     + String.join("\n\t" + ("\t".repeat(traces.size() + 1)), Arrays.stream(thrown.getStackTrace()).map(StackTraceElement::toString).toList()));
