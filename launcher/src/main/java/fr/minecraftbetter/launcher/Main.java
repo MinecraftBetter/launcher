@@ -55,7 +55,7 @@ public class Main {
                 | ▓▓  \\▓ | ▓▓ ▓▓ ▓▓  | ▓▓\\▓▓     \\\\▓▓     \\ ▓▓      \\▓▓    ▓▓ ▓▓        \\▓▓  ▓▓    | ▓▓    ▓▓\\▓▓     \\  \\▓▓  ▓▓  \\▓▓  ▓▓\\▓▓     \\ ▓▓     \s
                  \\▓▓      \\▓▓\\▓▓\\▓▓   \\▓▓ \\▓▓▓▓▓▓▓ \\▓▓▓▓▓▓▓\\▓▓       \\▓▓▓▓▓▓▓\\▓▓         \\▓▓▓▓      \\▓▓▓▓▓▓▓  \\▓▓▓▓▓▓▓   \\▓▓▓▓    \\▓▓▓▓  \\▓▓▓▓▓▓▓\\▓▓     \s
                 """;
-        String versionText = "Version " + getBuildVersion();
+        String versionText = "Version " + (getBuildVersion() == null ? "unknown" : getBuildVersion());
         String copyrightText = "© " + Calendar.getInstance().get(Calendar.YEAR) + " Minecraft Better";
         logger.log(CustomLevels.NoFormatting, () -> logo
                 + "\n" + " ".repeat((138 - versionText.length()) / 2) + versionText
