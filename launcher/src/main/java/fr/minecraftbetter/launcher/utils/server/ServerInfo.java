@@ -15,6 +15,15 @@ public class ServerInfo {
         JsonObject response = HTTP.getAsJSONObject(API_URL);
         assert response != null;
         JsonObject results = response.getAsJsonObject("results");
+        if (results == null) {
+            version = null;
+            description = null;
+            playersMax = -1;
+            playersOnline = -1;
+            icon = null;
+            players = new ArrayList<>();
+            return;
+        }
 
         version = results.get("version").getAsString();
         description = results.get("description").getAsString();
