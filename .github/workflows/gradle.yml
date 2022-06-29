@@ -61,4 +61,11 @@ jobs:
         with:
           name: MinecraftBetter-exe
           path: launcher/build/MinecraftBetter-installer.exe
-
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          generate_release_notes: true
+          files: |
+            launcher/build/MinecraftBetter-installer.exe
+            launcher/build/libs/MinecraftBetter.jar
