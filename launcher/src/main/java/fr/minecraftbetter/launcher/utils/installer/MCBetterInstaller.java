@@ -47,6 +47,11 @@ public class MCBetterInstaller {
                 DoubleUnaryOperator assetProgress = (double p) -> ((finalI + p) / folder.size() + finalFi) / gameAssets.size();
                 minecraftManager.progression(assetProgress.applyAsDouble(0), assetE.getKey());
                 if (Utils.checkIntegrity(assetFile, assetHash) || !Utils.tryCreateFolder(assetFile.getParentFile().toPath())) continue;
+                else if ((assetFile.exists() && !asset.get("override").getAsBoolean()))
+                {
+                    Main.logger.fine("The overwrite instruction is set to false, skipping");
+                    continue;
+                }
 
                 HTTP.downloadFile(asset.get("url").getAsString(),
                         assetFile,
