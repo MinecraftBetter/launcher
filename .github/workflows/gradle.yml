@@ -41,6 +41,7 @@ jobs:
           gradle-version: 7.4
           build-root-directory: launcher
           arguments: |
+            versionbergInfo
             shadowJar
             --stacktrace
          
