@@ -175,7 +175,7 @@ public class MinecraftManager {
         //JWM
         values.put("natives_directory", minecraftInstaller.libsPath.toString());
         values.put("launcher_name", "MinecraftBetter");
-        values.put("launcher_version", "1.0");
+        values.put("launcher_version", Main.getBuildVersion());
         values.put("classpath", classpath);
 
 
