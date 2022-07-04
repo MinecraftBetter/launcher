@@ -4,26 +4,25 @@ import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
-import fr.minecraftbetter.launcher.utils.news.News;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
-import fr.minecraftbetter.launcher.utils.news.NewsRepr;
+import fr.minecraftbetter.launcher.utils.news.News;
 import fr.minecraftbetter.launcher.utils.server.Player;
 import fr.minecraftbetter.launcher.utils.server.ServerInfo;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -33,6 +32,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 
 public class PanelHome extends Panel {
@@ -69,11 +69,34 @@ public class PanelHome extends Panel {
         // News
         StackPane news = setupPanel(600, 400, -175, 125, "Nouvelles", panel);
         StackPane newsContent = panelContent(news);
-        ListView<News> list = new ListView<>();
-        ObservableList<News> data = FXCollections.observableArrayList(News.getNews(NEWS_API));
-        list.setItems(data);
-        list.setCellFactory(view -> new NewsRepr());
-        newsContent.getChildren().add(list);
+        ScrollPane newsScroll = new ScrollPane();
+        newsScroll.setFitToWidth(true);
+        newsScroll.prefWidthProperty().bind(newsContent.widthProperty());
+        VBox newsList = new VBox();
+        newsScroll.setContent(newsList);
+        newsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        newsContent.getChildren().add(newsScroll);
+        for (News item: News.getNews(NEWS_API)) {
+            VBox pane = new VBox(5);
+            pane.prefWidthProperty().bind(newsList.widthProperty());
+            newsList.getChildren().add(pane);
+            pane.setMaxWidth(Region.USE_PREF_SIZE);
+
+            HBox titlePane = new HBox();
+            Label title = new Label(item.getTitle());
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-wrap-text: true;");
+            Label date = new Label(new SimpleDateFormat("yyyy-MM-dd").format(item.getDate()));
+            date.setStyle("-fx-font-size: 10px; -fx-text-fill: #bdbdbd; -fx-font-weight: bold;");
+            date.setAlignment(Pos.CENTER_RIGHT);
+            date.setPrefWidth(100);
+            title.prefWidthProperty().bind(titlePane.widthProperty().subtract(date.prefWidthProperty()));
+            titlePane.getChildren().addAll(title, date);
+
+            Label desc = new Label(item.getDescription());
+            desc.setWrapText(true);
+            desc.setTextAlignment(TextAlignment.JUSTIFY);
+            pane.getChildren().addAll(titlePane, desc);
+        }
 
         //endregion
 
@@ -110,11 +133,30 @@ public class PanelHome extends Panel {
         Label playerCount = new Label(serverInfo.playersOnline + " joueur" + (serverInfo.playersOnline > 1 ? "s" : "") + " / " + serverInfo.playersMax);
         playerCount.prefWidthProperty().bind(serverContent.widthProperty());
         playerCount.setAlignment(Pos.CENTER);
-        ListView<Player> playerList = new ListView<>();
-        ObservableList<Player> playerData = FXCollections.observableArrayList(serverInfo.players);
-        playerList.setItems(playerData);
-        playerList.setCellFactory(view -> new Player());
-        serverBox.getChildren().addAll(username, line, playerCount, playerList);
+
+        ScrollPane playerScroll = new ScrollPane();
+        playerScroll.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        serverBox.getChildren().addAll(username, line, playerCount, playerScroll);
+        playerScroll.setFitToWidth(true);
+        playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
+        VBox playerList = new VBox();
+        playerScroll.setContent(playerList);
+        playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        for (Player item: serverInfo.players) {
+            HBox pane = new HBox(5);
+            pane.prefWidthProperty().bind(newsList.widthProperty());
+            pane.setMaxHeight(25);
+            pane.setFillHeight(true);
+            pane.setAlignment(Pos.CENTER_LEFT);
+
+            ImageView desc = new ImageView(item.head);
+            desc.fitHeightProperty().bind(pane.maxHeightProperty());
+            desc.setPreserveRatio(true);
+            Label title = new Label(item.name);
+            pane.getChildren().addAll(desc, title);
+            playerList.getChildren().add(pane);
+        }
         //endregion
 
         // Settings
@@ -250,11 +292,12 @@ public class PanelHome extends Panel {
 
     private StackPane panelContent(StackPane panel) {
         StackPane content = new StackPane();
+        content.setTranslateY(-15);
         StackPane.setAlignment(content, Pos.BOTTOM_CENTER);
         content.minWidthProperty().bind(panel.minWidthProperty().subtract(30));
         content.maxWidthProperty().bind(panel.maxWidthProperty().subtract(30));
-        content.minHeightProperty().bind(panel.minHeightProperty().subtract(30));
-        content.maxHeightProperty().bind(panel.maxHeightProperty().subtract(30));
+        content.minHeightProperty().bind(panel.minHeightProperty().subtract(45));
+        content.maxHeightProperty().bind(panel.maxHeightProperty().subtract(45));
         panel.getChildren().add(content);
 
         return content;

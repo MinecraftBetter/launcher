@@ -38,8 +38,20 @@
     -fx-background-color: #dddddd11;
 }
 
+/* Scroll pane */
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
 
 /* Scroll bar */
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
 .scroll-bar:horizontal .track,
 .scroll-bar:vertical .track {
     -fx-background-color: transparent;
