@@ -19,7 +19,7 @@ versionberg {
     gitDir new File(project.rootProject.rootDir, "../.git")
     major 1
     minor 0
-    nameTemplate '${major}.${minor}.${commitCount}.${commitSha}'
+    nameTemplate '${major}.${minor}.${commitSha}'
     codeTemplate '(((${major} * 100) + ${minor}) * 100) * 100000 + ${build}'
 }
 
