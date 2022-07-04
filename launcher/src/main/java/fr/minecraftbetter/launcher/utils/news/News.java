@@ -8,6 +8,7 @@ import fr.minecraftbetter.launcher.utils.http.HTTP;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,6 +46,6 @@ public class News {
                 news.add(new News(result.get("title").getAsString(), result.get("description").getAsString(), dateFormat.parse(result.get("date").getAsString())));
             } catch (Exception e) {Main.logger.log(Level.SEVERE, "Error parsing the news", e);}
         }
-        return news.stream().toList();
+        return news.stream().sorted(Comparator.comparing(n -> ((News)n).getDate()).reversed()).toList();
     }
 }
