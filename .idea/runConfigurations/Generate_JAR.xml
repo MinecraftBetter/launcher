@@ -10,6 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
+          <option value="versionbergInfo" />
           <option value="shadowJar" />
         </list>
       </option>

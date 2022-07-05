@@ -4,6 +4,8 @@ import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
+import fr.minecraftbetter.launcher.ui.utils.PopupPanel;
+import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
@@ -129,7 +131,11 @@ public class PanelHome extends Panel {
         serverBox.setPadding(new Insets(10, 0, 0, 0));
         serverContent.getChildren().add(serverBox);
         Label username = new Label("Connecté en tant que " + account.getName());
-        Separator line = drawLine(rightWidth - 30);
+
+        Separator line = new Separator();
+        line.setPrefWidth(rightWidth - 30);
+        line.setOpacity(0.3);
+
         Label playerCount = new Label(serverInfo.playersOnline + " joueur" + (serverInfo.playersOnline > 1 ? "s" : "") + " / " + serverInfo.playersMax);
         playerCount.prefWidthProperty().bind(serverContent.widthProperty());
         playerCount.setAlignment(Pos.CENTER);
@@ -262,44 +268,26 @@ public class PanelHome extends Panel {
         parent.getChildren().add(panel);
         panel.setMinSize(w, h);
         panel.setMaxSize(w, h);
+        panel.setPrefSize(w, h);
         StackPane.setAlignment(panel, Pos.CENTER);
         panel.setTranslateX(x);
         panel.setTranslateY(y);
         panel.setStyle("-fx-background-color: #202021; -fx-border-radius: 10; -fx-background-radius: 10;");
 
-        Separator line = drawLine(w - 30);
-        line.setTranslateY(20);
-        StackPane.setAlignment(line, Pos.TOP_CENTER);
-        panel.getChildren().add(line);
-
-        Label label = new Label(text);
-        StackPane.setAlignment(label, Pos.TOP_CENTER);
-        label.setStyle("-fx-background-color:#202021; -fx-font-size: 18px; -fx-opacity: 100%; -fx-font-weight: bold; -fx-: #d4cfd0;");
-        label.setTranslateY(5);
-        label.setPadding(new Insets(0, 10, 0, 10));
-        panel.getChildren().add(label);
-
+        StackPane title = UiUtils.panelTitle(text);
+        StackPane.setAlignment(title, Pos.TOP_CENTER);
+        title.maxWidthProperty().bind(panel.widthProperty().subtract(30));
+        panel.getChildren().add(title);
         return panel;
-    }
-
-    private Separator drawLine(double w) {
-        Separator line = new Separator();
-        line.setMinWidth(w);
-        line.setMaxWidth(w);
-        line.setOpacity(0.3); // 30%
-        return line;
     }
 
     private StackPane panelContent(StackPane panel) {
         StackPane content = new StackPane();
-        content.setTranslateY(-15);
-        StackPane.setAlignment(content, Pos.BOTTOM_CENTER);
-        content.minWidthProperty().bind(panel.minWidthProperty().subtract(30));
-        content.maxWidthProperty().bind(panel.maxWidthProperty().subtract(30));
-        content.minHeightProperty().bind(panel.minHeightProperty().subtract(45));
-        content.maxHeightProperty().bind(panel.maxHeightProperty().subtract(45));
+        content.setTranslateY(30);
+        StackPane.setAlignment(content, Pos.TOP_CENTER);
+        content.maxWidthProperty().bind(panel.widthProperty().subtract(30));
+        content.maxHeightProperty().bind(panel.heightProperty().subtract(45));
         panel.getChildren().add(content);
-
         return content;
     }
     //endregion
@@ -326,30 +314,15 @@ public class PanelHome extends Panel {
 
 
     private void settingPopup(Pane parent) {
-        AnchorPane settingsPanel = new AnchorPane();
-        parent.getChildren().add(settingsPanel);
+        PopupPanel settingsPopup = new PopupPanel(parent, "Paramètres");
+        settingsPopup.setPrefSize(900, 600);
 
-        Button exitPanel = new Button();
-        settingsPanel.getChildren().add(exitPanel);
-        AnchorPane.setTopAnchor(exitPanel, 0d);
-        AnchorPane.setBottomAnchor(exitPanel, 0d);
-        AnchorPane.setLeftAnchor(exitPanel, 0d);
-        AnchorPane.setRightAnchor(exitPanel, 0d);
-        exitPanel.setOnMouseClicked(e -> parent.getChildren().remove(settingsPanel));
-        exitPanel.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.4), null, null)));
 
-        StackPane pagePanel = new StackPane();
-        AnchorPane.setTopAnchor(pagePanel, 0d);
-        AnchorPane.setBottomAnchor(pagePanel, 0d);
-        AnchorPane.setLeftAnchor(pagePanel, 0d);
-        AnchorPane.setRightAnchor(pagePanel, 0d);
-        pagePanel.setPickOnBounds(false);
-        settingsPanel.getChildren().add(pagePanel);
-
-        StackPane settingsPopup = setupPanel(900, 600, 0, 0, "Paramètres", pagePanel);
+        StackPane settingsPopupContent = panelContent(settingsPopup);
 
         Label username = new Label("TODO");
-        settingsPopup.getChildren().add(username);
+        StackPane.setAlignment(username, Pos.CENTER);
+        settingsPopupContent.getChildren().add(username);
     }
 
     private void openUrl(String url) {
