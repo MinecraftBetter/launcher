@@ -2,6 +2,9 @@ package fr.minecraftbetter.launcher.ui.panels;
 
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.api.launcher.News;
+import fr.minecraftbetter.launcher.api.server.Player;
+import fr.minecraftbetter.launcher.api.server.ServerInfo;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
 import fr.minecraftbetter.launcher.ui.utils.PopupPanel;
@@ -9,17 +12,11 @@ import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
-import fr.minecraftbetter.launcher.utils.news.News;
-import fr.minecraftbetter.launcher.utils.server.Player;
-import fr.minecraftbetter.launcher.utils.server.ServerInfo;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -29,13 +26,11 @@ import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
+
+import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
 
 public class PanelHome extends Panel {
     public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
@@ -323,13 +318,5 @@ public class PanelHome extends Panel {
         Label username = new Label("TODO");
         StackPane.setAlignment(username, Pos.CENTER);
         settingsPopupContent.getChildren().add(username);
-    }
-
-    private void openUrl(String url) {
-        try {
-            Desktop.getDesktop().browse(new URI(url));
-        } catch (IOException | URISyntaxException e) {
-            Main.logger.warning(e.getMessage());
-        }
     }
 }

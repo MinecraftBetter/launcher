@@ -1,10 +1,16 @@
 package fr.minecraftbetter.launcher.ui.utils;
 
+import fr.minecraftbetter.launcher.Main;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.StackPane;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class UiUtils {
     private UiUtils() {}
@@ -27,5 +33,13 @@ public class UiUtils {
         panel.getChildren().add(label);
 
         return panel;
+    }
+
+    public static void openUrl(String url) {
+        try {
+            Desktop.getDesktop().browse(new URI(url));
+        } catch (IOException | URISyntaxException e) {
+            Main.logger.warning(e.getMessage());
+        }
     }
 }

@@ -1,4 +1,4 @@
-package fr.minecraftbetter.launcher.utils.server;
+package fr.minecraftbetter.launcher.api.server;
 
 public final class Player {
     public final String name;

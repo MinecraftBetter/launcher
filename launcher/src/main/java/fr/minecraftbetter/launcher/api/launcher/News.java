@@ -1,4 +1,4 @@
-package fr.minecraftbetter.launcher.utils.news;
+package fr.minecraftbetter.launcher.api.launcher;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

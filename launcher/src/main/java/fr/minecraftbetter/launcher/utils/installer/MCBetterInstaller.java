@@ -9,12 +9,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
 public class MCBetterInstaller {
     public static final String MINECRAFTBETTER_GAMEASSETS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/gameassets";
-    public static final String MINECRAFTBETTER_INFO_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/info";
 
     private final MinecraftManager minecraftManager;
 
@@ -62,24 +60,5 @@ public class MCBetterInstaller {
                         p -> minecraftManager.progression(assetProgress.applyAsDouble(p.getPercentage()), MessageFormat.format("{0} - {1}", assetE.getKey(), p)));
             }
         }
-    }
-
-    public static boolean isUpToDate() {
-        String currentVersion = Main.getBuildVersion();
-        if (currentVersion == null) // This is a test build, and we aren't able to tell if there is a newer version.
-        {
-            Main.logger.warning(() -> "Version check has been skipped (unknown build version)");
-            return true; // We consider (arbitrarily) that this build is more recent.
-        }
-
-        JsonObject response = HTTP.getAsJSONObject(MINECRAFTBETTER_INFO_API);
-        assert response != null;
-        JsonObject latestVersionInfo = response.getAsJsonObject("results").getAsJsonObject("latest_version");
-        String latestVersion = latestVersionInfo.get("version_number").getAsString();
-
-        boolean upToDate = Objects.equals(currentVersion, latestVersion); // That *could* be wrong but that's good enough
-        if (upToDate) Main.logger.fine("This build is up to date");
-        else Main.logger.warning(() -> "A newer build is available (" + currentVersion + " -> " + latestVersion + ")");
-        return upToDate;
     }
 }

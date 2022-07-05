@@ -5,11 +5,12 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.api.launcher.LauncherInfo;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
 import fr.minecraftbetter.launcher.ui.utils.PopupPanel;
+import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
-import fr.minecraftbetter.launcher.utils.installer.MCBetterInstaller;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -17,7 +18,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
@@ -74,21 +74,38 @@ public class PanelLogin extends Panel {
             webConnect(); // Open a login pop-up
         }); // Makes the requests asynchronously, so it doesn't freeze the app
 
-        new Thread(() -> {
-            if (!MCBetterInstaller.isUpToDate()) Platform.runLater(() -> {
-                PopupPanel popup = new PopupPanel(layout);
-                popup.setPrefSize(400, 300);
-                popup.setOnExit(login::start);
-                VBox content = new VBox(15);
-                popup.getChildren().add(content);
-                content.setAlignment(Pos.CENTER);
+        new Thread(() -> checkVersion(login)).start();
+    }
 
-                Label title = new Label("Une version plus récente est disponible !");
-                Label desc = new Label("Téléchargez-là dès maintenant depuis le site minecraftbetter.com");
-                content.getChildren().addAll(title, desc);
-            });
-            else login.start();
-        }).start();
+    private void checkVersion(Thread continueFct) {
+        LauncherInfo info = LauncherInfo.tryGet();
+        Platform.runLater(() -> {
+            if (info == null) {
+                Button retry = setupButton("Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
+                Button ignore = setupButton("Ignorer", "#fd000f", FluentUiFilledAL.DISMISS_24);
+                PopupPanel errorPopup = openPopup("Erreur de communication avec le serveur", "Le launcher pourrait ne pas fonctionner correctement", retry, ignore);
+                retry.setOnMouseClicked(event -> {
+                    errorPopup.dismiss();
+                    new Thread(() -> checkVersion(continueFct)).start();
+                });
+                ignore.setOnMouseClicked(event -> {
+                    errorPopup.dismiss();
+                    continueFct.start();
+                });
+            } else if (!info.isUpToDate()) {
+                Button download = setupButton("Télécharger", "#00C410", FluentUiFilledAL.ARROW_DOWNLOAD_24);
+                Button ignore = setupButton("Ignorer", "#fd000f", FluentUiFilledAL.DISMISS_24);
+                PopupPanel errorPopup = openPopup("Une version plus récente est disponible !",
+                        "La version " + info.latest_version().version_number() + " est disponible. (Vous avez " + (Main.getBuildVersion() == null ? "unknown" : Main.getBuildVersion()) + ")"
+                                + "\nTéléchargez-là dès maintenant pour profiter des dernières fonctionnalités et corrections", download, ignore);
+
+                download.setOnMouseClicked(event -> UiUtils.openUrl(info.latest_version().url()));
+                ignore.setOnMouseClicked(event -> {
+                    errorPopup.dismiss();
+                    continueFct.start();
+                });
+            } else continueFct.start();
+        });
     }
 
     /**
@@ -125,7 +142,7 @@ public class PanelLogin extends Panel {
             Main.logger.log(Level.WARNING, "Connection using token failed", e);
             Platform.runLater(() -> {
                 Button retry = setupButton("Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
-                Button manual = setupButton("Connexion manuelle", "#0065D8", FluentUiFilledMZ.TEXT_FIELD_24);
+                Button manual = setupButton("Connexion manuelle", "#0065D8", FluentUiFilledMZ.PERSON_ARROW_RIGHT_24);
                 Button close = setupButton("Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
                 PopupPanel errorPopup = openErrorPopup("La connexion automatique a échouée", e, retry, manual, close);
 
