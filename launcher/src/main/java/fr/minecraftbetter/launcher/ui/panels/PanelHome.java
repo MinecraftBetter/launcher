@@ -213,10 +213,6 @@ public class PanelHome extends Panel {
 
     private void serverPanel(StackPane serverContent, double rightWidth) {
         ServerInfo serverInfo = ServerInfo.tryGet();
-        if (serverInfo == null) {
-            serverContent.getChildren().add(new Label("Erreur de communication avec le serveur"));
-            return;
-        }
 
         VBox serverBox = new VBox(10);
         serverBox.setPadding(new Insets(10, 0, 0, 0));
@@ -226,6 +222,12 @@ public class PanelHome extends Panel {
         Separator line = new Separator();
         line.setPrefWidth(rightWidth - 30);
         line.setOpacity(0.3);
+        serverBox.getChildren().addAll(username, line);
+
+        if (serverInfo == null) {
+            serverBox.getChildren().add(new Label("Erreur de communication avec le serveur"));
+            return;
+        }
 
         Label playerCount = new Label(serverInfo.players_online() + " joueur" + (serverInfo.players_online() > 1 ? "s" : "") + " / " + serverInfo.players_max());
         playerCount.prefWidthProperty().bind(serverContent.widthProperty());
@@ -233,7 +235,7 @@ public class PanelHome extends Panel {
 
         ScrollPane playerScroll = new ScrollPane();
         playerScroll.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        serverBox.getChildren().addAll(username, line, playerCount, playerScroll);
+        serverBox.getChildren().addAll(playerCount, playerScroll);
         playerScroll.setFitToWidth(true);
         playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
         VBox playerList = new VBox();
@@ -257,7 +259,7 @@ public class PanelHome extends Panel {
     }
     //endregion
 
-    private void playBtnClicked(Button play, StackPane panel, DoubleBinding progressLeftX, DoubleBinding progressRightX, DoubleBinding progressY){
+    private void playBtnClicked(Button play, StackPane panel, DoubleBinding progressLeftX, DoubleBinding progressRightX, DoubleBinding progressY) {
         if (Files.exists(minecraftManager.getMinecraftPath())) {
             play.setDisable(true);
             Main.logger.fine("The launch of Minecraft has been requested");
@@ -281,11 +283,15 @@ public class PanelHome extends Panel {
             if (instance.getStatus() != MinecraftInstance.StartStatus.INCOMPLETE_INSTALL) return;
             Main.logger.warning("The current installation of Minecraft is incomplete");
         }
-
-        play.setDisable(true);
         ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.ARROW_DOWNLOAD_24);
         play.setText("INSTALLATION");
 
+        play.setDisable(true);
+        setupInstallationBar(play, panel, progressLeftX, progressRightX, progressY);
+        minecraftManager.startInstall();
+    }
+
+    private void setupInstallationBar(Button play, StackPane panel, DoubleBinding progressLeftX, DoubleBinding progressRightX, DoubleBinding progressY) {
         ProgressBarWithStatus installationProgress = new ProgressBarWithStatus();
         installationProgress.prefWidthProperty().bind(progressRightX.subtract(progressLeftX));
         installationProgress.setPrefHeight(25);
@@ -312,7 +318,6 @@ public class PanelHome extends Panel {
             play.setText("JOUER");
             play.setDisable(false);
         });
-        minecraftManager.startInstall();
     }
 
     private void settingPopup(Pane parent) {
