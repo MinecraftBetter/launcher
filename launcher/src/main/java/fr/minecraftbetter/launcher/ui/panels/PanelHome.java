@@ -148,7 +148,7 @@ public class PanelHome extends Panel {
         ScrollPane newsScroll = new ScrollPane();
         newsScroll.setFitToWidth(true);
         newsScroll.prefWidthProperty().bind(newsContent.widthProperty());
-        VBox newsList = new VBox();
+        VBox newsList = new VBox(5);
         newsScroll.setContent(newsList);
         newsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         newsContent.getChildren().add(newsScroll);
@@ -246,7 +246,7 @@ public class PanelHome extends Panel {
                 serverBox.getChildren().addAll(playerCount, playerScroll);
                 playerScroll.setFitToWidth(true);
                 playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
-                VBox playerList = new VBox();
+                VBox playerList = new VBox(5);
                 playerScroll.setContent(playerList);
                 playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
