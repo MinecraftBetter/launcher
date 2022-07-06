@@ -20,13 +20,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jasypt.util.text.BasicTextEncryptor;
-import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +32,8 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
+
+import static fr.minecraftbetter.launcher.ui.utils.UiUtils.setupButton;
 
 
 public class PanelLogin extends Panel {
@@ -81,8 +80,8 @@ public class PanelLogin extends Panel {
         LauncherInfo info = LauncherInfo.tryGet();
         Platform.runLater(() -> {
             if (info == null) {
-                Button retry = setupButton("Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
-                Button ignore = setupButton("Ignorer", "#fd000f", FluentUiFilledAL.DISMISS_24);
+                Button retry = setupButton(layout, "Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
+                Button ignore = setupButton(layout, "Ignorer", "#fd000f", FluentUiFilledAL.DISMISS_24);
                 PopupPanel errorPopup = openPopup("Erreur de communication avec le serveur", "Le launcher pourrait ne pas fonctionner correctement", retry, ignore);
                 retry.setOnMouseClicked(event -> {
                     errorPopup.dismiss();
@@ -93,8 +92,8 @@ public class PanelLogin extends Panel {
                     continueFct.start();
                 });
             } else if (!info.isUpToDate()) {
-                Button download = setupButton("Télécharger", "#00C410", FluentUiFilledAL.ARROW_DOWNLOAD_24);
-                Button ignore = setupButton("Ignorer", "#fd000f", FluentUiFilledAL.DISMISS_24);
+                Button download = setupButton(layout, "Télécharger", "#00C410", FluentUiFilledAL.ARROW_DOWNLOAD_24);
+                Button ignore = setupButton(layout, "Ignorer", "#fd000f", FluentUiFilledAL.DISMISS_24);
                 PopupPanel errorPopup = openPopup("Une version plus récente est disponible !",
                         "La version " + info.latest_version().version_number() + " est disponible. (Vous avez " + (Main.getBuildVersion() == null ? "unknown" : Main.getBuildVersion()) + ")"
                                 + "\nTéléchargez-là dès maintenant pour profiter des dernières fonctionnalités et corrections", download, ignore);
@@ -118,8 +117,8 @@ public class PanelLogin extends Panel {
         } catch (MicrosoftAuthenticationException e) {
             Main.logger.log(Level.WARNING, "Connection using a webview failed", e);
             Platform.runLater(() -> {
-                Button retry = setupButton("Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
-                Button close = setupButton("Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
+                Button retry = setupButton(layout, "Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
+                Button close = setupButton(layout, "Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
                 PopupPanel errorPopup = openErrorPopup("La connexion guidée a échouée", e, retry, close);
 
                 retry.setOnMouseClicked(event -> {
@@ -141,9 +140,9 @@ public class PanelLogin extends Panel {
         } catch (MicrosoftAuthenticationException e) {
             Main.logger.log(Level.WARNING, "Connection using token failed", e);
             Platform.runLater(() -> {
-                Button retry = setupButton("Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
-                Button manual = setupButton("Connexion manuelle", "#0065D8", FluentUiFilledMZ.PERSON_ARROW_RIGHT_24);
-                Button close = setupButton("Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
+                Button retry = setupButton(layout, "Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
+                Button manual = setupButton(layout, "Connexion manuelle", "#0065D8", FluentUiFilledMZ.PERSON_ARROW_RIGHT_24);
+                Button close = setupButton(layout, "Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
                 PopupPanel errorPopup = openErrorPopup("La connexion automatique a échouée", e, retry, manual, close);
 
                 retry.setOnMouseClicked(event -> {
@@ -202,14 +201,5 @@ public class PanelLogin extends Panel {
         footer.setPadding(new Insets(25, 25, 25, 25));
         footer.getChildren().addAll(buttons);
         return errorPopup;
-    }
-
-    private Button setupButton(String text, String color, Ikon icon) {
-        FontIcon fontIcon = new FontIcon(icon);
-        fontIcon.setIconSize(24);
-        fontIcon.setFill(new Color(1, 1, 1, 1));
-        Button btn = new Button(text, fontIcon);
-        btn.setStyle("-fx-background-color:" + color + "; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 10; -fx-background-radius: 10;");
-        return btn;
     }
 }
