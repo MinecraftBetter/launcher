@@ -13,6 +13,7 @@ import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
+import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -31,6 +32,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
@@ -150,27 +152,32 @@ public class PanelHome extends Panel {
         newsScroll.setContent(newsList);
         newsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         newsContent.getChildren().add(newsScroll);
-        for (News item : News.getNews(NEWS_API)) {
-            VBox pane = new VBox(5);
-            pane.prefWidthProperty().bind(newsList.widthProperty());
-            newsList.getChildren().add(pane);
-            pane.setMaxWidth(Region.USE_PREF_SIZE);
+        new Thread(() -> {
+            List<News> news = News.getNews(NEWS_API);
+            Platform.runLater(() -> {
+                for (News item : news) {
+                    VBox pane = new VBox(5);
+                    pane.prefWidthProperty().bind(newsList.widthProperty());
+                    newsList.getChildren().add(pane);
+                    pane.setMaxWidth(Region.USE_PREF_SIZE);
 
-            HBox titlePane = new HBox();
-            Label title = new Label(item.getTitle());
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-wrap-text: true;");
-            Label date = new Label(new SimpleDateFormat("yyyy-MM-dd").format(item.getDate()));
-            date.setStyle("-fx-font-size: 10px; -fx-text-fill: #bdbdbd; -fx-font-weight: bold;");
-            date.setTextAlignment(TextAlignment.CENTER);
-            date.setPrefWidth(100);
-            title.prefWidthProperty().bind(titlePane.widthProperty().subtract(date.prefWidthProperty()));
-            titlePane.getChildren().addAll(title, date);
+                    HBox titlePane = new HBox();
+                    Label title = new Label(item.getTitle());
+                    title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-wrap-text: true;");
+                    Label date = new Label(new SimpleDateFormat("yyyy-MM-dd").format(item.getDate()));
+                    date.setStyle("-fx-font-size: 10px; -fx-text-fill: #bdbdbd; -fx-font-weight: bold;");
+                    date.setAlignment(Pos.CENTER_RIGHT);
+                    date.setPrefWidth(100);
+                    title.prefWidthProperty().bind(titlePane.widthProperty().subtract(date.prefWidthProperty()));
+                    titlePane.getChildren().addAll(title, date);
 
-            Label desc = new Label(item.getDescription());
-            desc.setWrapText(true);
-            desc.setTextAlignment(TextAlignment.JUSTIFY);
-            pane.getChildren().addAll(titlePane, desc);
-        }
+                    Label desc = new Label(item.getDescription());
+                    desc.setWrapText(true);
+                    desc.setTextAlignment(TextAlignment.JUSTIFY);
+                    pane.getChildren().addAll(titlePane, desc);
+                }
+            });
+        }).start();
     }
     //endregion
 
@@ -212,8 +219,6 @@ public class PanelHome extends Panel {
     }
 
     private void serverPanel(StackPane serverContent, double rightWidth) {
-        ServerInfo serverInfo = ServerInfo.tryGet();
-
         VBox serverBox = new VBox(10);
         serverBox.setPadding(new Insets(10, 0, 0, 0));
         serverContent.getChildren().add(serverBox);
@@ -224,38 +229,43 @@ public class PanelHome extends Panel {
         line.setOpacity(0.3);
         serverBox.getChildren().addAll(username, line);
 
-        if (serverInfo == null) {
-            serverBox.getChildren().add(new Label("Erreur de communication avec le serveur"));
-            return;
-        }
+        new Thread(() -> {
+            ServerInfo serverInfo = ServerInfo.tryGet();
+            Platform.runLater(() -> {
+                if (serverInfo == null) {
+                    serverBox.getChildren().add(new Label("Erreur de communication avec le serveur"));
+                    return;
+                }
 
-        Label playerCount = new Label(serverInfo.players_online() + " joueur" + (serverInfo.players_online() > 1 ? "s" : "") + " / " + serverInfo.players_max());
-        playerCount.prefWidthProperty().bind(serverContent.widthProperty());
-        playerCount.setAlignment(Pos.CENTER);
+                Label playerCount = new Label(serverInfo.players_online() + " joueur" + (serverInfo.players_online() > 1 ? "s" : "") + " / " + serverInfo.players_max());
+                playerCount.prefWidthProperty().bind(serverContent.widthProperty());
+                playerCount.setAlignment(Pos.CENTER);
 
-        ScrollPane playerScroll = new ScrollPane();
-        playerScroll.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        serverBox.getChildren().addAll(playerCount, playerScroll);
-        playerScroll.setFitToWidth(true);
-        playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
-        VBox playerList = new VBox();
-        playerScroll.setContent(playerList);
-        playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                ScrollPane playerScroll = new ScrollPane();
+                playerScroll.setPrefHeight(Region.USE_COMPUTED_SIZE);
+                serverBox.getChildren().addAll(playerCount, playerScroll);
+                playerScroll.setFitToWidth(true);
+                playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
+                VBox playerList = new VBox();
+                playerScroll.setContent(playerList);
+                playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        for (Player item : serverInfo.players()) {
-            HBox pane = new HBox(5);
-            pane.prefWidthProperty().bind(playerList.widthProperty());
-            pane.setMaxHeight(25);
-            pane.setFillHeight(true);
-            pane.setAlignment(Pos.CENTER_LEFT);
+                for (Player item : serverInfo.players()) {
+                    HBox pane = new HBox(5);
+                    pane.prefWidthProperty().bind(playerList.widthProperty());
+                    pane.setMaxHeight(25);
+                    pane.setFillHeight(true);
+                    pane.setAlignment(Pos.CENTER_LEFT);
 
-            ImageView desc = new ImageView(item.head());
-            desc.fitHeightProperty().bind(pane.maxHeightProperty());
-            desc.setPreserveRatio(true);
-            Label title = new Label(item.name());
-            pane.getChildren().addAll(desc, title);
-            playerList.getChildren().add(pane);
-        }
+                    ImageView desc = new ImageView(item.head());
+                    desc.fitHeightProperty().bind(pane.maxHeightProperty());
+                    desc.setPreserveRatio(true);
+                    Label title = new Label(item.name());
+                    pane.getChildren().addAll(desc, title);
+                    playerList.getChildren().add(pane);
+                }
+            });
+        }).start();
     }
     //endregion
 
