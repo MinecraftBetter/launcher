@@ -8,16 +8,19 @@ import fr.minecraftbetter.launcher.api.server.ServerInfo;
 import fr.minecraftbetter.launcher.ui.PanelManager;
 import fr.minecraftbetter.launcher.ui.panel.Panel;
 import fr.minecraftbetter.launcher.ui.utils.PopupPanel;
+import fr.minecraftbetter.launcher.ui.utils.ProgressBarWithStatus;
 import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -35,12 +38,14 @@ import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
 public class PanelHome extends Panel {
     public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
 
-    MinecraftProfile account;
-    String accessToken;
+    final MinecraftProfile account;
+    final String accessToken;
+    final MinecraftManager minecraftManager;
 
     public PanelHome(MinecraftProfile account, String accessToken) {
         this.account = account;
         this.accessToken = accessToken;
+        minecraftManager = new MinecraftManager(Main.AppData, account, accessToken);
     }
 
     @Override
@@ -90,7 +95,6 @@ public class PanelHome extends Panel {
         settingsBtn.setOnMouseClicked(event -> settingPopup(layout));
 
         // Install/Launch Btn
-        MinecraftManager minecraftManager = new MinecraftManager(Main.AppData, account, accessToken);
         boolean installed = Files.exists(minecraftManager.getMinecraftPath());
         Button play = UiUtils.setupButton(layout,
                 installed ? "VERIFIER" : "INSTALLER", "#fd000f",
@@ -100,70 +104,11 @@ public class PanelHome extends Panel {
         play.setPrefSize(200, 50);
         play.setTranslateX(0);
         play.setTranslateY(-play.getPrefHeight() - 15);
-        play.setOnMouseClicked(event -> {
-            if (Files.exists(minecraftManager.getMinecraftPath())) {
-                play.setDisable(true);
-                Main.logger.fine("The launch of Minecraft has been requested");
-                MinecraftInstance instance = minecraftManager.startGame();
-                if (instance.getStatus() == MinecraftInstance.StartStatus.ERROR) {
-                    Main.logger.severe("Couldn't start Minecraft");
-                    play.setDisable(false);
-                } else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED) {
-                    Main.logger.fine("Minecraft has been started");
-                    ((FontIcon)play.getGraphic()).setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
-                    play.setText("LANCÉ");
-                    instance.onExit((error, process) -> {
-                        if (Boolean.TRUE.equals(error)) {
-                            Main.logger.severe("An error has occurred during Minecraft execution " + process.errorReader().lines().collect(Collectors.joining("\n")));
-                        } else Main.logger.fine("Minecraft has been exited");
-                        play.setDisable(false);
-                        ((FontIcon)play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
-                        play.setText("JOUER");
-                    });
-                }
-                if (instance.getStatus() != MinecraftInstance.StartStatus.INCOMPLETE_INSTALL) return;
-                Main.logger.warning("The current installation of Minecraft is incomplete");
-            }
 
-            play.setDisable(true);
-            ((FontIcon)play.getGraphic()).setIconCode(FluentUiFilledAL.ARROW_DOWNLOAD_24);
-            play.setText("INSTALLATION");
-
-            ProgressBar installationProgress = new ProgressBar();
-            installationProgress.setStyle("-fx-accent: red;");
-            double progressLeftX = news.getTranslateX() - news.getWidth() / 2 + play.getTranslateX() + play.getWidth() + 15;
-            double progressRightX = social.getTranslateX() + social.getWidth() / 2;
-            installationProgress.setPrefSize(Math.abs(progressLeftX) + Math.abs(progressRightX), 25);
-            installationProgress.setTranslateX((progressLeftX + progressRightX) / 2);
-            installationProgress.setTranslateY(play.getTranslateY() + play.getHeight() / 2 + news.getTranslateY() - news.getHeight() / 2);
-            Label progressText = new Label();
-            progressText.setStyle("-fx-font-weight: bold;");
-            progressText.textProperty().bind(installationProgress.progressProperty().multiply(100).asString("%02.0f%%"));
-            DoubleBinding progressTextPos = installationProgress.progressProperty().multiply(progressRightX - progressLeftX).add(progressLeftX);
-            progressText.translateXProperty().bind(Bindings.max(progressTextPos.subtract(30), progressLeftX + 30));
-            progressText.translateYProperty().bind(installationProgress.translateYProperty());
-            panel.getChildren().addAll(installationProgress, progressText);
-
-            Label installationStatus = new Label();
-            installationStatus.setStyle("-fx-font-weight: bold;");
-            StackPane.setAlignment(installationStatus, Pos.BOTTOM_LEFT);
-            installationStatus.setTranslateX(5);
-            installationStatus.setTranslateY(-5);
-            panel.getChildren().add(installationStatus);
-
-            minecraftManager.setProgress(p -> {
-                installationProgress.setProgress(p.getPercentage());
-                installationStatus.setText(p.getStatus());
-            });
-            minecraftManager.setComplete(() -> {
-                panel.getChildren().removeAll(installationProgress, progressText, installationStatus);
-
-                ((FontIcon)play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
-                play.setText("JOUER");
-                play.setDisable(false);
-            });
-            minecraftManager.startInstall();
-        });
+        DoubleBinding progressLeftX = news.translateXProperty().subtract(news.widthProperty().divide(2)).add(play.translateXProperty()).add(play.widthProperty()).add(15);
+        DoubleBinding progressRightX = social.translateXProperty().add(social.widthProperty().divide(2));
+        DoubleBinding progressY = play.translateYProperty().add(play.heightProperty().divide(2)).add(news.translateYProperty()).subtract(news.heightProperty().divide(2));
+        play.setOnMouseClicked(event -> playBtnClicked(play, panel, progressLeftX, progressRightX, progressY));
     }
 
     //region Home Panels
@@ -216,7 +161,7 @@ public class PanelHome extends Panel {
             title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-wrap-text: true;");
             Label date = new Label(new SimpleDateFormat("yyyy-MM-dd").format(item.getDate()));
             date.setStyle("-fx-font-size: 10px; -fx-text-fill: #bdbdbd; -fx-font-weight: bold;");
-            date.setAlignment(Pos.CENTER_RIGHT);
+            date.setTextAlignment(TextAlignment.CENTER);
             date.setPrefWidth(100);
             title.prefWidthProperty().bind(titlePane.widthProperty().subtract(date.prefWidthProperty()));
             titlePane.getChildren().addAll(title, date);
@@ -267,7 +212,12 @@ public class PanelHome extends Panel {
     }
 
     private void serverPanel(StackPane serverContent, double rightWidth) {
-        ServerInfo serverInfo = new ServerInfo();
+        ServerInfo serverInfo = ServerInfo.tryGet();
+        if (serverInfo == null) {
+            serverContent.getChildren().add(new Label("Erreur de communication avec le serveur"));
+            return;
+        }
+
         VBox serverBox = new VBox(10);
         serverBox.setPadding(new Insets(10, 0, 0, 0));
         serverContent.getChildren().add(serverBox);
@@ -277,7 +227,7 @@ public class PanelHome extends Panel {
         line.setPrefWidth(rightWidth - 30);
         line.setOpacity(0.3);
 
-        Label playerCount = new Label(serverInfo.playersOnline + " joueur" + (serverInfo.playersOnline > 1 ? "s" : "") + " / " + serverInfo.playersMax);
+        Label playerCount = new Label(serverInfo.players_online() + " joueur" + (serverInfo.players_online() > 1 ? "s" : "") + " / " + serverInfo.players_max());
         playerCount.prefWidthProperty().bind(serverContent.widthProperty());
         playerCount.setAlignment(Pos.CENTER);
 
@@ -290,22 +240,80 @@ public class PanelHome extends Panel {
         playerScroll.setContent(playerList);
         playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        for (Player item : serverInfo.players) {
+        for (Player item : serverInfo.players()) {
             HBox pane = new HBox(5);
             pane.prefWidthProperty().bind(playerList.widthProperty());
             pane.setMaxHeight(25);
             pane.setFillHeight(true);
             pane.setAlignment(Pos.CENTER_LEFT);
 
-            ImageView desc = new ImageView(item.head);
+            ImageView desc = new ImageView(item.head());
             desc.fitHeightProperty().bind(pane.maxHeightProperty());
             desc.setPreserveRatio(true);
-            Label title = new Label(item.name);
+            Label title = new Label(item.name());
             pane.getChildren().addAll(desc, title);
             playerList.getChildren().add(pane);
         }
     }
     //endregion
+
+    private void playBtnClicked(Button play, StackPane panel, DoubleBinding progressLeftX, DoubleBinding progressRightX, DoubleBinding progressY){
+        if (Files.exists(minecraftManager.getMinecraftPath())) {
+            play.setDisable(true);
+            Main.logger.fine("The launch of Minecraft has been requested");
+            MinecraftInstance instance = minecraftManager.startGame();
+            if (instance.getStatus() == MinecraftInstance.StartStatus.ERROR) {
+                Main.logger.severe("Couldn't start Minecraft");
+                play.setDisable(false);
+            } else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED) {
+                Main.logger.fine("Minecraft has been started");
+                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
+                play.setText("LANCÉ");
+                instance.onExit((error, process) -> {
+                    if (Boolean.TRUE.equals(error)) {
+                        Main.logger.severe("An error has occurred during Minecraft execution " + process.errorReader().lines().collect(Collectors.joining("\n")));
+                    } else Main.logger.fine("Minecraft has been exited");
+                    play.setDisable(false);
+                    ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
+                    play.setText("JOUER");
+                });
+            }
+            if (instance.getStatus() != MinecraftInstance.StartStatus.INCOMPLETE_INSTALL) return;
+            Main.logger.warning("The current installation of Minecraft is incomplete");
+        }
+
+        play.setDisable(true);
+        ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.ARROW_DOWNLOAD_24);
+        play.setText("INSTALLATION");
+
+        ProgressBarWithStatus installationProgress = new ProgressBarWithStatus();
+        installationProgress.prefWidthProperty().bind(progressRightX.subtract(progressLeftX));
+        installationProgress.setPrefHeight(25);
+        StackPane.setAlignment(installationProgress, Pos.CENTER);
+        installationProgress.translateXProperty().bind(progressLeftX.add(progressRightX).divide(2));
+        installationProgress.translateYProperty().bind(progressY);
+        panel.getChildren().addAll(installationProgress);
+
+        Label installationStatus = new Label();
+        installationStatus.setStyle("-fx-font-weight: bold;");
+        StackPane.setAlignment(installationStatus, Pos.BOTTOM_LEFT);
+        installationStatus.setTranslateX(5);
+        installationStatus.setTranslateY(-5);
+        panel.getChildren().add(installationStatus);
+
+        minecraftManager.setProgress(p -> {
+            installationProgress.setProgress(p.getPercentage());
+            installationStatus.setText(p.getStatus());
+        });
+        minecraftManager.setComplete(() -> {
+            panel.getChildren().removeAll(installationProgress, installationStatus);
+
+            ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
+            play.setText("JOUER");
+            play.setDisable(false);
+        });
+        minecraftManager.startInstall();
+    }
 
     private void settingPopup(Pane parent) {
         PopupPanel settingsPopup = new PopupPanel(parent, "Paramètres");
