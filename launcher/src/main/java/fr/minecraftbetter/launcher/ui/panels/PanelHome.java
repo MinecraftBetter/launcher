@@ -323,12 +323,14 @@ public class PanelHome extends Panel {
     private void settingPopup(Pane parent) {
         PopupPanel settingsPopup = new PopupPanel(parent, "Paramètres");
         settingsPopup.setPrefSize(900, 600);
-
-
         StackPane settingsPopupContent = panelContent(settingsPopup);
 
         Label username = new Label("TODO");
         StackPane.setAlignment(username, Pos.CENTER);
-        settingsPopupContent.getChildren().add(username);
+
+
+        Label version = new Label("Version " + (Main.getBuildVersion() == null ? "unknown" : Main.getBuildVersion()));
+        StackPane.setAlignment(version, Pos.BOTTOM_CENTER);
+        settingsPopupContent.getChildren().addAll(username, version);
     }
 }
