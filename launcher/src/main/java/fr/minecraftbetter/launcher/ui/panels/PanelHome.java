@@ -32,7 +32,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
@@ -43,6 +45,7 @@ public class PanelHome extends Panel {
     final MinecraftProfile account;
     final String accessToken;
     final MinecraftManager minecraftManager;
+    final Random random = new Random(new Date().getTime());
 
     public PanelHome(MinecraftProfile account, String accessToken) {
         this.account = account;
@@ -54,7 +57,7 @@ public class PanelHome extends Panel {
     public void init(PanelManager panelManager) {
         super.init(panelManager);
         this.panelManager = panelManager;
-        panelManager.setBackground("/minecraftbetter/images/background.png");
+        panelManager.setBackground("/minecraftbetter/images/slideshow/" + random.nextInt(1, 10) + ".jpg");
 
         StackPane panel = new StackPane();
         GridPane.setHgrow(panel, Priority.ALWAYS);
@@ -148,7 +151,7 @@ public class PanelHome extends Panel {
         ScrollPane newsScroll = new ScrollPane();
         newsScroll.setFitToWidth(true);
         newsScroll.prefWidthProperty().bind(newsContent.widthProperty());
-        VBox newsList = new VBox(5);
+        VBox newsList = new VBox(10);
         newsScroll.setContent(newsList);
         newsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         newsContent.getChildren().add(newsScroll);
