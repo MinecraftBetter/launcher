@@ -11,6 +11,7 @@ import fr.minecraftbetter.launcher.ui.utils.PopupPanel;
 import fr.minecraftbetter.launcher.ui.utils.ProgressBarWithStatus;
 import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.utils.http.HTTP;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import javafx.application.Platform;
@@ -18,10 +19,8 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -30,6 +29,9 @@ import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,6 +40,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
@@ -248,11 +251,11 @@ public class PanelHome extends Panel {
         playerScroll.setContent(playerList);
         playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService.scheduleAtFixedRate(() -> new Thread(() -> {
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
             ServerInfo serverInfo = ServerInfo.tryGet();
             Platform.runLater(() -> updatePlayers(playerCount, playerList, serverInfo));
-        }).start(), 0, 150, TimeUnit.SECONDS);
+        }, 0, 150, TimeUnit.SECONDS);
     }
 
     private void updatePlayers(Label playerCount, VBox playerList, ServerInfo serverInfo) {
@@ -268,13 +271,18 @@ public class PanelHome extends Panel {
             pane.setMaxHeight(25);
             pane.setFillHeight(true);
             pane.setAlignment(Pos.CENTER_LEFT);
-
-            ImageView desc = new ImageView(item.head());
-            desc.fitHeightProperty().bind(pane.maxHeightProperty());
-            desc.setPreserveRatio(true);
-            Label title = new Label(item.name());
-            pane.getChildren().addAll(desc, title);
             playerList.getChildren().add(pane);
+
+            new Thread(() -> {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                try {HTTP.getFile(item.head(), stream, p -> {});} catch (IOException e) {Main.logger.log(Level.WARNING, e, () -> "Couldn't load " + item.name() + "'s head");}
+                ImageView desc = new ImageView(new Image(new ByteArrayInputStream(stream.toByteArray())));
+                desc.fitHeightProperty().bind(pane.maxHeightProperty());
+                desc.setPreserveRatio(true);
+
+                Label title = new Label(item.name());
+                Platform.runLater(() -> pane.getChildren().addAll(desc, title));
+            }).start();
         }
     }
     //endregion
