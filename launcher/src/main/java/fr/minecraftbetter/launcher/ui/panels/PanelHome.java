@@ -11,6 +11,7 @@ import fr.minecraftbetter.launcher.ui.utils.PopupPanel;
 import fr.minecraftbetter.launcher.ui.utils.ProgressBarWithStatus;
 import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
+import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
@@ -157,7 +158,7 @@ public class PanelHome extends Panel {
         ScrollPane newsScroll = new ScrollPane();
         newsScroll.setFitToWidth(true);
         newsScroll.prefWidthProperty().bind(newsContent.widthProperty());
-        VBox newsList = new VBox(10);
+        VBox newsList = new VBox(15);
         newsScroll.setContent(newsList);
         newsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         newsContent.getChildren().add(newsScroll);
@@ -220,7 +221,7 @@ public class PanelHome extends Panel {
         btn.setTranslateY(0);
         btn.setMinSize(size, size);
         btn.setMaxSize(size, size);
-        btn.setStyle("-fx-background-color: #2A2A2A; -fx-font-size: 14px; -fx-background-radius: 10;");
+        btn.setStyle("-fx-font-size: 14px; -fx-background-radius: 10;");
         btn.setOnMouseEntered(e -> this.layout.setCursor(Cursor.HAND));
         btn.setOnMouseExited(event -> this.layout.setCursor(Cursor.DEFAULT));
 
@@ -349,16 +350,44 @@ public class PanelHome extends Panel {
     }
 
     private void settingPopup(Pane parent) {
+        Settings settings = Settings.getSettings();
+
         PopupPanel settingsPopup = new PopupPanel(parent, "Paramètres");
+        settingsPopup.setOnExit(settings::saveSettings);
         settingsPopup.setPrefSize(900, 600);
         StackPane settingsPopupContent = panelContent(settingsPopup);
+        settingsPopupContent.setPadding(new Insets(15, 0, 0, 0));
 
-        Label username = new Label("TODO");
-        StackPane.setAlignment(username, Pos.CENTER);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        settingsPopupContent.getChildren().add(scrollPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.prefWidthProperty().bind(settingsPopupContent.widthProperty());
+        VBox list = new VBox(15);
+        list.setAlignment(Pos.TOP_CENTER);
+        scrollPane.setContent(list);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
+        TextField ram = new TextField(settings.Xmx);
+        ram.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (Boolean.FALSE.equals(isNowFocused)) settings.Xmx = ram.getText(); // text field has lost focus
+        });
+        list.getChildren().addAll(settingHBox("RAM", ram));
 
         Label version = new Label("Version " + (Main.getBuildVersion() == null ? "unknown" : Main.getBuildVersion()));
         StackPane.setAlignment(version, Pos.BOTTOM_CENTER);
-        settingsPopupContent.getChildren().addAll(username, version);
+        settingsPopupContent.getChildren().add(version);
+    }
+
+    private HBox settingHBox(String text, Region value) {
+        HBox RAM = new HBox(10);
+        RAM.setAlignment(Pos.CENTER);
+        RAM.setFillHeight(true);
+        Label label = new Label(text);
+        label.setAlignment(Pos.CENTER_RIGHT);
+        label.setPrefWidth(200);
+        value.setPrefWidth(200);
+        RAM.getChildren().addAll(label, value);
+        return RAM;
     }
 }

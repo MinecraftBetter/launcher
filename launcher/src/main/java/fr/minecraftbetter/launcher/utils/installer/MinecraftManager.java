@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.Settings;
 import javafx.application.Platform;
 import javafx.util.Pair;
 import org.apache.commons.text.StringSubstitutor;
@@ -133,6 +134,7 @@ public class MinecraftManager {
         Main.logger.finer("Building arguments");
         ArrayList<String> commands = new ArrayList<>();
         commands.add(JavaManager.getJre(javaPath));
+        commands.add("-Xmx"+ Settings.getSettings().Xmx);
         commands.addAll(compileArguments(minecraftInstaller.getJWMArguments(), libsToLoad.toString()));
         commands.addAll(compileArguments(fabricInstaller.getJWMArguments(), libsToLoad.toString()));
         commands.add(fabricInstaller.getMainClass());

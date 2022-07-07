@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 public class PopupPanel extends StackPane {
     private Pane parent;
@@ -25,7 +24,7 @@ public class PopupPanel extends StackPane {
             if (closeOnOutsideClick) dismiss();
             if (onExit != null) Platform.runLater(onExit);
         });
-        exitPanel.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.4), null, null)));
+        exitPanel.setStyle("-fx-background-color: rgba(0,0,0,0.4);");
 
         StackPane pagePanel = new StackPane();
         AnchorPane.setTopAnchor(pagePanel, 0d);
