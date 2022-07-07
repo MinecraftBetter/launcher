@@ -35,6 +35,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
@@ -232,43 +235,47 @@ public class PanelHome extends Panel {
         line.setOpacity(0.3);
         serverBox.getChildren().addAll(username, line);
 
-        new Thread(() -> {
+        Label playerCount = new Label();
+        playerCount.prefWidthProperty().bind(serverContent.widthProperty());
+        playerCount.setAlignment(Pos.CENTER);
+
+        ScrollPane playerScroll = new ScrollPane();
+        playerScroll.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        serverBox.getChildren().addAll(playerCount, playerScroll);
+        playerScroll.setFitToWidth(true);
+        playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
+        VBox playerList = new VBox(5);
+        playerScroll.setContent(playerList);
+        playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.scheduleAtFixedRate(() -> new Thread(() -> {
             ServerInfo serverInfo = ServerInfo.tryGet();
-            Platform.runLater(() -> {
-                if (serverInfo == null) {
-                    serverBox.getChildren().add(new Label("Erreur de communication avec le serveur"));
-                    return;
-                }
+            Platform.runLater(() -> updatePlayers(playerCount, playerList, serverInfo));
+        }).start(), 0, 150, TimeUnit.SECONDS);
+    }
 
-                Label playerCount = new Label(serverInfo.players_online() + " joueur" + (serverInfo.players_online() > 1 ? "s" : "") + " / " + serverInfo.players_max());
-                playerCount.prefWidthProperty().bind(serverContent.widthProperty());
-                playerCount.setAlignment(Pos.CENTER);
+    private void updatePlayers(Label playerCount, VBox playerList, ServerInfo serverInfo) {
+        playerList.getChildren().clear();
+        if (serverInfo == null) {
+            playerCount.setText("Erreur de communication avec le serveur");
+            return;
+        }
+        playerCount.setText(serverInfo.players_online() + " joueur" + (serverInfo.players_online() > 1 ? "s" : "") + " / " + serverInfo.players_max());
+        for (Player item : serverInfo.players()) {
+            HBox pane = new HBox(5);
+            pane.prefWidthProperty().bind(playerList.widthProperty());
+            pane.setMaxHeight(25);
+            pane.setFillHeight(true);
+            pane.setAlignment(Pos.CENTER_LEFT);
 
-                ScrollPane playerScroll = new ScrollPane();
-                playerScroll.setPrefHeight(Region.USE_COMPUTED_SIZE);
-                serverBox.getChildren().addAll(playerCount, playerScroll);
-                playerScroll.setFitToWidth(true);
-                playerScroll.prefWidthProperty().bind(serverBox.widthProperty());
-                VBox playerList = new VBox(5);
-                playerScroll.setContent(playerList);
-                playerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-                for (Player item : serverInfo.players()) {
-                    HBox pane = new HBox(5);
-                    pane.prefWidthProperty().bind(playerList.widthProperty());
-                    pane.setMaxHeight(25);
-                    pane.setFillHeight(true);
-                    pane.setAlignment(Pos.CENTER_LEFT);
-
-                    ImageView desc = new ImageView(item.head());
-                    desc.fitHeightProperty().bind(pane.maxHeightProperty());
-                    desc.setPreserveRatio(true);
-                    Label title = new Label(item.name());
-                    pane.getChildren().addAll(desc, title);
-                    playerList.getChildren().add(pane);
-                }
-            });
-        }).start();
+            ImageView desc = new ImageView(item.head());
+            desc.fitHeightProperty().bind(pane.maxHeightProperty());
+            desc.setPreserveRatio(true);
+            Label title = new Label(item.name());
+            pane.getChildren().addAll(desc, title);
+            playerList.getChildren().add(pane);
+        }
     }
     //endregion
 
