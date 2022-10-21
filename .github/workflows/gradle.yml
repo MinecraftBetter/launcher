@@ -46,7 +46,7 @@ jobs:
          
       - name: Create installer
         uses: team-mst/mst-inno-setup-wrapper@v1
-        if: ${{ matrix.os == "windows-latest" }}
+        if: ${{ matrix.os == 'windows-latest' }}
         with:
           script-name: setup.iss
           working-directory: launcher
@@ -58,7 +58,7 @@ jobs:
           path: launcher/build/libs/MinecraftBetter.jar
       - name: Upload EXE Build Artifact
         uses: actions/upload-artifact@v3.0.0
-        if: ${{ matrix.os == "windows-latest" }}
+        if: ${{ matrix.os == 'windows-latest' }}
         with:
           name: MinecraftBetter-${{ matrix.os }}-exe
           path: launcher/build/MinecraftBetter-installer.exe
