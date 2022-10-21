@@ -18,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.TextAlignment;
@@ -46,13 +47,18 @@ public class PanelLogin extends Panel {
         super.init(panelManager);
         Main.logger.info("AppData path: " + Main.AppData);
 
-        MediaPlayer mediaPlayer = new MediaPlayer(Resources.getMedia("/minecraftbetter/images/intro.mp4"));
-        MediaView mediaView = new MediaView(mediaPlayer);
-        layout.getChildren().add(mediaView);
-        mediaView.fitWidthProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "width"));
-        mediaView.fitHeightProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "height"));
-        mediaView.setPreserveRatio(true);
-        mediaPlayer.play();
+        try {
+            MediaPlayer mediaPlayer = new MediaPlayer(Resources.getMedia("/minecraftbetter/images/intro.mp4"));
+            MediaView mediaView = new MediaView(mediaPlayer);
+            layout.getChildren().add(mediaView);
+            mediaView.fitWidthProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "width"));
+            mediaView.fitHeightProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "height"));
+            mediaView.setPreserveRatio(true);
+            mediaPlayer.play();
+        }
+        catch (MediaException e){
+            Main.logger.log(Level.WARNING, "Couldn''t load intro video", e);
+        }
 
         Thread login = new Thread(() -> {
             textEncryptor.setPassword("uFw722H8$@2R");
