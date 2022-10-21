@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     name: Compile and Test code on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
