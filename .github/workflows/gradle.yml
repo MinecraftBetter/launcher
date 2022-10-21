@@ -4,8 +4,11 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: Compile and Test code
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    name: Compile and Test code on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
 
@@ -43,19 +46,21 @@ jobs:
          
       - name: Create installer
         uses: team-mst/mst-inno-setup-wrapper@v1
+        if: ${{ matrix.os == "windows-latest" }}
         with:
           script-name: setup.iss
           working-directory: launcher
 
-      - name: Upload a Build Artifact
+      - name: Upload JAR Build Artifact
         uses: actions/upload-artifact@v3.0.0
         with:
-          name: MinecraftBetter-jar
+          name: MinecraftBetter-${{ matrix.os }}-jar
           path: launcher/build/libs/MinecraftBetter.jar
-      - name: Upload a Build Artifact
+      - name: Upload EXE Build Artifact
         uses: actions/upload-artifact@v3.0.0
+        if: ${{ matrix.os == "windows-latest" }}
         with:
-          name: MinecraftBetter-exe
+          name: MinecraftBetter-${{ matrix.os }}-exe
           path: launcher/build/MinecraftBetter-installer.exe
       - name: Release
         uses: softprops/action-gh-release@v1
