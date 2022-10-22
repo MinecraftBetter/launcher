@@ -30,6 +30,7 @@ public class MCBetterInstaller {
             Main.logger.warning("Game assets API error");
             return;
         }
+        if(!apiResponse.get("results").isJsonObject()) return;
         JsonObject gameAssets = apiResponse.get("results").getAsJsonObject();
 
         int fi = -1;
