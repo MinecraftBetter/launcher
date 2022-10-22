@@ -3,11 +3,12 @@ package fr.minecraftbetter.launcher.utils.installer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
+import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 
@@ -32,6 +33,7 @@ public class MCBetterInstaller {
         JsonObject gameAssets = apiResponse.get("results").getAsJsonObject();
 
         int fi = -1;
+        ConcurrentDownloader downloader = new ConcurrentDownloader();
         for (Map.Entry<String, JsonElement> folderE : gameAssets.entrySet()) {
             fi += 1;
             Path assetFolderPath = minecraftPath.resolve(folderE.getKey());
@@ -55,10 +57,13 @@ public class MCBetterInstaller {
                     continue;
                 }
 
-                HTTP.downloadFile(asset.get("url").getAsString(),
-                        assetFile,
-                        p -> minecraftManager.progression(assetProgress.applyAsDouble(p.getPercentage()), MessageFormat.format("{0} - {1}", assetE.getKey(), p)));
+                downloader.addTask(new DownloadTask(asset.get("url").getAsString(), assetFile, assetE.getKey()));
             }
         }
+
+        downloader.onProgress(p -> minecraftManager.progression(p.getPercentage(), p.getStatus()));
+        var thread = downloader.thread();
+        thread.start();
+        try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
     }
 }

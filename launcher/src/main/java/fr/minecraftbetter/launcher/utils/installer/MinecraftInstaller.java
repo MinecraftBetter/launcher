@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
+import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
 
 import java.io.File;
@@ -85,30 +87,37 @@ public class MinecraftInstaller {
         if (!Utils.tryCreateFolder(libsPath)) return;
 
         JsonArray libs = versionProfile.get("libraries").getAsJsonArray();
+        ConcurrentDownloader downloader = new ConcurrentDownloader();
         for (int i = 0; i < libs.size(); i++) {
             JsonObject lib = libs.get(i).getAsJsonObject();
             String libName = lib.get("name").getAsString();
             minecraftManager.progression(i / (double) libs.size(), libName);
             if (!minecraftManager.checkRules(lib)) continue;
 
-            downloadLib(lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject(), i, libs.size(), libName);
+            var task = downloadLib(lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject(), libName);
+            if (task != null) downloader.addTask(task);
             if (lib.has("natives")) {
                 for (Map.Entry<String, JsonElement> nativeCat : lib.get("natives").getAsJsonObject().entrySet()) {
                     if (!System.getProperty("os.name").toLowerCase().contains(nativeCat.getKey())) continue;
                     JsonObject nativeInfo = lib.get("downloads").getAsJsonObject().get("classifiers").getAsJsonObject().get(nativeCat.getValue().getAsString()).getAsJsonObject();
-                    downloadLib(nativeInfo, i, libs.size(), libName);
+
+                    task = downloadLib(nativeInfo, libName);
+                    if (task != null) downloader.addTask(task);
                 }
             }
         }
+        downloader.onProgress(p -> minecraftManager.progression(p.getPercentage(), p.getStatus()));
+        var thread = downloader.thread();
+        thread.start();
+        try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
     }
 
-    private void downloadLib(JsonObject libInfo, int i, double total, String libName) {
+    private DownloadTask downloadLib(JsonObject libInfo, String libName) {
         File libPath = libsPath.resolve(libInfo.get("path").getAsString()).toFile();
-        if (Utils.checkIntegrity(libPath, libInfo.get("sha1").getAsString())) return;
-        if (!Utils.tryCreateFolder(libPath.getParentFile().toPath())) return;
+        if (Utils.checkIntegrity(libPath, libInfo.get("sha1").getAsString())) return null;
+        if (!Utils.tryCreateFolder(libPath.getParentFile().toPath())) return null;
 
-        HTTP.downloadFile(libInfo.get("url").getAsString(), libPath,
-                p -> minecraftManager.progression((i + p.getPercentage()) / total, MessageFormat.format("{0} - {1}", libName, p)));
+        return new DownloadTask(libInfo.get("url").getAsString(), libPath, libName);
     }
 
     public void installAssets() {
@@ -127,6 +136,7 @@ public class MinecraftInstaller {
         }
 
         int fi = -1;
+        ConcurrentDownloader downloader = new ConcurrentDownloader();
         for (Map.Entry<String, JsonElement> folderE : assetIndex.entrySet()) {
             fi += 1;
             Path assetFolderPath = assetsPath.resolve(folderE.getKey());
@@ -147,12 +157,17 @@ public class MinecraftInstaller {
                 minecraftManager.progression(assetProgress.applyAsDouble(0), assetE.getKey());
                 if (Utils.checkIntegrity(assetFile, assetHash) || !Utils.tryCreateFolder(assetFile.getParentFile().toPath())) continue;
 
-                HTTP.downloadFile(
+                downloader.addTask(new DownloadTask(
                         "https://resources.download.minecraft.net/" + assetRelativePath,
                         assetFile,
-                        p -> minecraftManager.progression(assetProgress.applyAsDouble(p.getPercentage()), MessageFormat.format("{0} - {1}", assetE.getKey(), p)));
+                        assetE.getKey()));
             }
         }
+
+        downloader.onProgress(p -> minecraftManager.progression(p.getPercentage(), p.getStatus()));
+        var thread = downloader.thread();
+        thread.start();
+        try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
     }
 
 
@@ -176,7 +191,7 @@ public class MinecraftInstaller {
         return versionProfile.get("arguments").getAsJsonObject().get("game").getAsJsonArray();
     }
 
-    public String getAssetIndexID(){
+    public String getAssetIndexID() {
         return versionProfile.getAsJsonObject("assetIndex").get("id").getAsString();
     }
 }

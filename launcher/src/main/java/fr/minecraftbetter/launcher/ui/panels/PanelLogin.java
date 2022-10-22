@@ -55,8 +55,7 @@ public class PanelLogin extends Panel {
             mediaView.fitHeightProperty().bind(Bindings.selectDouble(mediaView.sceneProperty(), "height"));
             mediaView.setPreserveRatio(true);
             mediaPlayer.play();
-        }
-        catch (MediaException e){
+        } catch (MediaException e) {
             Main.logger.log(Level.WARNING, "Couldn''t load intro video", e);
         }
 
