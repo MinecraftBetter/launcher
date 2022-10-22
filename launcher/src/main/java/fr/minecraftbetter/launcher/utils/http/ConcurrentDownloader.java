@@ -51,7 +51,8 @@ public class ConcurrentDownloader {
                 try {
                     while (Arrays.stream(currentTasks).anyMatch(Objects::nonNull)) {
                         double threadProgress = 0;
-                        for (var thread : currentTasks) threadProgress += thread.getProgress();
+                        for (var thread : currentTasks)
+                            if(thread != null) threadProgress += thread.getProgress();
 
                         int completedTasks = tasks.size() - remainingTasks.size();
                         if (progress != null) progress.accept(new Progress((completedTasks + threadProgress) / tasks.size(), completedTasks + " / " + tasks.size()));
