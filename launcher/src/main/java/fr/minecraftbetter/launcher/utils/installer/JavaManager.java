@@ -86,7 +86,12 @@ public class JavaManager {
             String cpuArch = System.getenv("PROCESSOR_ARCHITECTURE");
             String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
             return cpuArch != null && cpuArch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "x64" : "x86";
-        } else return System.getProperty("os.arch");
+        }
+
+        String arch = System.getProperty("os.arch");
+        if(Objects.equals(arch, "amd64")) return "x64";
+        if(Objects.equals(arch, "i386")) return "x86";
+        return arch;
     }
 
     private static void unzip(File zip, Path dest) {
