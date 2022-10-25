@@ -37,11 +37,13 @@ public class HTTP {
     }
     public static JsonObject getAsJSONObject(String url) {
         JsonElement json = getAsJSON(url);
-        return json == null ? null : json.getAsJsonObject();
+        if(json == null || !json.isJsonObject()) return null;
+        return json.getAsJsonObject();
     }
     public static JsonArray getAsJSONArray(String url) {
         JsonElement json = getAsJSON(url);
-        return json == null ? null : json.getAsJsonArray();
+        if(json == null || !json.isJsonArray()) return null;
+        return json.getAsJsonArray();
     }
 
     public static final int CHUNK_SIZE = 1024;
