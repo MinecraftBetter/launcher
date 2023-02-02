@@ -145,9 +145,9 @@ public class PanelLogin extends Panel {
                 Main.logger.info("A token has been generated");
                 connect(Authenticator.ofMicrosoft(regex.group("code")), true);
             }
-            webView.getEngine().setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
-            webView.getEngine().load(Authenticator.microsoftLogin().toString());
         });
+        webView.getEngine().setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
+        webView.getEngine().load(Authenticator.microsoftLogin().toString());
     }
 
     /**
