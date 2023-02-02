@@ -3,11 +3,11 @@ package fr.minecraftbetter.launcher.utils.installer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.utils.Settings;
 import javafx.application.Platform;
 import javafx.util.Pair;
+import net.hycrafthd.minecraft_authenticator.login.User;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
@@ -23,8 +23,7 @@ public class MinecraftManager {
     public static final String WANTED_MINECRAFT_VERSION = "1.18.2";
     public static final String WANTED_JAVA_VERSION = "18";
 
-    private final MinecraftProfile account;
-    private final String accessToken;
+    private final User account;
 
     final Path javaPath;
     final Path minecraftPath;
@@ -34,9 +33,8 @@ public class MinecraftManager {
     final FabricInstaller fabricInstaller;
     final MCBetterInstaller mcBetterInstaller;
 
-    public MinecraftManager(Path installationPath, MinecraftProfile account, String accessToken) {
+    public MinecraftManager(Path installationPath, User account) {
         this.account = account;
-        this.accessToken = accessToken;
 
         javaPath = installationPath.resolve("jre/").toAbsolutePath();
         minecraftPath = installationPath.resolve("minecraft/").toAbsolutePath();
@@ -161,15 +159,15 @@ public class MinecraftManager {
     public List<String> compileArguments(JsonArray argsJson, String classpath) {
         Map<String, String> values = new HashMap<>();
         // Game
-        values.put("auth_player_name", account.getName());
+        values.put("auth_player_name", account.name());
         values.put("version_name", fabricInstaller.getID());
         values.put("game_directory", minecraftPath.toString());
         values.put("assets_root", minecraftInstaller.assetsPath.toString());
         values.put("assets_index_name", minecraftInstaller.getAssetIndexID());
-        values.put("auth_uuid", account.getId());
-        values.put("auth_access_token", accessToken);
-        values.put("clientid", "0"); //TODO
-        values.put("auth_xuid", "0"); //TODO
+        values.put("auth_uuid", account.uuid());
+        values.put("auth_access_token", account.accessToken());
+        values.put("clientid", account.clientId());
+        values.put("auth_xuid", account.xuid());
         values.put("user_type", "microsoft"); //TODO
         values.put("version_type", "java"); //TODO
         values.put("resolution_width", "1280");

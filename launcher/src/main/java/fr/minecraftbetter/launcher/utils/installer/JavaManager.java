@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
-public class JavaManager {
+public final class JavaManager {
     private JavaManager() {throw new IllegalStateException("Utility class");}
 
     public static final String JRE_API = "https://api.adoptium.net/v3/assets/latest/{0}/hotspot?architecture={1}&image_type=jre&os={2}";

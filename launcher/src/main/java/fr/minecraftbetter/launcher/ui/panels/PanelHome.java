@@ -1,6 +1,5 @@
 package fr.minecraftbetter.launcher.ui.panels;
 
-import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.api.launcher.News;
 import fr.minecraftbetter.launcher.api.server.Player;
@@ -26,6 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import net.hycrafthd.minecraft_authenticator.login.User;
 import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -49,15 +49,13 @@ import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
 public class PanelHome extends Panel {
     public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
 
-    final MinecraftProfile account;
-    final String accessToken;
+    final User account;
     final MinecraftManager minecraftManager;
     final Random random = new Random(new Date().getTime());
 
-    public PanelHome(MinecraftProfile account, String accessToken) {
+    public PanelHome(User account) {
         this.account = account;
-        this.accessToken = accessToken;
-        minecraftManager = new MinecraftManager(Main.AppData, account, accessToken);
+        minecraftManager = new MinecraftManager(Main.AppData, account);
     }
 
     @Override
@@ -232,7 +230,7 @@ public class PanelHome extends Panel {
         VBox serverBox = new VBox(10);
         serverBox.setPadding(new Insets(10, 0, 0, 0));
         serverContent.getChildren().add(serverBox);
-        Label username = new Label("Connecté en tant que " + account.getName());
+        Label username = new Label("Connecté en tant que " + account.name());
 
         Separator line = new Separator();
         line.setPrefWidth(rightWidth - 30);

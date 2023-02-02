@@ -1,9 +1,5 @@
 package fr.minecraftbetter.launcher.ui.panels;
 
-import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
-import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
-import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
-import fr.litarvan.openauth.microsoft.model.response.MinecraftProfile;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.api.launcher.LauncherInfo;
 import fr.minecraftbetter.launcher.ui.PanelManager;
@@ -22,6 +18,10 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.web.WebView;
+import net.hycrafthd.minecraft_authenticator.login.AuthenticationFile;
+import net.hycrafthd.minecraft_authenticator.login.Authenticator;
+import net.hycrafthd.minecraft_authenticator.login.User;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
@@ -33,13 +33,13 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static fr.minecraftbetter.launcher.ui.utils.UiUtils.setupButton;
 
 
 public class PanelLogin extends Panel {
-
-    static final MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
     static final BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
 
     @Override
@@ -62,20 +62,20 @@ public class PanelLogin extends Panel {
         Thread login = new Thread(() -> {
             textEncryptor.setPassword("uFw722H8$@2R");
 
-            // Check if we saved a token
+            // Check if we saved auth data
             try {
-                Path tokenPath = Main.AppData.resolve(Paths.get("token.txt"));
-                if (Files.exists(tokenPath)) {
-                    String encryptedToken = Files.readString(tokenPath);
-                    String decryptedToken = textEncryptor.decrypt(encryptedToken);
-                    tokenConnect(decryptedToken);
+                Path authDataPath = Main.AppData.resolve(Paths.get("token.txt"));
+                if (Files.exists(authDataPath)) {
+                    String encryptedAuthData = Files.readString(authDataPath);
+                    String decryptedAuthData = textEncryptor.decrypt(encryptedAuthData);
+                    authFileConnect(decryptedAuthData);
                     return;
-                } else Main.logger.info("No token is saved");
+                } else Main.logger.info("No auth data is saved");
             } catch (IOException e) {
-                Main.logger.log(Level.WARNING, "Couldn''t read the token", e);
+                Main.logger.log(Level.WARNING, "Couldn''t read the auth data", e);
             }
 
-            webConnect(); // Open a login pop-up
+            Platform.runLater(this::webConnect); // Open a login pop-up
         }); // Makes the requests asynchronously, so it doesn't freeze the app
 
         new Thread(() -> checkVersion(login)).start();
@@ -116,57 +116,85 @@ public class PanelLogin extends Panel {
      * Try to connect using a web pop-up
      */
     private void webConnect() {
-        try {
-            Main.logger.info("Logging in with a web pop-up");
-            connected(authenticator.loginWithWebview());
-        } catch (MicrosoftAuthenticationException e) {
-            Main.logger.log(Level.WARNING, "Connection using a webview failed", e);
-            Platform.runLater(() -> {
-                Button retry = setupButton(layout, "Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
-                Button close = setupButton(layout, "Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
-                PopupPanel errorPopup = openErrorPopup("La connexion guidée a échouée", e, retry, close);
+        Main.logger.info("Logging in with a webview");
 
-                retry.setOnMouseClicked(event -> {
-                    errorPopup.dismiss();
-                    new Thread(this::webConnect).start();
-                });
-                close.setOnMouseClicked(event -> System.exit(0));
-            });
-        }
+        WebView webView = new WebView();
+        layout.getChildren().add(webView);
+        webView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> {
+            Main.logger.finest("GET request to " + newValue);
+            if (newValue.contains(Authenticator.microsoftLoginRedirect())) {
+                final Matcher regex = Pattern.compile("([?&])code=(?<code>.+?)($|&)").matcher(newValue);
+
+                layout.getChildren().remove(webView);
+                if (!regex.find()) {
+                    Main.logger.warning("The connection has been successful but we couldn't retrieve the token");
+                    Button retry = setupButton(layout, "Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
+                    Button close = setupButton(layout, "Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
+
+                    PopupPanel errorPopup = openPopup("La connexion a réussi mais nous n'avons pu la traiter",
+                            "Si le problème persiste merci de contacter un responsable", retry, close);
+
+                    retry.setOnMouseClicked(event -> {
+                        errorPopup.dismiss();
+                        webConnect();
+                    });
+                    close.setOnMouseClicked(event -> System.exit(0));
+                    return;
+                }
+
+                Main.logger.info("A token has been generated");
+                connect(Authenticator.ofMicrosoft(regex.group("code")), true);
+            }
+            webView.getEngine().setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
+            webView.getEngine().load(Authenticator.microsoftLogin().toString());
+        });
     }
 
     /**
      * Try to connect using a token
      */
-    private void tokenConnect(String token) {
+    private void authFileConnect(String authData) throws IOException {
+        Main.logger.info("Logging in with local data");
+        connect(Authenticator.of(AuthenticationFile.readString(authData)), false);
+
+    }
+
+    /**
+     * Connect using the given method
+     */
+    private void connect(Authenticator.Builder builder, boolean interactive) {
         try {
-            Main.logger.info("Logging in with a token");
-            connected(authenticator.loginWithRefreshToken(token));
-        } catch (MicrosoftAuthenticationException e) {
+            Authenticator authenticator = builder.shouldAuthenticate().build();
+            authenticator.run(); // Run authentication
+            connected(authenticator);
+        } catch (Exception e) {
             Main.logger.log(Level.WARNING, "Connection using token failed", e);
             Platform.runLater(() -> {
                 Button retry = setupButton(layout, "Ressayer", "#00C410", FluentUiFilledAL.ARROW_CLOCKWISE_24);
                 Button manual = setupButton(layout, "Connexion manuelle", "#0065D8", FluentUiFilledMZ.PERSON_ARROW_RIGHT_24);
                 Button close = setupButton(layout, "Quitter", "#fd000f", FluentUiFilledAL.DISMISS_24);
-                PopupPanel errorPopup = openErrorPopup("La connexion automatique a échouée", e, retry, manual, close);
+
+                PopupPanel errorPopup = interactive
+                        ? openErrorPopup("La connexion guidée a échouée", e, retry, close)
+                        : openErrorPopup("La connexion automatique a échouée", e, retry, manual, close);
 
                 retry.setOnMouseClicked(event -> {
                     errorPopup.dismiss();
-                    new Thread(() -> tokenConnect(token)).start();
+                    new Thread(() -> connect(builder, interactive)).start();
                 });
                 manual.setOnMouseClicked(event -> {
                     errorPopup.dismiss();
-                    new Thread(this::webConnect).start();
+                    Platform.runLater(this::webConnect);
                 });
                 close.setOnMouseClicked(event -> System.exit(0));
             });
         }
     }
 
-    private void connected(MicrosoftAuthResult result) {
+    private void connected(Authenticator result) {
         // Save the token
         try {
-            String encryptedToken = textEncryptor.encrypt(result.getRefreshToken());
+            String encryptedToken = textEncryptor.encrypt(result.getResultFile().writeString());
             if (!Files.exists(Main.AppData)) Files.createDirectory(Main.AppData);
             Path file = Files.writeString(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken);
             Main.logger.info(() -> MessageFormat.format("Written encrypted token to {0}", file));
@@ -174,9 +202,16 @@ public class PanelLogin extends Panel {
             Main.logger.log(Level.WARNING, "Couldn''t write the token", e);
         }
 
-        MinecraftProfile account = result.getProfile();
-        Main.logger.info(() -> MessageFormat.format("Connected as {0}", account.getName()));
-        Platform.runLater(() -> panelManager.showPanel(new PanelHome(account, result.getAccessToken())));
+        var user = result.getUser();
+        if (user.isEmpty()) {
+            //Show popup
+            return;
+        }
+        User account = user.get();
+
+
+        Main.logger.info(() -> MessageFormat.format("Connected as {0}", account.name()));
+        Platform.runLater(() -> panelManager.showPanel(new PanelHome(account)));
     }
 
 

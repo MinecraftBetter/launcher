@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: net.hycrafthd:minecraft_authenticator:3.0.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.hycrafthd/minecraft_authenticator/3.0.2/b6e86b5f945ee049b36ccd742ac42f661ed236ce/minecraft_authenticator-3.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.hycrafthd/minecraft_authenticator/3.0.2/c18a82bd0911c3a37b1ceeb5ce489db6e9b1ba6c/minecraft_authenticator-3.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
