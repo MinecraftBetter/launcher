@@ -56,7 +56,7 @@ public class PanelLogin extends Panel {
             mediaView.setPreserveRatio(true);
             mediaPlayer.play();
         } catch (MediaException e) {
-            Main.logger.log(Level.WARNING, "Couldn''t load intro video", e);
+            Main.logger.log(Level.WARNING, "Couldn't load intro video", e);
         }
 
         Thread login = new Thread(() -> {
@@ -72,7 +72,7 @@ public class PanelLogin extends Panel {
                     return;
                 } else Main.logger.info("No auth data is saved");
             } catch (IOException e) {
-                Main.logger.log(Level.WARNING, "Couldn''t read the auth data", e);
+                Main.logger.log(Level.WARNING, "Couldn't read the auth data", e);
             }
 
             Platform.runLater(this::webConnect); // Open a login pop-up
@@ -199,7 +199,7 @@ public class PanelLogin extends Panel {
             Path file = Files.writeString(Main.AppData.resolve(Paths.get("token.txt")), encryptedToken);
             Main.logger.info(() -> MessageFormat.format("Written encrypted token to {0}", file));
         } catch (IOException e) {
-            Main.logger.log(Level.WARNING, "Couldn''t write the token", e);
+            Main.logger.log(Level.WARNING, "Couldn't write the token", e);
         }
 
         var user = result.getUser();

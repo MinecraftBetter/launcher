@@ -83,7 +83,7 @@ public class MinecraftManager {
 
     public void startInstall() {
         try {Files.createDirectories(minecraftPath);} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access installation path {0}", minecraftPath));
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn't create/access installation path {0}", minecraftPath));
         }
         new Thread(() -> {
             for (; status < actions.size(); status++) {
