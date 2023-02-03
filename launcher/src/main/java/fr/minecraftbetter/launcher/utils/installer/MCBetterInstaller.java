@@ -3,6 +3,7 @@ package fr.minecraftbetter.launcher.utils.installer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
 import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
@@ -21,16 +22,17 @@ public class MCBetterInstaller {
     private final MinecraftManager minecraftManager;
 
     final Path minecraftPath;
-    final File gameAssetsManifestFile;
 
-    public MCBetterInstaller(MinecraftManager minecraftManager, Path installationPath) {
+    public MCBetterInstaller(MinecraftManager minecraftManager) {
         this.minecraftManager = minecraftManager;
         minecraftPath = minecraftManager.minecraftPath;
-        gameAssetsManifestFile = installationPath.resolve("assets.json").toFile();
     }
 
     public void installMods() {
-        JsonObject apiResponse = HTTP.getAsJSONObject(MINECRAFTBETTER_GAMEASSETS_API);
+        var settings = Settings.getSettings();
+        int version = settings.gameAssetVersion;
+
+        JsonObject apiResponse = HTTP.getAsJSONObject(MINECRAFTBETTER_GAMEASSETS_API + version);
         if (apiResponse == null || apiResponse.get("code").getAsInt() != 200) {
             Main.logger.warning("Game assets API error");
             return;
@@ -50,7 +52,7 @@ public class MCBetterInstaller {
                 i += 1;
                 JsonObject asset = assetE.getValue().getAsJsonObject();
                 File assetFile = minecraftPath.resolve(asset.get("path").getAsString()).toFile();
-                if(!assetFile.toPath().startsWith(minecraftPath)) {
+                if (!assetFile.toPath().startsWith(minecraftPath)) {
                     Main.logger.severe("Security issue, the current file is located outside the authorised path");
                 }
                 if (asset.has("delete") && asset.get("delete").getAsBoolean()) {
@@ -75,12 +77,15 @@ public class MCBetterInstaller {
 
                 downloader.addTask(new DownloadTask(asset.get("url").getAsString(), assetFile, assetE.getKey()));
             }
+            version = Integer.parseInt(versionE.getKey());
         }
 
         downloader.onProgress(p -> minecraftManager.progression(p.getPercentage(), p.getStatus()));
         var thread = downloader.thread();
         thread.start();
         try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
+        settings.gameAssetVersion = version;
+        settings.saveSettings();
     }
 
     /**

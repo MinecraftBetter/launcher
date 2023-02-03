@@ -8,36 +8,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.logging.Level;
 
 public final class Settings {
     public static final Path SETTINGS = Main.AppData.resolve("settings.json");
 
     public String Xmx = "4G";
-
-    public Settings() {}
-
-    public Settings(String Xmx) {this.Xmx = Xmx;}
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (Settings) obj;
-        return Objects.equals(this.Xmx, that.Xmx);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(Xmx);
-    }
-
-    @Override
-    public String toString() {
-        return "Settings[" +
-                "Xmx=" + Xmx + ']';
-    }
+    public int gameAssetVersion = 0;
 
     private static Settings settings;
 

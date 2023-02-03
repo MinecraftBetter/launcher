@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class MinecraftManager {
-    public static final String WANTED_MINECRAFT_VERSION = "1.18.2";
+    public static final String WANTED_MINECRAFT_VERSION = "1.19.3";
     public static final String WANTED_JAVA_VERSION = "18";
 
     private final User account;
@@ -41,7 +41,7 @@ public class MinecraftManager {
 
         minecraftInstaller = new MinecraftInstaller(this, minecraftPath);
         fabricInstaller = new FabricInstaller(this);
-        mcBetterInstaller = new MCBetterInstaller(this, installationPath);
+        mcBetterInstaller = new MCBetterInstaller(this);
 
         actions = new ArrayList<>();
         actions.add(new Pair<>(minecraftInstaller::getProfile, "Initializing"));
