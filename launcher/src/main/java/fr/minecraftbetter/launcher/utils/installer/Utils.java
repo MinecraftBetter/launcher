@@ -15,6 +15,7 @@ public class Utils {
     private Utils() {throw new IllegalStateException("Utility class");}
 
     public static boolean tryCreateFolder(Path path) {
+        if(Files.exists(path)) return true;
         try {Files.createDirectories(path);} catch (IOException e) {
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn't create/access folder at {0}", path.toAbsolutePath()));
             return false;

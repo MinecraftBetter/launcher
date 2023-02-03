@@ -41,17 +41,17 @@ public class MinecraftManager {
 
         minecraftInstaller = new MinecraftInstaller(this, minecraftPath);
         fabricInstaller = new FabricInstaller(this);
-        mcBetterInstaller = new MCBetterInstaller(this);
+        mcBetterInstaller = new MCBetterInstaller(this, installationPath);
 
         actions = new ArrayList<>();
         actions.add(new Pair<>(minecraftInstaller::getProfile, "Initializing"));
+        actions.add(new Pair<>(mcBetterInstaller::installMods, "Installing mods and config"));
         actions.add(new Pair<>(() -> JavaManager.installJava(javaPath, WANTED_JAVA_VERSION, this::progression), "Installing Java " + WANTED_JAVA_VERSION));
         actions.add(new Pair<>(minecraftInstaller::installMinecraft, "Installing Minecraft"));
-        actions.add(new Pair<>(minecraftInstaller::installLibs, "Installing Minecraft libraries"));
         actions.add(new Pair<>(minecraftInstaller::installAssets, "Installing Minecraft assets"));
+        actions.add(new Pair<>(minecraftInstaller::installLibs, "Installing Minecraft libraries"));
         actions.add(new Pair<>(fabricInstaller::getProfile, "Installing Fabric profile"));
         actions.add(new Pair<>(fabricInstaller::installLibs, "Installing Fabric"));
-        actions.add(new Pair<>(mcBetterInstaller::installMods, "Installing mods and config"));
     }
 
     private Consumer<Progress> progress;
@@ -168,7 +168,7 @@ public class MinecraftManager {
         values.put("auth_access_token", account.accessToken());
         values.put("clientid", account.clientId());
         values.put("auth_xuid", account.xuid());
-        values.put("user_type", "microsoft"); //TODO
+        values.put("user_type", account.type());
         values.put("version_type", "java"); //TODO
         values.put("resolution_width", "1280");
         values.put("resolution_height", "720");

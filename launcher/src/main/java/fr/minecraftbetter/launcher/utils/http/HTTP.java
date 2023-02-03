@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.installer.Utils;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,6 +70,7 @@ public class HTTP {
     @NotNull
     public static Boolean downloadFile(String url, File outputFile, Consumer<DownloadProgress> progress) {
         try {
+            Utils.tryCreateFolder(outputFile.toPath().getParent());
             getFile(url, new FileOutputStream(outputFile), progress);
             Main.logger.fine(() -> MessageFormat.format("Saved to {0}", outputFile));
             return true;
