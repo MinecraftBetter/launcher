@@ -15,17 +15,21 @@ public final class Settings {
 
     public String Xmx = "4G";
     public int gameAssetVersion = 0;
+    public int concurrentDownloads = 5;
 
     private static Settings settings;
 
     public static Settings getSettings() {
         if (settings != null) return settings;
-        try {
-            Reader reader = Files.newBufferedReader(SETTINGS);
-            settings = new Gson().fromJson(reader, Settings.class);
-        } catch (IOException e) {
-            Main.logger.log(Level.WARNING, "Couldn't load settings", e);
-            settings = new Settings();
+        if (!Files.exists(SETTINGS)) settings = new Settings();
+        else {
+            try {
+                Reader reader = Files.newBufferedReader(SETTINGS);
+                settings = new Gson().fromJson(reader, Settings.class);
+            } catch (IOException e) {
+                Main.logger.log(Level.WARNING, "Couldn't load settings", e);
+                settings = new Settings();
+            }
         }
         return settings;
     }

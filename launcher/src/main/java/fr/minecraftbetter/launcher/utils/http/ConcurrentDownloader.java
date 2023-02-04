@@ -1,6 +1,7 @@
 package fr.minecraftbetter.launcher.utils.http;
 
 import fr.minecraftbetter.launcher.Main;
+import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.installer.Progress;
 
 import java.util.ArrayList;
@@ -12,16 +13,14 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class ConcurrentDownloader {
-
-    private int concurrentTasks = 5;
-
-    public int getConcurrentTasks() {return concurrentTasks;}
-
-    public void setConcurrentTasks(int concurrentTasks) {this.concurrentTasks = concurrentTasks;}
+    public ConcurrentDownloader() {
+        int concurrentTasks = Settings.getSettings().concurrentDownloads;
+        currentTasks = new DownloadThread[concurrentTasks];
+    }
 
     private final List<DownloadTask> tasks = new ArrayList<>();
     List<DownloadTask> remainingTasks = new ArrayList<>();
-    DownloadThread[] currentTasks = new DownloadThread[concurrentTasks];
+    DownloadThread[] currentTasks;
 
     public void addTask(DownloadTask task) {
         tasks.add(task);
@@ -52,7 +51,7 @@ public class ConcurrentDownloader {
                     while (Arrays.stream(currentTasks).anyMatch(Objects::nonNull)) {
                         double threadProgress = 0;
                         for (var thread : currentTasks)
-                            if(thread != null) threadProgress += thread.getProgress();
+                            if (thread != null) threadProgress += thread.getProgress();
 
                         int completedTasks = tasks.size() - remainingTasks.size();
                         if (progress != null) progress.accept(new Progress((completedTasks + threadProgress) / tasks.size(), completedTasks + " / " + tasks.size()));
@@ -78,7 +77,7 @@ public class ConcurrentDownloader {
                 if (task == null) return;
                 Main.logger.fine("START DOWNLOAD THREAD " + task.getTaskName());
                 task.setDone(success -> {
-                    if(Boolean.TRUE.equals(success)) Main.logger.fine("DOWNLOAD THREAD SUCCEED " + task.getTaskName());
+                    if (Boolean.TRUE.equals(success)) Main.logger.fine("DOWNLOAD THREAD SUCCEED " + task.getTaskName());
                     else Main.logger.warning("DOWNLOAD THREAD ERRORED " + task.getTaskName());
                     start();
                 });
