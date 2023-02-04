@@ -17,7 +17,7 @@ public class Utils {
     public static boolean tryCreateFolder(Path path) {
         if(Files.exists(path)) return true;
         try {Files.createDirectories(path);} catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn't create/access folder at {0}", path.toAbsolutePath()));
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Couldn''t create/access folder at {0}", path.toAbsolutePath()));
             return false;
         }
         return true;
@@ -58,7 +58,7 @@ public class Utils {
             Main.logger.fine(() -> method + " matching, skipping");
             return true;
         }
-        Main.logger.fine(() -> MessageFormat.format("{0} aren't matching, found {1} expected {2}", method, fileSha, hash.toLowerCase()));
+        Main.logger.fine(() -> MessageFormat.format("{0} aren''t matching, found {1} expected {2}", method, fileSha, hash.toLowerCase()));
         return false;
     }
 }
