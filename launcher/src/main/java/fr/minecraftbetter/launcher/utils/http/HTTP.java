@@ -16,41 +16,43 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /** A utility class to make HTTP requests **/
-public class HTTP {
+public final class HTTP {
     private HTTP() {throw new IllegalStateException("Utility class");}
 
-    public static Response get(String url) {
+    private static Response get(String url, int retry) {
         OkHttpClient client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).build();
         Request request = new Request.Builder().url(url).build();
         Main.logger.fine(() -> MessageFormat.format("GET request to {0}", request.url()));
         try {return client.newCall(request).execute();} catch (IOException e) {
             Main.logger.log(Level.SEVERE, "GET request error", e);
-            return null;
+            return retry <= 1 ? null : get(url, retry - 1);
         }
     }
 
     public static JsonElement getAsJSON(String url) {
-        Response response = get(url);
+        Response response = get(url, 3);
         if (response == null) return null;
         ResponseBody body = response.body();
         if (body == null) return null;
         else return JsonParser.parseReader(body.charStream());
     }
+
     public static JsonObject getAsJSONObject(String url) {
         JsonElement json = getAsJSON(url);
-        if(json == null || !json.isJsonObject()) return null;
+        if (json == null || !json.isJsonObject()) return null;
         return json.getAsJsonObject();
     }
+
     public static JsonArray getAsJSONArray(String url) {
         JsonElement json = getAsJSON(url);
-        if(json == null || !json.isJsonArray()) return null;
+        if (json == null || !json.isJsonArray()) return null;
         return json.getAsJsonArray();
     }
 
     public static final int CHUNK_SIZE = 1024;
 
     public static void getFile(String url, OutputStream outputStream, Consumer<DownloadProgress> progress) throws IOException {
-        Response response = get(url);
+        Response response = get(url, 3);
         assert response != null;
         ResponseBody responseBody = response.body();
         if (responseBody == null) throw new IllegalStateException("Response doesn't contain a file");
