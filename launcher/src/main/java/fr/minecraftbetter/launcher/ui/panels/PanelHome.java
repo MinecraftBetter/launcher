@@ -48,6 +48,7 @@ import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
 
 public class PanelHome extends Panel {
     public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
+    public static final int SLIDESHOW_COUNT = 1;
 
     final User account;
     final MinecraftManager minecraftManager;
@@ -62,12 +63,12 @@ public class PanelHome extends Panel {
     public void init(PanelManager panelManager) {
         super.init(panelManager);
         this.panelManager = panelManager;
-        panelManager.setBackground("/minecraftbetter/images/slideshow/" + random.nextInt(1, 10) + ".jpg");
+        panelManager.setBackground("/minecraftbetter/images/slideshow/" + random.nextInt(1, SLIDESHOW_COUNT + 1) + ".jpg");
 
         StackPane panel = new StackPane();
         GridPane.setHgrow(panel, Priority.ALWAYS);
         GridPane.setVgrow(panel, Priority.ALWAYS);
-        panel.setBackground(new Background(new BackgroundFill(new Color(0.08, 0.08, 0.08, 0.33), null, null))); // Darken the background
+        panel.setBackground(new Background(new BackgroundFill(new Color(0.08, 0.08, 0.08, 0.1), null, null))); // Darken the background
         layout.getChildren().add(panel);
 
         ImageView logo = Resources.getImageView("/minecraftbetter/images/home/banner.png");
