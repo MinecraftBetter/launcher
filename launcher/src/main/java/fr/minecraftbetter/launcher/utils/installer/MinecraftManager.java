@@ -216,9 +216,12 @@ public class MinecraftManager {
         boolean allow = Objects.equals(rule.get("action").getAsString(), "allow");
 
         if (rule.has("os")) {
-            for (Map.Entry<String, JsonElement> osRule : rule.get("os").getAsJsonObject().entrySet())
-                if (System.getProperty("os." + osRule.getKey()).matches(osRule.getValue().getAsString())) return !allow;
+            for (Map.Entry<String, JsonElement> osRule : rule.get("os").getAsJsonObject().entrySet()){
+                var property = System.getProperty("os." + osRule.getKey()).toLowerCase();
+                var wantedProperty = osRule.getValue().getAsString().toLowerCase();
+                if (property.contains(wantedProperty)) return !allow;
                 else if (allow) return true;
+            }
         } else if (rule.has("features")) {
             for (Map.Entry<String, JsonElement> featureRule : rule.get("features").getAsJsonObject().entrySet())
                 if (features.containsKey(featureRule.getKey()) && Boolean.TRUE.equals(features.get(featureRule.getKey()))) return !allow;
