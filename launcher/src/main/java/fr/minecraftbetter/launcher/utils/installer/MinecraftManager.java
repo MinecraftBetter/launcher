@@ -223,7 +223,7 @@ public class MinecraftManager {
             }
         } else if (rule.has("features")) {
             for (Map.Entry<String, JsonElement> featureRule : rule.get("features").getAsJsonObject().entrySet())
-                if (features.containsKey(featureRule.getKey()) && Boolean.TRUE.equals(features.get(featureRule.getKey()))) return !allow;
+                if (features.containsKey(featureRule.getKey()) && Boolean.FALSE.equals(features.get(featureRule.getKey()))) return !allow;
         }
         return allow;
     }
