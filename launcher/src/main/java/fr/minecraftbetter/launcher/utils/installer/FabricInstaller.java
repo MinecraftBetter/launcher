@@ -46,7 +46,7 @@ public class FabricInstaller {
     }
 
     public void getProfile() {
-        Path profile = profilesPath.resolve(MinecraftManager.WANTED_MINECRAFT_VERSION + "-fabric.json");
+        Path profile = profilesPath.resolve(minecraftManager.installationProfile.wantedMinecraftVersion + "-fabric.json");
 
         try {
             Files.createDirectories(profilesPath);
@@ -56,7 +56,7 @@ public class FabricInstaller {
             }
         } catch (IOException e) {Main.logger.log(Level.WARNING, "Error while reading fabric profile", e);}
 
-        JsonArray manifest = HTTP.getAsJSONArray(MessageFormat.format(FABRIC_VERSIONS_API, MinecraftManager.WANTED_MINECRAFT_VERSION));
+        JsonArray manifest = HTTP.getAsJSONArray(MessageFormat.format(FABRIC_VERSIONS_API, minecraftManager.installationProfile.wantedMinecraftVersion));
         assert manifest != null && !manifest.isEmpty();
         minecraftManager.progression(1 / 3d);
 
@@ -66,14 +66,14 @@ public class FabricInstaller {
             JsonObject versionMeta = vE.getAsJsonObject().get("loader").getAsJsonObject();
             if (!versionMeta.get("stable").getAsBoolean()) continue;
 
-            Main.logger.fine(() -> MessageFormat.format("Found {0} fabric metadata", MinecraftManager.WANTED_MINECRAFT_VERSION));
+            Main.logger.fine(() -> MessageFormat.format("Found {0} fabric metadata", minecraftManager.installationProfile.wantedMinecraftVersion));
             Main.logger.finest(vE::toString);
             minecraftManager.progression(2 / 3d);
 
             String fabricVersion = versionMeta.get("version").getAsString();
 
-            versionProfile = HTTP.getAsJSONObject(MessageFormat.format(FABRIC_PROFILE_API, MinecraftManager.WANTED_MINECRAFT_VERSION, fabricVersion));
-            Main.logger.fine(() -> MessageFormat.format("Got {0} fabric profile for Minecraft {1}", fabricVersion, MinecraftManager.WANTED_MINECRAFT_VERSION));
+            versionProfile = HTTP.getAsJSONObject(MessageFormat.format(FABRIC_PROFILE_API, minecraftManager.installationProfile.wantedMinecraftVersion, fabricVersion));
+            Main.logger.fine(() -> MessageFormat.format("Got {0} fabric profile for Minecraft {1}", fabricVersion, minecraftManager.installationProfile.wantedMinecraftVersion));
             Main.logger.finest(versionProfile::toString);
             assert versionProfile != null;
             try {Files.write(profile, versionProfile.toString().getBytes());} catch (IOException e) {Main.logger.log(Level.WARNING, "Error while writing fabric profile", e);}

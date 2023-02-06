@@ -20,10 +20,10 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class MinecraftManager {
-    public static final String WANTED_MINECRAFT_VERSION = "1.19.3";
-    public static final String WANTED_JAVA_VERSION = "18";
+    private static final Path INSTALLATION_PATH = Main.AppData;
 
     private final User account;
+    final Installation installationProfile;
 
     final Path javaPath;
     final Path minecraftPath;
@@ -33,11 +33,12 @@ public class MinecraftManager {
     final FabricInstaller fabricInstaller;
     final MCBetterInstaller mcBetterInstaller;
 
-    public MinecraftManager(Path installationPath, User account) {
+    public MinecraftManager(Installation installationProfile, User account) {
         this.account = account;
+        this.installationProfile = installationProfile;
 
-        javaPath = installationPath.resolve("jre/").toAbsolutePath();
-        minecraftPath = installationPath.resolve("minecraft/").toAbsolutePath();
+        javaPath = INSTALLATION_PATH.resolve("jre/").toAbsolutePath();
+        minecraftPath = INSTALLATION_PATH.resolve("minecraft/").resolve(installationProfile.profileName).toAbsolutePath();
 
         minecraftInstaller = new MinecraftInstaller(this, minecraftPath);
         fabricInstaller = new FabricInstaller(this);
@@ -46,7 +47,7 @@ public class MinecraftManager {
         actions = new ArrayList<>();
         actions.add(new Pair<>(minecraftInstaller::getProfile, "Initializing"));
         actions.add(new Pair<>(mcBetterInstaller::installMods, "Installing mods and config"));
-        actions.add(new Pair<>(() -> JavaManager.installJava(javaPath, WANTED_JAVA_VERSION, this::progression), "Installing Java " + WANTED_JAVA_VERSION));
+        actions.add(new Pair<>(() -> JavaManager.installJava(javaPath, installationProfile.wantedJavaVersion, this::progression), "Installing Java " + installationProfile.wantedJavaVersion));
         actions.add(new Pair<>(minecraftInstaller::installMinecraft, "Installing Minecraft"));
         actions.add(new Pair<>(minecraftInstaller::installAssets, "Installing Minecraft assets"));
         actions.add(new Pair<>(minecraftInstaller::installLibs, "Installing Minecraft libraries"));
@@ -169,7 +170,7 @@ public class MinecraftManager {
         values.put("clientid", account.clientId());
         values.put("auth_xuid", account.xuid());
         values.put("user_type", account.type());
-        values.put("version_type", "java"); //TODO
+        values.put("version_type", "java"); // TODO: Find what is expected here
         values.put("resolution_width", "1280");
         values.put("resolution_height", "720");
         //JWM

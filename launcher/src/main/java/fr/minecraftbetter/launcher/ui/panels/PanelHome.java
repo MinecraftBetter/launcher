@@ -12,6 +12,7 @@ import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
+import fr.minecraftbetter.launcher.utils.installer.Installation;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import javafx.application.Platform;
@@ -56,7 +57,7 @@ public class PanelHome extends Panel {
 
     public PanelHome(User account) {
         this.account = account;
-        minecraftManager = new MinecraftManager(Main.AppData, account);
+        minecraftManager = new MinecraftManager(new Installation("1.19.3", "18"), account);
     }
 
     @Override

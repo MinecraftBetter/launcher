@@ -44,7 +44,7 @@ public class MinecraftInstaller {
     }
 
     public void getProfile() {
-        Path profile = profilesPath.resolve(MinecraftManager.WANTED_MINECRAFT_VERSION + ".json");
+        Path profile = profilesPath.resolve(minecraftManager.installationProfile.wantedMinecraftVersion + ".json");
         try {
             Files.createDirectories(profilesPath);
             if (Files.exists(profile)) {
@@ -60,13 +60,13 @@ public class MinecraftInstaller {
         Main.logger.fine(() -> MessageFormat.format("Processing {0} releases", manifest.getAsJsonArray("versions").size()));
         for (JsonElement vE : manifest.getAsJsonArray("versions")) {
             JsonObject versionMeta = vE.getAsJsonObject();
-            if (!Objects.equals(versionMeta.get("id").getAsString(), MinecraftManager.WANTED_MINECRAFT_VERSION)) continue;
+            if (!Objects.equals(versionMeta.get("id").getAsString(), minecraftManager.installationProfile.wantedMinecraftVersion)) continue;
 
-            Main.logger.fine(() -> MessageFormat.format("Found {0} metadata", MinecraftManager.WANTED_MINECRAFT_VERSION));
+            Main.logger.fine(() -> MessageFormat.format("Found {0} metadata", minecraftManager.installationProfile.wantedMinecraftVersion));
             Main.logger.finest(versionMeta::toString);
             minecraftManager.progression(2 / 3d);
             versionProfile = HTTP.getAsJSONObject(versionMeta.get("url").getAsString());
-            Main.logger.fine(() -> MessageFormat.format("Got {0} profile", MinecraftManager.WANTED_MINECRAFT_VERSION));
+            Main.logger.fine(() -> MessageFormat.format("Got {0} profile", minecraftManager.installationProfile.wantedMinecraftVersion));
             Main.logger.finest(versionProfile::toString);
             assert versionProfile != null;
             try {Files.write(profile, versionProfile.toString().getBytes());} catch (IOException e) {Main.logger.log(Level.WARNING, "Error while writing profile", e);}
