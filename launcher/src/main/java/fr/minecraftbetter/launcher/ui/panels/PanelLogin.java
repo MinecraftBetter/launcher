@@ -164,7 +164,7 @@ public class PanelLogin extends Panel {
      */
     private void connect(Authenticator.Builder builder, boolean interactive) {
         try {
-            Authenticator authenticator = builder.shouldAuthenticate().build();
+            Authenticator authenticator = builder.shouldAuthenticate().serviceReadTimeout(30 * 1000).build();
             authenticator.run(); // Run authentication
             connected(authenticator);
         } catch (Exception e) {
