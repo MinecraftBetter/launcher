@@ -12,6 +12,8 @@ import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
 import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
+import javafx.beans.binding.DoubleBinding;
+import javafx.util.Pair;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -79,26 +81,34 @@ public class FabricInstaller {
         }
     }
 
+    private HashMap<String, Pair<Integer, DownloadTask>> libs = new HashMap<>();
+
     public void installLibs() {
         assert versionProfile != null;
 
-        JsonArray libs = versionProfile.get("libraries").getAsJsonArray();
-        ConcurrentDownloader downloader = new ConcurrentDownloader();
-        for (JsonElement libE : libs) {
+        JsonArray libsJson = versionProfile.get("libraries").getAsJsonArray();
+        for (JsonElement libE : libsJson) {
             JsonObject lib = libE.getAsJsonObject();
             String[] libNameParts = lib.get("name").getAsString().split(":");
             ArtifactCoordinates coords = new ArtifactCoordinates(libNameParts[0], libNameParts[1], libNameParts[2]);
-            downloadLib(coords, lib.get("url").getAsString(), libsPath, downloader);
+            downloadLib(coords, lib.get("url").getAsString(), libsPath, 0);
         }
 
+        ConcurrentDownloader downloader = new ConcurrentDownloader();
+        for (Pair<Integer, DownloadTask> lib: libs.values()) downloader.addTask(lib.getValue());
         downloader.onProgress(p -> minecraftManager.progression(p.getPercentage(), p.getStatus()));
         var thread = downloader.thread();
         thread.start();
         try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
     }
 
-    private boolean downloadLib(ArtifactCoordinates coords, String repoURL, Path installationPath, ConcurrentDownloader downloader) {
-        Main.logger.fine(() -> MessageFormat.format("Installing {0}", coords.getArtifactId()));
+    private boolean downloadLib(ArtifactCoordinates coords, String repoURL, Path installationPath, int depth) {
+        var libName = coords.getGroupId() + "." + coords.getArtifactId();
+        if (libs.containsKey(libName) && depth > libs.get(libName).getKey()) {
+            Main.logger.fine(() -> MessageFormat.format("Circular reference for {0}", libName));
+            return false;
+        }
+        Main.logger.fine(() -> MessageFormat.format("Installing {0}", libName));
 
         ArtifactRepository repo;
         try {
@@ -112,7 +122,7 @@ public class FabricInstaller {
             artifact = repo.get(coords);
         } catch (ArtifactRepositoryException | IOException e) {
             if (!repoURL.equals(MAVEN_CENTRAL_REPOSITORY))
-                return downloadLib(coords, MAVEN_CENTRAL_REPOSITORY, installationPath, downloader); // Try to download with Maven Central Repository
+                return downloadLib(coords, MAVEN_CENTRAL_REPOSITORY, installationPath, depth); // Try to download with Maven Central Repository
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error getting artifact {0}", coords.getArtifactId()));
             return false;
         }
@@ -129,13 +139,13 @@ public class FabricInstaller {
             if (match.isPresent())
                 Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", match.get(), coords.getArtifactId()));
             else if (!Files.exists(libFile))
-                downloader.addTask(new DownloadTask(artifact.getLocation().toString().replace(".pom", ".jar"), libFile.toFile(), coords.getArtifactId()));
+                libs.put(libName, new Pair(depth, new DownloadTask(artifact.getLocation().toString().replace(".pom", ".jar"), libFile.toFile(), coords.getArtifactId())));
         } catch (IOException e) {
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while search for {0} in local files", coords.getArtifactId()));
         }
 
 
-        for (ArtifactCoordinates dep : artifact.getDependencies()) downloadLib(dep, repoURL, installationPath, downloader);
+        for (ArtifactCoordinates dep : artifact.getDependencies()) downloadLib(dep, repoURL, installationPath, depth + 1);
         return true;
     }
 
