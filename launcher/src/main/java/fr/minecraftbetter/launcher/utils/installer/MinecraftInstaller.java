@@ -92,7 +92,7 @@ public class MinecraftInstaller {
             JsonObject lib = libs.get(i).getAsJsonObject();
             String libName = lib.get("name").getAsString();
             minecraftManager.progression(i / (double) libs.size(), libName);
-            if (!minecraftManager.checkRules(lib)) continue;
+            if (minecraftManager.rulesAreUnmatched(lib)) continue;
 
             var task = downloadLib(lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject(), libName);
             if (task != null) downloader.addTask(task);

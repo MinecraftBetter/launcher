@@ -185,7 +185,7 @@ public class MinecraftManager {
             if (arg.isJsonPrimitive()) argValues.add(arg.getAsString());
             else if (arg.isJsonObject()) {
                 JsonObject argData = arg.getAsJsonObject();
-                if (!checkRules(argData)) continue;
+                if (rulesAreUnmatched(argData)) continue;
                 JsonElement argValuesE = argData.get("value");
                 if (argValuesE.isJsonArray()) argValues = argValuesE.getAsJsonArray();
                 else argValues.add(argValuesE.getAsString());
@@ -199,16 +199,16 @@ public class MinecraftManager {
         return args;
     }
 
-    public boolean checkRules(JsonObject node) {
-        if (!node.has("rules")) return true;
+    public boolean rulesAreUnmatched(JsonObject node) {
+        if (!node.has("rules")) return false;
         for (JsonElement ruleE : node.get("rules").getAsJsonArray()) {
             JsonObject rule = ruleE.getAsJsonObject();
-            if (ruleIsUnmatched(rule)) return false;
+            if (ruleIsMatched(rule)) return false;
         }
         return true;
     }
 
-    private boolean ruleIsUnmatched(JsonObject rule) {
+    private boolean ruleIsMatched(JsonObject rule) {
         Map<String, Boolean> features = new HashMap<>();
         features.put("is_demo_user", false); // Not a demo
         features.put("has_custom_resolution", true);
@@ -219,15 +219,13 @@ public class MinecraftManager {
             for (Map.Entry<String, JsonElement> osRule : rule.get("os").getAsJsonObject().entrySet()){
                 var property = System.getProperty("os." + osRule.getKey()).toLowerCase();
                 var wantedProperty = osRule.getValue().getAsString().toLowerCase();
-                if (property.contains(wantedProperty)) return !allow;
-                else if (allow) return true;
+                if (!property.contains(wantedProperty)) return !allow;
             }
         } else if (rule.has("features")) {
             for (Map.Entry<String, JsonElement> featureRule : rule.get("features").getAsJsonObject().entrySet())
                 if (features.containsKey(featureRule.getKey()) && Boolean.TRUE.equals(features.get(featureRule.getKey()))) return !allow;
-                else if (allow) return true;
-        } else return !allow;
-        return false;
+        }
+        return allow;
     }
 }
 
