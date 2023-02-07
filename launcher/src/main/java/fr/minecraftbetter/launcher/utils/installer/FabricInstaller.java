@@ -12,7 +12,6 @@ import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
 import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
-import javafx.beans.binding.DoubleBinding;
 import javafx.util.Pair;
 
 import java.io.FileReader;
@@ -23,7 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -81,7 +81,7 @@ public class FabricInstaller {
         }
     }
 
-    private HashMap<String, Pair<Integer, DownloadTask>> libs = new HashMap<>();
+    private final HashMap<String, Pair<Integer, DownloadTask>> libs = new HashMap<>();
 
     public void installLibs() {
         assert versionProfile != null;
@@ -95,7 +95,7 @@ public class FabricInstaller {
         }
 
         ConcurrentDownloader downloader = new ConcurrentDownloader();
-        for (Pair<Integer, DownloadTask> lib: libs.values()) downloader.addTask(lib.getValue());
+        for (Pair<Integer, DownloadTask> lib : libs.values()) downloader.addTask(lib.getValue());
         downloader.onProgress(p -> minecraftManager.progression(p.getPercentage(), p.getStatus()));
         var thread = downloader.thread();
         thread.start();
@@ -105,10 +105,10 @@ public class FabricInstaller {
     private boolean downloadLib(ArtifactCoordinates coords, String repoURL, Path installationPath, int depth) {
         var libName = coords.getGroupId() + "." + coords.getArtifactId();
         if (libs.containsKey(libName) && depth > libs.get(libName).getKey()) {
-            Main.logger.fine(() -> MessageFormat.format("Circular reference for {0}", libName));
+            Main.logger.fine(() -> MessageFormat.format("Circular reference for {0} (depth {1})", libName, depth));
             return false;
         }
-        Main.logger.fine(() -> MessageFormat.format("Installing {0}", libName));
+        Main.logger.fine(() -> MessageFormat.format("Checking {0} (depth {1})", libName, depth));
 
         ArtifactRepository repo;
         try {
@@ -123,7 +123,7 @@ public class FabricInstaller {
         } catch (ArtifactRepositoryException | IOException e) {
             if (!repoURL.equals(MAVEN_CENTRAL_REPOSITORY))
                 return downloadLib(coords, MAVEN_CENTRAL_REPOSITORY, installationPath, depth); // Try to download with Maven Central Repository
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error getting artifact {0}", coords.getArtifactId()));
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error getting artifact {0}:{1}", libName, coords.getVersion()));
             return false;
         }
 
@@ -138,10 +138,12 @@ public class FabricInstaller {
             Optional<Path> match = libsInDir.findAny();
             if (match.isPresent())
                 Main.logger.fine(() -> MessageFormat.format("An existing lib for {1} has been found at {0}, skipping", match.get(), coords.getArtifactId()));
-            else if (!Files.exists(libFile))
-                libs.put(libName, new Pair(depth, new DownloadTask(artifact.getLocation().toString().replace(".pom", ".jar"), libFile.toFile(), coords.getArtifactId())));
+            else if (!Files.exists(libFile)) {
+                Main.logger.fine(() -> MessageFormat.format("Adding {0} to the download list", libName));
+                libs.put(libName, new Pair<>(depth, new DownloadTask(artifact.getLocation().toString().replace(".pom", ".jar"), libFile.toFile(), coords.getArtifactId())));
+            }
         } catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while search for {0} in local files", coords.getArtifactId()));
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while searching for {0} in local files", coords.getArtifactId()));
         }
 
 

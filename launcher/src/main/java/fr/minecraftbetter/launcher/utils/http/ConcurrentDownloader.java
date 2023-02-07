@@ -43,7 +43,7 @@ public class ConcurrentDownloader {
                     DownloadTask nextTask = remainingTasks.get(0);
                     remainingTasks.remove(nextTask);
                     return nextTask;
-                });
+                }, finalI);
                 currentTasks[finalI].start();
             }
             synchronized (this) {
@@ -63,9 +63,13 @@ public class ConcurrentDownloader {
     }
 
     static final class DownloadThread {
+        private final int index;
         private final Callable<DownloadTask> getNext;
 
-        DownloadThread(Callable<DownloadTask> getNext) {this.getNext = getNext;}
+        DownloadThread(Callable<DownloadTask> getNext, int index) {
+            this.getNext = getNext;
+            this.index = index;
+        }
 
         DownloadTask task;
 
@@ -75,14 +79,14 @@ public class ConcurrentDownloader {
             try {
                 task = getNext.call();
                 if (task == null) return;
-                Main.logger.fine("START DOWNLOAD THREAD " + task.getTaskName());
+                Main.logger.log(Level.FINE, "START DOWNLOAD THREAD {0} {1}", new Object[]{index, task.getTaskName()});
                 task.setDone(success -> {
-                    if (Boolean.TRUE.equals(success)) Main.logger.fine("DOWNLOAD THREAD SUCCEED " + task.getTaskName());
-                    else Main.logger.warning("DOWNLOAD THREAD ERRORED " + task.getTaskName());
+                    if (Boolean.TRUE.equals(success)) Main.logger.log(Level.FINE, "DOWNLOAD THREAD {0} SUCCEED {1}", new Object[]{index, task.getTaskName()});
+                    else Main.logger.log(Level.WARNING, "DOWNLOAD THREAD {0} ERRORED {1}", new Object[]{index, task.getTaskName()});
                     start();
                 });
                 new Thread(task::start).start();
-            } catch (Exception e) {Main.logger.log(Level.WARNING, "Failed to get next download task", e);}
+            } catch (Exception e) {Main.logger.log(Level.WARNING, "Failed to get next download task (thread " + index + ")", e);}
         }
     }
 }
