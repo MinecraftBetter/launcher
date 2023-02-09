@@ -8,6 +8,7 @@ import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
 import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
+import org.apache.commons.text.StringSubstitutor;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,12 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 
-public class MinecraftInstaller {
+public class MinecraftInstaller implements Installer {
     public static final String MINECRAFT_VERSION_MANIFEST_API = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
     private JsonObject versionProfile;
@@ -30,17 +32,19 @@ public class MinecraftInstaller {
     final Path javaPath;
     final Path profilesPath;
     final File minecraftFile;
+    final Path nativeLibsPath;
     final Path libsPath;
     final Path assetsPath;
 
-    public MinecraftInstaller(MinecraftManager minecraftManager, Path installationPath) {
+    public MinecraftInstaller(MinecraftManager minecraftManager) {
         this.minecraftManager = minecraftManager;
 
-        javaPath = installationPath.resolve("../jre/").toAbsolutePath();
-        minecraftFile = installationPath.resolve("minecraft.jar").toFile();
-        profilesPath = installationPath.resolve("profiles/");
-        libsPath = installationPath.resolve("libraries/");
-        assetsPath = installationPath.resolve("assets/");
+        javaPath = minecraftManager.javaPath;
+        minecraftFile = minecraftManager.minecraftPath.resolve("minecraft.jar").toFile();
+        profilesPath = minecraftManager.minecraftPath.resolve("profiles/");
+        nativeLibsPath = minecraftManager.minecraftPath.resolve(".natives/");
+        libsPath = minecraftManager.minecraftPath.resolve("libraries/");
+        assetsPath = minecraftManager.minecraftPath.resolve("assets/");
     }
 
     public void getProfile() {
@@ -94,14 +98,22 @@ public class MinecraftInstaller {
             minecraftManager.progression(i / (double) libs.size(), libName);
             if (minecraftManager.rulesAreUnmatched(lib)) continue;
 
-            var task = downloadLib(lib.get("downloads").getAsJsonObject().get("artifact").getAsJsonObject(), libName);
-            if (task != null) downloader.addTask(task);
+            var downloads = lib.get("downloads").getAsJsonObject();
+            if(downloads.has("artifact")) {
+                var task = downloadLib(downloads.get("artifact").getAsJsonObject(), libName);
+                if (task != null) downloader.addTask(task);
+            }
             if (lib.has("natives")) {
+                var classifiers = downloads.get("classifiers").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> nativeCat : lib.get("natives").getAsJsonObject().entrySet()) {
                     if (!System.getProperty("os.name").toLowerCase().contains(nativeCat.getKey())) continue;
-                    JsonObject nativeInfo = lib.get("downloads").getAsJsonObject().get("classifiers").getAsJsonObject().get(nativeCat.getValue().getAsString()).getAsJsonObject();
 
-                    task = downloadLib(nativeInfo, libName);
+                    Map<String, String> values = new HashMap<>();
+                    values.put("arch", JavaManager.getArch().replace("x", ""));
+                    var nativeKey = new StringSubstitutor(values).replace(nativeCat.getValue().getAsString());
+                    JsonObject nativeInfo = classifiers.get(nativeKey).getAsJsonObject();
+
+                    var task = downloadLib(nativeInfo, libName);
                     if (task != null) downloader.addTask(task);
                 }
             }
@@ -183,12 +195,27 @@ public class MinecraftInstaller {
 
     public JsonArray getJWMArguments() {
         assert versionProfile != null;
-        return versionProfile.get("arguments").getAsJsonObject().get("jvm").getAsJsonArray();
+        if(versionProfile.has("arguments")) return versionProfile.get("arguments").getAsJsonObject().get("jvm").getAsJsonArray();
+        else {
+            var array = new JsonArray();
+            array.add("-Djava.library.path=${natives_directory}");
+            array.add("-Dminecraft.launcher.brand=${launcher_name}");
+            array.add("-Dminecraft.launcher.version=${launcher_version}");
+            array.add("-cp");
+            array.add("${classpath}");
+            return array;
+        }
     }
 
     public JsonArray getGameArguments() {
         assert versionProfile != null;
-        return versionProfile.get("arguments").getAsJsonObject().get("game").getAsJsonArray();
+        if(versionProfile.has("arguments")) return versionProfile.get("arguments").getAsJsonObject().get("game").getAsJsonArray();
+        else if(versionProfile.has("minecraftArguments")) {
+            var array = new JsonArray();
+            for (String arg: versionProfile.get("minecraftArguments").getAsString().split(" ")) array.add(arg);
+            return array;
+        }
+        return null;
     }
 
     public String getAssetIndexID() {

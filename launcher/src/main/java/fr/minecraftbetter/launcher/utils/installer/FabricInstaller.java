@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
-public class FabricInstaller {
+public class FabricInstaller implements Installer {
 
     public static final String FABRIC_VERSIONS_API = "https://meta.fabricmc.net/v2/versions/loader/{0}";
     public static final String FABRIC_PROFILE_API = "https://meta.fabricmc.net/v2/versions/loader/{0}/{1}/profile/json";
@@ -150,6 +150,8 @@ public class FabricInstaller {
         for (ArtifactCoordinates dep : artifact.getDependencies()) downloadLib(dep, repoURL, installationPath, depth + 1);
         return true;
     }
+
+    public void installAssets() { /* Nothing to install */ }
 
     public String getID() {
         assert versionProfile != null;

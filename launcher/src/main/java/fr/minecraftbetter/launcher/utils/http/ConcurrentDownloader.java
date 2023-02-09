@@ -4,6 +4,7 @@ import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.installer.Progress;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,10 +80,10 @@ public class ConcurrentDownloader {
             try {
                 task = getNext.call();
                 if (task == null) return;
-                Main.logger.log(Level.FINE, "START DOWNLOAD THREAD {0} {1}", new Object[]{index, task.getTaskName()});
+                Main.logger.fine(() -> MessageFormat.format("START DOWNLOAD THREAD {0} {1}", index, task.getTaskName()));
                 task.setDone(success -> {
-                    if (Boolean.TRUE.equals(success)) Main.logger.log(Level.FINE, "DOWNLOAD THREAD {0} SUCCEED {1}", new Object[]{index, task.getTaskName()});
-                    else Main.logger.log(Level.WARNING, "DOWNLOAD THREAD {0} ERRORED {1}", new Object[]{index, task.getTaskName()});
+                    if (Boolean.TRUE.equals(success)) Main.logger.fine(() -> MessageFormat.format("DOWNLOAD THREAD {0} SUCCEED {1}", index, task.getTaskName()));
+                    else Main.logger.warning(() -> MessageFormat.format("DOWNLOAD THREAD {0} ERRORED {1}", index, task.getTaskName()));
                     start();
                 });
                 new Thread(task::start).start();

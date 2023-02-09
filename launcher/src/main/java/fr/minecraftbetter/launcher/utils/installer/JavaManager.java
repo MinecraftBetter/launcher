@@ -80,7 +80,7 @@ public final class JavaManager {
         return null;
     }
 
-    private static String getArch() {
+    static String getArch() {
         if (SystemUtils.IS_OS_WINDOWS) {
             // Windows returns x86 if the program is running on 32 bits java
             String cpuArch = System.getenv("PROCESSOR_ARCHITECTURE");
@@ -89,8 +89,8 @@ public final class JavaManager {
         }
 
         String arch = System.getProperty("os.arch");
-        if(Objects.equals(arch, "amd64")) return "x64";
-        if(Objects.equals(arch, "i386")) return "x86";
+        if (Objects.equals(arch, "amd64")) return "x64";
+        if (Objects.equals(arch, "i386")) return "x86";
         return arch;
     }
 

@@ -51,13 +51,15 @@ public class PanelHome extends Panel {
     public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
     public static final int SLIDESHOW_COUNT = 1;
 
+    public static final List<Installation> INSTALLATION_PROFILES = List.of(new Installation("1.19.3", "18"), new Installation("1.8.8", "8"));
+
     final User account;
     final MinecraftManager minecraftManager;
     final Random random = new Random(new Date().getTime());
 
     public PanelHome(User account) {
         this.account = account;
-        minecraftManager = new MinecraftManager(new Installation("1.19.3", "18"), account);
+        minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(Settings.getSettings().profile), account);
     }
 
     @Override

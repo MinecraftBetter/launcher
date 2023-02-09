@@ -15,6 +15,7 @@ public final class Settings {
 
     public String Xmx = "4G";
     public int gameAssetVersion = 0;
+    public int profile = 0;
     public int concurrentDownloads = 5;
 
     private static Settings settings;
