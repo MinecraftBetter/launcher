@@ -52,7 +52,7 @@ public class UiUtils {
     public static javafx.scene.control.Button setupButton(Pane layout, String text, String color, Ikon icon) {return setupButton(layout, text, color, icon, 10);}
 
     public static javafx.scene.control.Button setupButton(Pane layout, String text, String color, Ikon icon, int borderRadius) {
-        FontIcon fontIcon = new FontIcon(icon);
+        FontIcon fontIcon = icon != null ? new FontIcon(icon) : new FontIcon();
         fontIcon.setIconSize(24);
         fontIcon.setFill(new Color(1, 1, 1, 1));
         javafx.scene.control.Button btn = new Button(text, fontIcon);

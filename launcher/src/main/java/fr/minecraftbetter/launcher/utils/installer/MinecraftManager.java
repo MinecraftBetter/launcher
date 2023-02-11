@@ -1,5 +1,6 @@
 package fr.minecraftbetter.launcher.utils.installer;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,6 +64,10 @@ public class MinecraftManager {
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::getProfile, "Installing Fabric profile"));
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::installLibs, "Installing Fabric"));
         }
+
+        try {Files.writeString(minecraftInstaller.profilesPath.resolve("profile.json"), new GsonBuilder().setPrettyPrinting().create().toJson(installationProfile));} catch (IOException e) {
+            Main.logger.log(Level.WARNING, "Couldn't save settings", e);
+        }
     }
 
     private Consumer<Progress> progress;
@@ -110,9 +115,9 @@ public class MinecraftManager {
         }).start();
     }
 
-    private static boolean checked = false;
+    private boolean checked = false;
 
-    public static boolean verifyInstall() {
+    public boolean verifyInstall() {
         if (!checked) {
             // TODO: Really check
             checked = true;
@@ -191,6 +196,7 @@ public class MinecraftManager {
 
     public List<String> compileArguments(JsonArray argsJson, String classpath) {
         Map<String, String> values = new HashMap<>();
+
         // Game
         values.put("auth_player_name", account.name());
         var installersInstance = installers.values().stream().toList();
@@ -213,6 +219,7 @@ public class MinecraftManager {
         values.put("version_type", "java"); // TODO: Find what is expected here
         values.put("resolution_width", "1280");
         values.put("resolution_height", "720");
+
         //JWM
         values.put("natives_directory", minecraftInstaller.nativeLibsPath.toString());
         values.put("launcher_name", "MinecraftBetter");

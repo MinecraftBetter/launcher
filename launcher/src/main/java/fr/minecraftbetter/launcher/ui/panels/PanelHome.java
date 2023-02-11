@@ -51,15 +51,18 @@ public class PanelHome extends Panel {
     public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
     public static final int SLIDESHOW_COUNT = 1;
 
-    public static final List<Installation> INSTALLATION_PROFILES = List.of(new Installation("1.19.3", "18"), new Installation("1.8.8", "8"));
+    int selectedProfile = Settings.getSettings().profile;
+    public static final List<Installation> INSTALLATION_PROFILES = List.of(
+            new Installation("1.19.3").setWantedJavaVersion("18"),
+            new Installation("1.8.8").setWantedJavaVersion("8")
+    );
 
     final User account;
-    final MinecraftManager minecraftManager;
+    MinecraftManager minecraftManager;
     final Random random = new Random(new Date().getTime());
 
     public PanelHome(User account) {
         this.account = account;
-        minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(Settings.getSettings().profile), account);
     }
 
     @Override
@@ -109,10 +112,10 @@ public class PanelHome extends Panel {
         settingsBtn.setOnMouseClicked(event -> settingPopup(layout));
 
         // Install/Launch Btn
+        minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(selectedProfile), account);
         boolean installed = Files.exists(minecraftManager.getMinecraftPath());
-        Button play = UiUtils.setupButton(layout,
-                installed ? "VERIFIER" : "INSTALLER", "#fd000f",
-                installed ? FluentUiFilledAL.DOCUMENT_AUTOSAVE_24 : FluentUiFilledAL.ARROW_DOWNLOAD_24, 45);
+        Button play = UiUtils.setupButton(layout, null, "#fd000f", null, 45);
+        updatePlayBtn(play, installed ? MinecraftInstance.StartStatus.UNKNOWN: MinecraftInstance.StartStatus.EXITED);
         news.getChildren().add(play);
         StackPane.setAlignment(play, Pos.TOP_LEFT);
         play.setPrefSize(200, 50);
@@ -123,6 +126,18 @@ public class PanelHome extends Panel {
         DoubleBinding progressRightX = social.translateXProperty().add(social.widthProperty().divide(2));
         DoubleBinding progressY = play.translateYProperty().add(play.heightProperty().divide(2)).add(news.translateYProperty()).subtract(news.heightProperty().divide(2));
         play.setOnMouseClicked(event -> playBtnClicked(play, panel, progressLeftX, progressRightX, progressY));
+        play.setOnScroll(event -> {
+            if (event.getDeltaY() > 0) {
+                if (selectedProfile < INSTALLATION_PROFILES.size() - 1) selectedProfile++;
+                else selectedProfile = 0;
+            } else if (event.getDeltaY() < 0) {
+                if (selectedProfile > 0) selectedProfile--;
+                else selectedProfile = INSTALLATION_PROFILES.size() - 1;
+            }
+            
+            updatePlayBtn(play, MinecraftInstance.StartStatus.UNKNOWN);
+            minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(selectedProfile), account);
+        });
     }
 
     //region Home Panels
@@ -290,34 +305,59 @@ public class PanelHome extends Panel {
     }
     //endregion
 
+    private void updatePlayBtn(Button play, MinecraftInstance.StartStatus status) {
+        var profileName = INSTALLATION_PROFILES.get(selectedProfile).getProfileName();
+        switch (status) {
+            case STARTED -> {
+                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
+                play.setText("LANCÉ (" + profileName + ")");
+                play.setDisable(true);
+            }
+            case INCOMPLETE_INSTALL -> {
+                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.ARROW_DOWNLOAD_24);
+                play.setText("INSTALLATION (" + profileName + ")");
+                play.setDisable(true);
+            }
+            case ERROR -> {
+                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.ERROR_CIRCLE_24);
+                play.setText("ERREUR (" + profileName + ")");
+                play.setDisable(false);
+            }
+            case EXITED -> {
+                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
+                play.setText("JOUER (" + profileName + ")");
+                play.setDisable(false);
+            }
+            default -> {
+                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.DOCUMENT_AUTOSAVE_24);
+                play.setText("VERIFIER (" + profileName + ")");
+                play.setDisable(false);
+            }
+        }
+    }
+
     private void playBtnClicked(Button play, StackPane panel, DoubleBinding progressLeftX, DoubleBinding progressRightX, DoubleBinding progressY) {
         if (Files.exists(minecraftManager.getMinecraftPath())) {
             play.setDisable(true);
             Main.logger.fine("The launch of Minecraft has been requested");
             MinecraftInstance instance = minecraftManager.startGame();
+            updatePlayBtn(play, instance.getStatus());
             if (instance.getStatus() == MinecraftInstance.StartStatus.ERROR) {
                 Main.logger.severe("Couldn't start Minecraft");
-                play.setDisable(false);
             } else if (instance.getStatus() == MinecraftInstance.StartStatus.STARTED) {
                 Main.logger.fine("Minecraft has been started");
-                ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.CONTENT_SETTINGS_24);
-                play.setText("LANCÉ");
                 instance.onExit((error, process) -> {
                     if (Boolean.TRUE.equals(error)) {
                         Main.logger.severe("An error has occurred during Minecraft execution " + process.errorReader().lines().collect(Collectors.joining("\n")));
                     } else Main.logger.fine("Minecraft has been exited");
-                    play.setDisable(false);
-                    ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
-                    play.setText("JOUER");
+                    updatePlayBtn(play, MinecraftInstance.StartStatus.EXITED);
                 });
             }
             if (instance.getStatus() != MinecraftInstance.StartStatus.INCOMPLETE_INSTALL) return;
             Main.logger.warning("The current installation of Minecraft is incomplete");
         }
-        ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledAL.ARROW_DOWNLOAD_24);
-        play.setText("INSTALLATION");
 
-        play.setDisable(true);
+        updatePlayBtn(play, MinecraftInstance.StartStatus.INCOMPLETE_INSTALL);
         setupInstallationBar(play, panel, progressLeftX, progressRightX, progressY);
         minecraftManager.startInstall();
     }
@@ -344,10 +384,7 @@ public class PanelHome extends Panel {
         });
         minecraftManager.setComplete(() -> {
             panel.getChildren().removeAll(installationProgress, installationStatus);
-
-            ((FontIcon) play.getGraphic()).setIconCode(FluentUiFilledMZ.PLAY_24);
-            play.setText("JOUER");
-            play.setDisable(false);
+            updatePlayBtn(play, MinecraftInstance.StartStatus.EXITED);
         });
     }
 

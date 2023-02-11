@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 
 public class MinecraftInstance {
 
-    public enum StartStatus {STARTED, ERROR, INCOMPLETE_INSTALL}
+    public enum StartStatus {STARTED, ERROR, INCOMPLETE_INSTALL, EXITED, UNKNOWN}
 
     StartStatus status;
     public StartStatus getStatus() { return status; }

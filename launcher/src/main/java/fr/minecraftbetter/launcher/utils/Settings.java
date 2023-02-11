@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.logging.Level;
 
 public final class Settings {
-    public static final Path SETTINGS = Main.AppData.resolve("settings.json");
+    public static final Path SETTINGS_PATH = Main.AppData.resolve("settings.json");
 
     public String Xmx = "4G";
     public int gameAssetVersion = 0;
@@ -22,10 +22,10 @@ public final class Settings {
 
     public static Settings getSettings() {
         if (settings != null) return settings;
-        if (!Files.exists(SETTINGS)) settings = new Settings();
+        if (!Files.exists(SETTINGS_PATH)) settings = new Settings();
         else {
             try {
-                Reader reader = Files.newBufferedReader(SETTINGS);
+                Reader reader = Files.newBufferedReader(SETTINGS_PATH);
                 settings = new Gson().fromJson(reader, Settings.class);
             } catch (IOException e) {
                 Main.logger.log(Level.WARNING, "Couldn't load settings", e);
@@ -36,7 +36,7 @@ public final class Settings {
     }
 
     public void saveSettings() {
-        try {Files.writeString(SETTINGS, new GsonBuilder().setPrettyPrinting().create().toJson(this));} catch (IOException e) {
+        try {Files.writeString(SETTINGS_PATH, new GsonBuilder().setPrettyPrinting().create().toJson(this));} catch (IOException e) {
             Main.logger.log(Level.WARNING, "Couldn't save settings", e);
         }
     }
