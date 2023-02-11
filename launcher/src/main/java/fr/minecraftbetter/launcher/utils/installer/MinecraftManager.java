@@ -65,7 +65,9 @@ public class MinecraftManager {
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::installLibs, "Installing Fabric"));
         }
 
-        try {Files.writeString(minecraftInstaller.profilesPath.resolve("profile.json"), new GsonBuilder().setPrettyPrinting().create().toJson(installationProfile));} catch (IOException e) {
+        try {
+            Files.writeString(minecraftInstaller.profilesPath.resolve("profile.json"), new GsonBuilder().setPrettyPrinting().create().toJson(installationProfile));
+        } catch (IOException e) {
             Main.logger.log(Level.WARNING, "Couldn't save settings", e);
         }
     }

@@ -13,6 +13,7 @@ import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
 import fr.minecraftbetter.launcher.utils.installer.Installation;
+import fr.minecraftbetter.launcher.utils.installer.Loader;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
 import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import javafx.application.Platform;
@@ -38,6 +39,7 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -53,7 +55,7 @@ public class PanelHome extends Panel {
 
     int selectedProfile = Settings.getSettings().profile;
     public static final List<Installation> INSTALLATION_PROFILES = List.of(
-            new Installation("1.19.3").setWantedJavaVersion("18"),
+            new Installation("1.19.3").setWantedJavaVersion("18").addModLoader(Loader.FABRIC),
             new Installation("1.8.8").setWantedJavaVersion("8")
     );
 
@@ -113,9 +115,26 @@ public class PanelHome extends Panel {
 
         // Install/Launch Btn
         minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(selectedProfile), account);
+        var minecraftPath = Main.AppData.resolve("minecraft/");
+        for (String profileName : Objects.requireNonNull(minecraftPath.toFile().list())) {
+            var matched = false;
+            for (Installation installation : INSTALLATION_PROFILES)
+                if (Objects.equals(installation.getProfileName(), profileName)) {
+                    matched = true;
+                    break;
+                }
+            if (!matched) {
+                Main.logger.fine(() -> "Didn't match any profile, deleting " + profileName);
+                try {
+                    Files.delete(minecraftPath.resolve(profileName));
+                } catch (IOException e) {
+                    Main.logger.log(Level.WARNING, "Couldn't delete " + profileName, e);
+                }
+            }
+        }
         boolean installed = Files.exists(minecraftManager.getMinecraftPath());
         Button play = UiUtils.setupButton(layout, null, "#fd000f", null, 45);
-        updatePlayBtn(play, installed ? MinecraftInstance.StartStatus.UNKNOWN: MinecraftInstance.StartStatus.EXITED);
+        updatePlayBtn(play, installed ? MinecraftInstance.StartStatus.UNKNOWN : MinecraftInstance.StartStatus.EXITED);
         news.getChildren().add(play);
         StackPane.setAlignment(play, Pos.TOP_LEFT);
         play.setPrefSize(200, 50);
@@ -134,7 +153,7 @@ public class PanelHome extends Panel {
                 if (selectedProfile > 0) selectedProfile--;
                 else selectedProfile = INSTALLATION_PROFILES.size() - 1;
             }
-            
+
             updatePlayBtn(play, MinecraftInstance.StartStatus.UNKNOWN);
             minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(selectedProfile), account);
         });
