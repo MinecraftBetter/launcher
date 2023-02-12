@@ -12,10 +12,7 @@ import fr.minecraftbetter.launcher.ui.utils.UiUtils;
 import fr.minecraftbetter.launcher.utils.Resources;
 import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
-import fr.minecraftbetter.launcher.utils.installer.Installation;
-import fr.minecraftbetter.launcher.utils.installer.Loader;
-import fr.minecraftbetter.launcher.utils.installer.MinecraftInstance;
-import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
+import fr.minecraftbetter.launcher.utils.installer.*;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
@@ -126,7 +123,7 @@ public class PanelHome extends Panel {
             if (!matched) {
                 Main.logger.fine(() -> "Didn't match any profile, deleting " + profileName);
                 try {
-                    Files.delete(minecraftPath.resolve(profileName));
+                    Utils.delete(minecraftPath.resolve(profileName));
                 } catch (IOException e) {
                     Main.logger.log(Level.WARNING, "Couldn't delete " + profileName, e);
                 }

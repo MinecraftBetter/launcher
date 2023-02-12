@@ -10,7 +10,6 @@ import fr.minecraftbetter.launcher.utils.http.HTTP;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
@@ -57,7 +56,7 @@ public class MCBetterInstaller {
                 }
                 if (asset.has("delete") && asset.get("delete").getAsBoolean()) {
                     try {
-                        delete(assetFile.toPath());
+                        Utils.delete(assetFile.toPath());
                     } catch (IOException e) {
                         Main.logger.log(Level.SEVERE, "Couldn't delete " + assetFile, e);
                     }
@@ -86,22 +85,5 @@ public class MCBetterInstaller {
         try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
         settings.gameAssetVersion = version;
         settings.saveSettings();
-    }
-
-    /**
-     * Delete a file/directory using recursion
-     */
-    public static void delete(Path path) throws IOException {
-        if (Files.isDirectory(path)) {
-            try (var directory = Files.newDirectoryStream(path)) {
-                for (Path file : directory) { //list all the files in directory
-                    delete(file); //recursive delete
-                }
-            }
-        }
-
-        // We can delete it
-        Files.delete(path);
-        Main.logger.finest(() -> "Deleting " + path);
     }
 }

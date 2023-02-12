@@ -23,6 +23,23 @@ public class Utils {
         return true;
     }
 
+    /**
+     * Delete a file/directory using recursion
+     */
+    public static void delete(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            try (var directory = Files.newDirectoryStream(path)) {
+                for (Path file : directory) { //list all the files in directory
+                    delete(file); //recursive delete
+                }
+            }
+        }
+
+        // We can delete it
+        Files.delete(path);
+        Main.logger.finest(() -> "Deleting " + path);
+    }
+
     public static String calculateHash(File file, String hashMethod) {
         MessageDigest digest;
         try {digest = MessageDigest.getInstance(hashMethod);} catch (NoSuchAlgorithmException e) {
