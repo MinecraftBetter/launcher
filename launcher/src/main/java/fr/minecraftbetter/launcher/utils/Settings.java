@@ -14,7 +14,6 @@ public final class Settings {
     public static final Path SETTINGS_PATH = Main.AppData.resolve("settings.json");
 
     public String Xmx = "4G";
-    public int gameAssetVersion = 0;
     public int profile = 0;
     public int concurrentDownloads = 5;
 

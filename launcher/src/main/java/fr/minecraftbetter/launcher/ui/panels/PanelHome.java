@@ -52,8 +52,8 @@ public class PanelHome extends Panel {
 
     int selectedProfile = Settings.getSettings().profile;
     public static final List<Installation> INSTALLATION_PROFILES = List.of(
-            new Installation("1.19.3").setWantedJavaVersion("18").addModLoader(Loader.FABRIC),
-            new Installation("1.8.8").setWantedJavaVersion("8")
+            Installation.get("1.19.3").setWantedJavaVersion("18").addModLoader(Loader.FABRIC),
+            Installation.get("1.8.8").setWantedJavaVersion("8")
     );
 
     final User account;
@@ -137,6 +137,7 @@ public class PanelHome extends Panel {
         play.setPrefSize(200, 50);
         play.setTranslateX(0);
         play.setTranslateY(-play.getPrefHeight() - 15);
+        play.setTooltip(new Tooltip("Scroll pour changer de profil"));
 
         DoubleBinding progressLeftX = news.translateXProperty().subtract(news.widthProperty().divide(2)).add(play.translateXProperty()).add(play.widthProperty()).add(15);
         DoubleBinding progressRightX = social.translateXProperty().add(social.widthProperty().divide(2));

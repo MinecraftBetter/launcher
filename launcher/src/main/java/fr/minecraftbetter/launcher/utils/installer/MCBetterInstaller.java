@@ -3,7 +3,6 @@ package fr.minecraftbetter.launcher.utils.installer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.minecraftbetter.launcher.Main;
-import fr.minecraftbetter.launcher.utils.Settings;
 import fr.minecraftbetter.launcher.utils.http.ConcurrentDownloader;
 import fr.minecraftbetter.launcher.utils.http.DownloadTask;
 import fr.minecraftbetter.launcher.utils.http.HTTP;
@@ -11,12 +10,13 @@ import fr.minecraftbetter.launcher.utils.http.HTTP;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 
 public class MCBetterInstaller {
-    public static final String MINECRAFTBETTER_GAMEASSETS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/gameassets/get?from=";
+    public static final String MINECRAFTBETTER_GAMEASSETS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/gameassets/get?profile={0}&from={1}";
 
     private final MinecraftManager minecraftManager;
 
@@ -28,10 +28,9 @@ public class MCBetterInstaller {
     }
 
     public void installMods() {
-        var settings = Settings.getSettings();
-        int version = settings.gameAssetVersion;
+        int version = minecraftManager.installationProfile.getGameAssetVersion();
 
-        JsonObject apiResponse = HTTP.getAsJSONObject(MINECRAFTBETTER_GAMEASSETS_API + version);
+        JsonObject apiResponse = HTTP.getAsJSONObject(MessageFormat.format(MINECRAFTBETTER_GAMEASSETS_API, minecraftManager.installationProfile.getProfileName(), Integer.toString(version)));
         if (apiResponse == null || apiResponse.get("code").getAsInt() != 200) {
             Main.logger.warning("Game assets API error");
             return;
@@ -83,7 +82,6 @@ public class MCBetterInstaller {
         var thread = downloader.thread();
         thread.start();
         try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
-        settings.gameAssetVersion = version;
-        settings.saveSettings();
+        minecraftManager.installationProfile.setGameAssetVersion(version);
     }
 }

@@ -1,6 +1,5 @@
 package fr.minecraftbetter.launcher.utils.installer;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,7 +24,7 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class MinecraftManager {
-    private static final Path INSTALLATION_PATH = Main.AppData;
+    static final Path INSTALLATION_PATH = Main.AppData;
 
     private final User account;
     final Installation installationProfile;
@@ -63,12 +62,6 @@ public class MinecraftManager {
         if (installers.containsKey(Loader.FABRIC)) {
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::getProfile, "Installing Fabric profile"));
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::installLibs, "Installing Fabric"));
-        }
-
-        try {
-            Files.writeString(minecraftInstaller.profilesPath.resolve("profile.json"), new GsonBuilder().setPrettyPrinting().create().toJson(installationProfile));
-        } catch (IOException e) {
-            Main.logger.log(Level.WARNING, "Couldn't save settings", e);
         }
     }
 
