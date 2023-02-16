@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="launcher:test" external.linked.project.path="$MODULE_DIR$/../../launcher" external.root.project.path="$MODULE_DIR$/../../launcher" external.system.id="GRADLE" external.system.module.group="fr.minecraftbetter.launcher" external.system.module.type="sourceSet" external.system.module.version="1.2.24982df" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="launcher:test" external.linked.project.path="$MODULE_DIR$/../../launcher" external.root.project.path="$MODULE_DIR$/../../launcher" external.system.id="GRADLE" external.system.module.group="fr.minecraftbetter.launcher" external.system.module.type="sourceSet" external.system.module.version="1.2.2f717de" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
     <output-test url="file://$MODULE_DIR$/../../launcher/build/classes/java/test" />
     <exclude-output />
@@ -9,12 +9,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="launcher.main" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-swing:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-web:win:17.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-media:17.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-media:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:win:17.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-swing:win:17.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-media:17.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-media:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:win:17.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:17.0.1" level="project" />
@@ -33,6 +33,7 @@
     <orderEntry type="library" name="Gradle: com.github.codeteapot.tools:maven-artifact-get:0.2.0" level="project" />
     <orderEntry type="library" name="Gradle: net.hycrafthd:minecraft_authenticator:3.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:4.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.Dansoftowner:FXTaskbarProgressBar:v11.4" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.8.2" level="project" />
     <orderEntry type="library" name="Gradle: org.kordamp.ikonli:ikonli-core:12.3.1" level="project" />
     <orderEntry type="library" name="Gradle: javax.activation:javax.activation-api:1.2.0" level="project" />
@@ -45,11 +46,21 @@
     <orderEntry type="library" name="Gradle: net.java.dev.jna:jna:5.6.0" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okio:okio-jvm:3.0.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.6.20" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.31" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.openjfx:javafx-web:linux:17.0.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.openjfx:javafx-controls:linux:17.0.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.openjfx:javafx-media:linux:17.0.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.openjfx:javafx-graphics:linux:17.0.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.openjfx:javafx-base:linux:17.0.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.jupiter:junit-jupiter-engine:5.8.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.openjfx:javafx-fxml:linux:11" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.slf4j:slf4j-api:1.7.30" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains:annotations:19.0.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.nativelibs4java:bridj:0.7.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.platform:junit-platform-engine:1.8.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.google.android.tools:dx:1.7" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="launcher.main" />
 </module>

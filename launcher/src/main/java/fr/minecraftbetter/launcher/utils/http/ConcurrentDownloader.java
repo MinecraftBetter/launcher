@@ -82,8 +82,9 @@ public class ConcurrentDownloader {
                 if (task == null) return;
                 Main.logger.fine(() -> MessageFormat.format("START DOWNLOAD THREAD {0} {1}", index, task.getTaskName()));
                 task.setDone(success -> {
-                    if (Boolean.TRUE.equals(success)) Main.logger.fine(() -> MessageFormat.format("DOWNLOAD THREAD {0} SUCCEED {1}", index, task.getTaskName()));
-                    else Main.logger.warning(() -> MessageFormat.format("DOWNLOAD THREAD {0} ERRORED {1}", index, task.getTaskName()));
+                    if (Boolean.TRUE.equals(success))
+                        Main.logger.fine(() -> MessageFormat.format("DOWNLOAD THREAD {0} SUCCEED {1}", index, task == null ? "" : task.getTaskName()));
+                    else Main.logger.warning(() -> MessageFormat.format("DOWNLOAD THREAD {0} ERRORED {1}", index, task == null ? "" : task.getTaskName()));
                     start();
                 });
                 new Thread(task::start).start();

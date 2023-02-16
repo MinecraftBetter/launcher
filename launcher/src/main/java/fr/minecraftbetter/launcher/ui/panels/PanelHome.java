@@ -1,5 +1,7 @@
 package fr.minecraftbetter.launcher.ui.panels;
 
+import com.nativejavafx.taskbar.TaskbarProgressbar;
+import com.nativejavafx.taskbar.TaskbarProgressbarFactory;
 import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.api.launcher.News;
 import fr.minecraftbetter.launcher.api.server.Player;
@@ -395,13 +397,16 @@ public class PanelHome extends Panel {
         installationStatus.setTranslateY(-5);
         panel.getChildren().add(installationStatus);
 
+        TaskbarProgressbar progressbar = TaskbarProgressbarFactory.getTaskbarProgressbar(panelManager.getStage());
         minecraftManager.setProgress(p -> {
             installationProgress.setProgress(p.getPercentage());
             installationStatus.setText(p.getStatus());
+            progressbar.showCustomProgress(p.getPercentage(), TaskbarProgressbar.Type.NORMAL);
         });
         minecraftManager.setComplete(() -> {
             panel.getChildren().removeAll(installationProgress, installationStatus);
             updatePlayBtn(play, MinecraftInstance.StartStatus.EXITED);
+            progressbar.stopProgress();
         });
     }
 

@@ -48,6 +48,7 @@ repositories {
     maven {
         url 'https://repo.u-team.info'
     }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -77,10 +78,9 @@ dependencies {
 
 
     implementation "com.github.codeteapot.tools:maven-artifact-get:0.2.0"
-
-
     implementation "net.hycrafthd:minecraft_authenticator:3.0.2" // https://github.com/HyCraftHD/Minecraft-Authenticator
     implementation 'com.squareup.okhttp3:okhttp:4.10.0' // https://square.github.io/okhttp/
+    implementation 'com.github.Dansoftowner:FXTaskbarProgressBar:v11.4' // https://github.com/Dansoftowner/FXTaskbarProgressBar
 }
 
 test {
