@@ -12,6 +12,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.awt.*;
+
 public class PanelManager {
 
     private final MinecraftBetterLauncher minecraftBetterLauncher;
@@ -40,9 +42,17 @@ public class PanelManager {
         stage.centerOnScreen();
         stage.show();
 
+        if (Taskbar.isTaskbarSupported()) {
+            var taskbar = Taskbar.getTaskbar();
+            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                var icon = getClass().getResource("/minecraftbetter/images/icon.png");
+                if(icon != null) taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit().getImage(icon.getFile()));
+            }
+        }
+
         layout = new GridPane();
         layout.getStylesheets().add(Resources.getResource("/minecraftbetter/stylesheets/root.css"));
-        setBackground(new Color(0.2,0.2,0.2,1));
+        setBackground(new Color(0.2, 0.2, 0.2, 1));
 
         stage.setScene(new Scene(layout));
 
@@ -72,7 +82,8 @@ public class PanelManager {
         layout.setBackground(new Background(new BackgroundFill(color, null, null)));
         return true;
     }
-    public Boolean setBackground(String resource){
+
+    public Boolean setBackground(String resource) {
         layout.setBackground(Resources.getBackground(resource));
         return true;
     }
