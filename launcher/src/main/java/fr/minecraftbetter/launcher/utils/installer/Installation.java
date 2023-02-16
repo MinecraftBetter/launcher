@@ -68,6 +68,7 @@ public class Installation {
 
     static Installation read(String profileName) {
         var profilePath = getInstallationPath(profileName).resolve("profiles/profile.json");
+        if(!Files.exists(profilePath)) return null;
         try {
             return new GsonBuilder().create().fromJson(new FileReader(profilePath.toFile()), Installation.class);
         } catch (Exception e) {
