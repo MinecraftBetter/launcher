@@ -106,7 +106,7 @@ public class MinecraftInstaller implements Installer {
             if (lib.has("natives")) {
                 var classifiers = downloads.get("classifiers").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> nativeCat : lib.get("natives").getAsJsonObject().entrySet()) {
-                    if (!System.getProperty("os.name").toLowerCase().contains(nativeCat.getKey())) continue;
+                    if (!System.getProperty("os.name").toLowerCase().replace(" ","").contains(nativeCat.getKey())) continue;
 
                     Map<String, String> values = new HashMap<>();
                     values.put("arch", JavaManager.getArch().replace("x", ""));

@@ -140,7 +140,7 @@ public class MinecraftManager {
                             String name = entry.getName();
                             name = name.substring(name.lastIndexOf('\\') + 1);
                             name = name.substring(name.lastIndexOf('/') + 1);
-                            if (name.endsWith(".dll")) {
+                            if (name.endsWith(".dll") || name.endsWith(".dylib")) {
                                 Files.copy(jarInputStream, minecraftInstaller.nativeLibsPath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
                             }
                         }
@@ -260,7 +260,7 @@ public class MinecraftManager {
 
         if (rule.has("os")) {
             for (Map.Entry<String, JsonElement> osRule : rule.get("os").getAsJsonObject().entrySet()) {
-                var property = System.getProperty("os." + osRule.getKey()).toLowerCase();
+                var property = System.getProperty("os." + osRule.getKey()).toLowerCase().replace(" ","");
                 var wantedProperty = osRule.getValue().getAsString().toLowerCase();
                 if (!property.contains(wantedProperty)) return !allow;
             }
