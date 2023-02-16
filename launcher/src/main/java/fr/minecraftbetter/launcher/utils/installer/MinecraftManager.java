@@ -8,6 +8,7 @@ import fr.minecraftbetter.launcher.utils.Settings;
 import javafx.application.Platform;
 import javafx.util.Pair;
 import net.hycrafthd.minecraft_authenticator.login.User;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.io.FileInputStream;
@@ -149,7 +150,9 @@ public class MinecraftManager {
                         Main.logger.log(Level.SEVERE, "Error reading native library " + lib, e);
                     }
                 }
-                libsToLoad.append(minecraftPath.relativize(lib)).append(";");
+                libsToLoad.append(minecraftPath.relativize(lib));
+                if(SystemUtils.IS_OS_WINDOWS) libsToLoad.append(";");
+                else libsToLoad.append(":");
             }
         } catch (IOException e) {
             Main.logger.log(Level.SEVERE, "Error while reading libraries", e);
