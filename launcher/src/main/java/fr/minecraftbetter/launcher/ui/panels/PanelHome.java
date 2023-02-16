@@ -115,6 +115,7 @@ public class PanelHome extends Panel {
         // Install/Launch Btn
         minecraftManager = new MinecraftManager(INSTALLATION_PROFILES.get(selectedProfile), account);
         var minecraftPath = Main.AppData.resolve("minecraft/");
+        Utils.tryCreateFolder(minecraftPath);
         for (String profileName : Objects.requireNonNull(minecraftPath.toFile().list())) {
             var matched = false;
             for (Installation installation : INSTALLATION_PROFILES)
