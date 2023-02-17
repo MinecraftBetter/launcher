@@ -6,8 +6,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    name: Compile and Test code on ${{ matrix.os }}
+        include:
+          - os: ubuntu-latest
+            name: linux
+          - os: windows-latest
+            name: windows
+          - os: macos-latest
+            name: macos
+    name: Compile and Test code on ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -43,30 +49,31 @@ jobs:
             versionbergInfo
             shadowJar
             --stacktrace
-         
+
+      - name: Rename file
+        run: mv launcher/build/libs/MinecraftBetter.jar launcher/build/libs/MinecraftBetter-${{ matrix.name }}-.jar
       - name: Create installer
         uses: team-mst/mst-inno-setup-wrapper@v1
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.name == 'windows' }}
         with:
           script-name: setup.iss
           working-directory: launcher
-
       - name: Upload JAR Build Artifact
         uses: actions/upload-artifact@v3.0.0
         with:
-          name: MinecraftBetter-${{ matrix.os }}-jar
-          path: launcher/build/libs/MinecraftBetter.jar
+          name: MinecraftBetter-${{ matrix.name }}-jar
+          path: launcher/build/libs/MinecraftBetter-${{ matrix.name }}-.jar
       - name: Upload EXE Build Artifact
         uses: actions/upload-artifact@v3.0.0
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.name == 'windows' }}
         with:
-          name: MinecraftBetter-${{ matrix.os }}-exe
-          path: launcher/build/MinecraftBetter-installer.exe
+          name: MinecraftBetter-${{ matrix.name }}-exe
+          path: launcher/build/MinecraftBetter-${{ matrix.name }}-.exe
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           generate_release_notes: true
           files: |
-            launcher/build/MinecraftBetter-installer.exe
-            launcher/build/libs/MinecraftBetter.jar
+            launcher/build/MinecraftBetter-${{ matrix.name }}-.exe
+            launcher/build/libs/MinecraftBetter-${{ matrix.name }}-.jar

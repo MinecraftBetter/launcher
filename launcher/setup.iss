@@ -5,7 +5,7 @@
 #define MyAppVersion "1.0"
 #define MyAppPublisher "Minecraft Better"
 #define MyAppURL "https://minecraftbetter.com/"
-#define MyAppExeName "MinecraftBetter.jar"
+#define MyAppExeName "MinecraftBetter-windows-.jar"
 #define MyAppIcoName "icon.ico"
 
 [Setup]
@@ -22,7 +22,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=MinecraftBetter-installer
+OutputBaseFilename=MinecraftBetter-windows-
 OutputDir=build
 SetupIconFile=icon.ico
 Compression=lzma
