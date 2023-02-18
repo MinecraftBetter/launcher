@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="launcher:test" external.linked.project.path="$MODULE_DIR$/../../launcher" external.root.project.path="$MODULE_DIR$/../../launcher" external.system.id="GRADLE" external.system.module.group="fr.minecraftbetter.launcher" external.system.module.type="sourceSet" external.system.module.version="1.2.2f717de" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="launcher:test" external.linked.project.path="$MODULE_DIR$/../../launcher" external.root.project.path="$MODULE_DIR$/../../launcher" external.system.id="GRADLE" external.system.module.group="fr.minecraftbetter.launcher" external.system.module.type="sourceSet" external.system.module.version="1.2.4344494" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
     <output-test url="file://$MODULE_DIR$/../../launcher/build/classes/java/test" />
     <exclude-output />
@@ -22,6 +22,7 @@
     <orderEntry type="library" name="Gradle: com.tianti:applogger:1.6.2" level="project" />
     <orderEntry type="library" name="Gradle: org.kordamp.ikonli:ikonli-javafx:12.3.1" level="project" />
     <orderEntry type="library" name="Gradle: org.kordamp.ikonli:ikonli-fluentui-pack:12.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.codeteapot.tools:maven-artifact-get:0.3.0" level="project" />
     <orderEntry type="library" name="Gradle: javax.xml.bind:jaxb-api:2.3.1" level="project" />
     <orderEntry type="library" name="Gradle: com.sun.xml.bind:jaxb-core:2.3.0" level="project" />
     <orderEntry type="library" name="Gradle: com.sun.xml.bind:jaxb-impl:2.3.0" level="project" />
@@ -30,7 +31,6 @@
     <orderEntry type="library" name="Gradle: net.harawata:appdirs:1.2.1" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-text:1.9" level="project" />
     <orderEntry type="library" name="Gradle: net.lingala.zip4j:zip4j:2.10.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.codeteapot.tools:maven-artifact-get:0.2.0" level="project" />
     <orderEntry type="library" name="Gradle: net.hycrafthd:minecraft_authenticator:3.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:4.10.0" level="project" />
     <orderEntry type="library" name="Gradle: com.github.Dansoftowner:FXTaskbarProgressBar:v11.4" level="project" />

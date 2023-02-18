@@ -51,6 +51,7 @@ public class MinecraftManager {
         installers.put(Loader.MINECRAFT, minecraftInstaller);
         //installers.put(Loader.MINECRAFT_BETTER, mcBetterInstaller);
         if (installationProfile.modLoaders.contains(Loader.FABRIC)) installers.put(Loader.FABRIC, new FabricInstaller(this));
+        if (installationProfile.modLoaders.contains(Loader.FORGE)) installers.put(Loader.FORGE, new ForgeInstaller(this));
 
         actions = new ArrayList<>();
         actions.add(new Pair<>(minecraftInstaller::getProfile, "Initializing"));
@@ -63,6 +64,10 @@ public class MinecraftManager {
         if (installers.containsKey(Loader.FABRIC)) {
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::getProfile, "Installing Fabric profile"));
             actions.add(new Pair<>(installers.get(Loader.FABRIC)::installLibs, "Installing Fabric"));
+        }
+        if (installers.containsKey(Loader.FORGE)) {
+            actions.add(new Pair<>(installers.get(Loader.FORGE)::getProfile, "Installing Forge profile"));
+            actions.add(new Pair<>(installers.get(Loader.FORGE)::installLibs, "Installing Forge"));
         }
     }
 
@@ -174,7 +179,11 @@ public class MinecraftManager {
                 break;
             }
         }
-        for (Installer installer : installersInstance) commands.addAll(compileArguments(installer.getGameArguments(), libsToLoad.toString()));
+
+        if(installationProfile.modLoaders.contains(Loader.FORGE))
+            commands.addAll(compileArguments(installers.get(Loader.FORGE).getGameArguments(), libsToLoad.toString()));
+        else for (Installer installer : installersInstance) commands.addAll(compileArguments(installer.getGameArguments(), libsToLoad.toString()));
+
         Main.logger.finest(() -> String.join(" ", commands));
 
         builder.directory(minecraftPath.toFile());

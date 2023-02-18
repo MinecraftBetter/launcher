@@ -10,6 +10,7 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -54,6 +55,7 @@ public final class HTTP {
     public static void getFile(String url, OutputStream outputStream, Consumer<DownloadProgress> progress) throws IOException {
         Response response = get(url, 3);
         assert response != null;
+        if(!response.isSuccessful()) throw new RemoteException("Response wasn't successful");
         ResponseBody responseBody = response.body();
         if (responseBody == null) throw new IllegalStateException("Response doesn't contain a file");
 
