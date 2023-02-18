@@ -42,7 +42,7 @@ public class MinecraftManager {
         this.account = account;
         this.installationProfile = installationProfile;
 
-        javaPath = INSTALLATION_PATH.resolve("jre/").toAbsolutePath();
+        javaPath = INSTALLATION_PATH.resolve("jre/").resolve(installationProfile.wantedJavaVersion).toAbsolutePath();
         minecraftPath = INSTALLATION_PATH.resolve("minecraft/").resolve(installationProfile.profileName).toAbsolutePath();
 
         minecraftInstaller = new MinecraftInstaller(this);
