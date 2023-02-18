@@ -58,7 +58,7 @@ public class ForgeInstaller implements Installer {
             }
         } catch (IOException e) {Main.logger.log(Level.WARNING, "Error while reading forge profile", e);}
 
-        String forgeVersion = "1.8.8-forge1.8.8-11.15.0.1655";
+        String forgeVersion = "1.8.9-forge1.8.9-11.15.1.2318-1.8.9";
 
         versionProfile = HTTP.getAsJSONObject(MessageFormat.format(FORGE_PROFILE_API, forgeVersion));
         Main.logger.fine(() -> MessageFormat.format("Got {0} forge profile for Minecraft {1}", forgeVersion, minecraftManager.installationProfile.wantedMinecraftVersion));
