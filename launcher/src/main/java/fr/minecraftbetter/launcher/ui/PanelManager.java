@@ -1,5 +1,6 @@
 package fr.minecraftbetter.launcher.ui;
 
+import fr.minecraftbetter.launcher.Main;
 import fr.minecraftbetter.launcher.MinecraftBetterLauncher;
 import fr.minecraftbetter.launcher.ui.panel.IPanel;
 import fr.minecraftbetter.launcher.ui.panels.includes.TopPanel;
@@ -13,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.awt.*;
+import java.util.logging.Level;
 
 public class PanelManager {
 
@@ -42,12 +44,17 @@ public class PanelManager {
         stage.centerOnScreen();
         stage.show();
 
-        if (Taskbar.isTaskbarSupported()) {
-            var taskbar = Taskbar.getTaskbar();
-            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-                var icon = getClass().getResource("/minecraftbetter/images/icon.png");
-                if(icon != null) taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit().getImage(icon.getFile()));
+        try {
+            if (Taskbar.isTaskbarSupported()) {
+                var taskbar = Taskbar.getTaskbar();
+                if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                    var icon = getClass().getResource("/minecraftbetter/images/icon.png");
+                    if (icon != null) taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit().getImage(icon.getFile()));
+                }
             }
+        }
+        catch (Exception e){
+            Main.logger.log(Level.WARNING, "Error setting dock icon", e);
         }
 
         layout = new GridPane();
