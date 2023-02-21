@@ -21,6 +21,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -31,6 +35,7 @@ import org.kordamp.ikonli.fluentui.FluentUiFilledAL;
 import org.kordamp.ikonli.fluentui.FluentUiFilledMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -425,6 +430,8 @@ public class PanelHome extends Panel {
         settingsPopupContent.getChildren().add(scrollPane);
         scrollPane.setFitToWidth(true);
         scrollPane.prefWidthProperty().bind(settingsPopupContent.widthProperty());
+
+
         VBox list = new VBox(15);
         list.setAlignment(Pos.TOP_CENTER);
         scrollPane.setContent(list);
@@ -434,11 +441,30 @@ public class PanelHome extends Panel {
         ram.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (Boolean.FALSE.equals(isNowFocused)) settings.Xmx = ram.getText(); // text field has lost focus
         });
-        list.getChildren().addAll(settingHBox("RAM", ram));
+        list.getChildren().addAll(settingHBox("Allocation de la mémoire vive", ram));
+
+        TextField downloadThreads = new TextField(Integer.toString(settings.concurrentDownloads));
+        downloadThreads.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (Boolean.FALSE.equals(isNowFocused)) settings.concurrentDownloads = Integer.parseInt(downloadThreads.getText());
+        });
+        list.getChildren().addAll(settingHBox("Téléchargements simultanés", downloadThreads));
+
+
+        VBox bottom = new VBox(15);
+        bottom.setAlignment(Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(bottom, Pos.BOTTOM_CENTER);
+        settingsPopupContent.getChildren().add(bottom);
+
+        Button openDataFolder = new Button("Ouvrir le dossier des données");
+        openDataFolder.setOnMouseClicked(event -> {
+            try {
+                Desktop.getDesktop().open(Main.AppData.toFile());
+            } catch (IOException e) { Main.logger.log(Level.WARNING, "Couldn't open data folder in explorer", e); }
+        });
+        bottom.getChildren().add(openDataFolder);
 
         Label version = new Label("Version " + (Main.getBuildVersion() == null ? "unknown" : Main.getBuildVersion()));
-        StackPane.setAlignment(version, Pos.BOTTOM_CENTER);
-        settingsPopupContent.getChildren().add(version);
+        bottom.getChildren().add(version);
     }
 
     private HBox settingHBox(String text, Region value) {
