@@ -102,8 +102,8 @@ public class FabricInstaller implements Installer {
         try {thread.join();} catch (InterruptedException e) {Thread.currentThread().interrupt();}
     }
 
-    private boolean downloadLib(ArtifactCoordinates coords, String repoURL, Path installationPath, int depth) {
-        var libName = coords.getGroupId() + "." + coords.getArtifactId();
+    private boolean downloadLib(ArtifactCoordinates unresolvedCoords, String repoURL, Path installationPath, int depth) {
+        var libName = unresolvedCoords.toString();
         if (libs.containsKey(libName) && depth > libs.get(libName).getKey()) {
             Main.logger.fine(() -> MessageFormat.format("Circular reference for {0} (depth {1})", libName, depth));
             return false;
@@ -117,13 +117,15 @@ public class FabricInstaller implements Installer {
             Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error parsing url {0}", repoURL));
             return false;
         }
+        ArtifactCoordinates coords;
         Artifact artifact;
         try {
+            coords = repo.resolve(unresolvedCoords);
             artifact = repo.get(coords);
         } catch (ArtifactRepositoryException | IOException e) {
             if (!repoURL.equals(MAVEN_CENTRAL_REPOSITORY))
-                return downloadLib(coords, MAVEN_CENTRAL_REPOSITORY, installationPath, depth); // Try to download with Maven Central Repository
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error getting artifact {0}:{1}", libName, coords.getVersion()));
+                return downloadLib(unresolvedCoords, MAVEN_CENTRAL_REPOSITORY, installationPath, depth); // Try to download with Maven Central Repository
+            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error getting artifact {0}", unresolvedCoords));
             return false;
         }
 

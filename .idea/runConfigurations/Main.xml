@@ -3,6 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="fr.minecraftbetter.launcher.Main" />
     <module name="launcher.main" />
     <option name="PROGRAM_PARAMETERS" value="--debug" />
+    <option name="VM_PARAMETERS" value="-Duser.language=en" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="fr.minecraftbetter.launcher.*" />
