@@ -1,5 +1,8 @@
 package fr.minecraftbetter.launcher;
 
+import fr.minecraftbetter.launcher.utils.installer.JavaManager;
+import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
+import fr.minecraftbetter.launcher.utils.installer.Utils;
 import fr.minecraftbetter.launcher.utils.logging.CustomLevels;
 import fr.minecraftbetter.launcher.utils.logging.LogFormatter;
 import fr.minecraftbetter.launcher.utils.logging.OutConsoleHandler;
@@ -57,9 +60,11 @@ public class Main {
                 """;
         String versionText = "Version " + (getBuildVersion() == null ? "unknown" : getBuildVersion());
         String copyrightText = "© " + Calendar.getInstance().get(Calendar.YEAR) + " Minecraft Better";
+        String osText = Utils.getOS() + " " + Utils.getArch();
         logger.log(CustomLevels.NoFormatting, () -> logo
                 + "\n" + " ".repeat((138 - versionText.length()) / 2) + versionText
                 + "\n" + " ".repeat((138 - copyrightText.length()) / 2) + copyrightText
+                + "\n" + " ".repeat((138 - osText.length()) / 2) + osText
                 + "\n\n");
 
         if (Arrays.asList(args).contains("--debug")) {

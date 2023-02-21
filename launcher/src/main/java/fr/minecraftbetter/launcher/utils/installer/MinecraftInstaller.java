@@ -109,7 +109,7 @@ public class MinecraftInstaller implements Installer {
                     if (!System.getProperty("os.name").toLowerCase().replace(" ","").contains(nativeCat.getKey())) continue;
 
                     Map<String, String> values = new HashMap<>();
-                    values.put("arch", JavaManager.getArch().replace("x", ""));
+                    values.put("arch", Utils.getArch().replace("x", ""));
                     var nativeKey = new StringSubstitutor(values).replace(nativeCat.getValue().getAsString());
                     JsonObject nativeInfo = classifiers.get(nativeKey).getAsJsonObject();
 

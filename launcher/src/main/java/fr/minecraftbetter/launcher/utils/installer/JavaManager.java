@@ -40,13 +40,13 @@ public final class JavaManager {
         Path jreMetadata = javaPath.resolve("jre.json");
         if (checkInstalledJava(javaPath, jreZip, jreMetadata)) return;
 
-        JsonArray jreMatches = HTTP.getAsJSONArray(MessageFormat.format(JRE_API, javaVersion, getArch(), getOS()));
+        JsonArray jreMatches = HTTP.getAsJSONArray(MessageFormat.format(JRE_API, javaVersion, Utils.getArch(), Utils.getOS()));
         if (jreMatches == null || jreMatches.size() <= 0) return;
         JsonObject jreInfo = jreMatches.get(0).getAsJsonObject();
         JsonObject jrePackage = jreInfo.get("binary").getAsJsonObject().get("package").getAsJsonObject();
 
         HTTP.downloadFile(jrePackage.get("link").getAsString(), jreZip, p -> progression.accept(p.getPercentage(), p.toString()));
-        unzip(jreZip, javaPath);
+        Utils.unzip(jreZip, javaPath);
 
         HTTP.downloadFile(jrePackage.get("metadata_link").getAsString(), jreMetadata.toFile(), null);
     }
@@ -67,38 +67,5 @@ public final class JavaManager {
             }
         }
         return false;
-    }
-
-    private static String getOS() {
-        if (SystemUtils.IS_OS_WINDOWS) return "windows";
-        if (SystemUtils.IS_OS_MAC) return "mac";
-        else if (SystemUtils.IS_OS_SOLARIS) return "solaris";
-        else if (SystemUtils.IS_OS_AIX) return "aix";
-        else if (SystemUtils.IS_OS_LINUX) return "linux";
-
-        Main.logger.warning("Unknown os");
-        return null;
-    }
-
-    static String getArch() {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            // Windows returns x86 if the program is running on 32 bits java
-            String cpuArch = System.getenv("PROCESSOR_ARCHITECTURE");
-            String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
-            return cpuArch != null && cpuArch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "x64" : "x86";
-        }
-
-        String arch = System.getProperty("os.arch");
-        if (Objects.equals(arch, "amd64")) return "x64";
-        if (Objects.equals(arch, "i386")) return "x86";
-        return arch;
-    }
-
-    private static void unzip(File zip, Path dest) {
-        try (ZipFile zipFile = new ZipFile(zip)) {
-            zipFile.extractAll(dest.toString());
-        } catch (IOException e) {
-            Main.logger.log(Level.SEVERE, e, () -> MessageFormat.format("Error while extracting {0} to {1}", zip, dest));
-        }
     }
 }
