@@ -45,7 +45,7 @@ public class TopPanel extends Panel {
             icon.setTranslateX(5d);
         }
 
-        Label title = new Label("Minecraft Better");
+        Label title = new Label(panelManager.getStage().getTitle());
         titlePanel.getChildren().add(title);
         title.setTranslateX(25);
         title.setStyle("-fx-text-fill: white;");

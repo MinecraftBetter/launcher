@@ -31,7 +31,7 @@ public class PanelManager {
     }
 
     public void init() {
-        stage.setTitle("Minecraft Better");
+        stage.setTitle("Launcher Better");
         stage.getIcons().add(Resources.getImage("/minecraftbetter/images/icon.png"));
         stage.setMinWidth(1280);
         stage.setMaxWidth(1280);
