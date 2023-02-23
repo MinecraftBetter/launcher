@@ -95,12 +95,15 @@ public class ForgeInstaller implements Installer {
     }
 
     private boolean downloadLib(ArtifactCoordinates unresolvedCoords, String repoURL, Path installationPath, int depth) {
-        var libName = unresolvedCoords.toString();
-        if (libs.containsKey(libName) && depth > libs.get(libName).getKey()) {
-            Main.logger.fine(() -> MessageFormat.format("Circular reference for {0} (depth {1})", libName, depth));
-            return false;
+        var libName = unresolvedCoords.getGroupId() + ":" + unresolvedCoords.getArtifactId();
+        Main.logger.fine(() -> MessageFormat.format("Considering {0} (depth {1})", libName, depth));
+        if (libs.containsKey(libName)) {
+            if(depth > libs.get(libName).getKey()) {
+                Main.logger.fine(() -> MessageFormat.format("Circular reference for {0} (depth {1}), ignoring", libName, depth));
+                return false;
+            }
+            else Main.logger.fine(() -> MessageFormat.format("Circular reference for {0} (depth {1}), replacing", libName, depth));
         }
-        Main.logger.fine(() -> MessageFormat.format("Checking {0} (depth {1})", libName, depth));
 
         ArtifactRepository repo;
         try {

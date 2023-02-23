@@ -1,7 +1,5 @@
 package fr.minecraftbetter.launcher;
 
-import fr.minecraftbetter.launcher.utils.installer.JavaManager;
-import fr.minecraftbetter.launcher.utils.installer.MinecraftManager;
 import fr.minecraftbetter.launcher.utils.installer.Utils;
 import fr.minecraftbetter.launcher.utils.logging.CustomLevels;
 import fr.minecraftbetter.launcher.utils.logging.LogFormatter;
