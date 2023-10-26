@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public class ForgeInstaller implements Installer {
 
     public static final String FORGE_VERSIONS_API = "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml";
-    public static final String FORGE_PROFILE_API = "http://api.minecraftbetter.com/storage?path=profiles/{0}.json";
+    public static final String FORGE_PROFILE_API = "http://api.justbetter.fr/storage?path=profiles/{0}.json";
     public static final String MAVEN_CENTRAL_REPOSITORY = "https://repo.maven.apache.org/maven2/";
     public static final String MIRROR_REPOSITORY = "https://maven.creeperhost.net";
     public static final String MINECRAFT_REPOSITORY = "https://libraries.minecraft.net";

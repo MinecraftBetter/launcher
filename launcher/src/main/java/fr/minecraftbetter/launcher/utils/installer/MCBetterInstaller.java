@@ -16,7 +16,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 
 public class MCBetterInstaller {
-    public static final String MINECRAFTBETTER_GAMEASSETS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/gameassets/get?profile={0}&from={1}";
+    public static final String MINECRAFTBETTER_GAMEASSETS_API = "https://api.justbetter.fr/minecraftbetter/launcher/gameassets/get?profile={0}&from={1}";
 
     private final MinecraftManager minecraftManager;
 

@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
 public final class ServerInfo {
-    public static final String API_URL = "https://api.minecraftbetter.com/minecraftbetter/server/info";
+    public static final String API_URL = "https://api.justbetter.fr/minecraftbetter/server/info";
 
     private final String version;
     private final String description;

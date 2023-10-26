@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
 public final class LauncherInfo {
-    public static final String MINECRAFTBETTER_INFO_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/info";
+    public static final String MINECRAFTBETTER_INFO_API = "https://api.justbetter.fr/minecraftbetter/launcher/info";
 
     public static LauncherInfo tryGet() {
         JsonObject response = HTTP.getAsJSONObject(MINECRAFTBETTER_INFO_API);

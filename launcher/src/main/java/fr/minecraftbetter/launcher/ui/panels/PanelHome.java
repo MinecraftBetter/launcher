@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 import static fr.minecraftbetter.launcher.ui.utils.UiUtils.openUrl;
 
 public class PanelHome extends Panel {
-    public static final String NEWS_API = "https://api.minecraftbetter.com/minecraftbetter/launcher/news";
+    public static final String NEWS_API = "https://api.justbetter.fr/minecraftbetter/launcher/news";
     public static final int SLIDESHOW_COUNT = 1;
 
     int selectedProfile = Settings.getSettings().profile;
@@ -237,7 +237,7 @@ public class PanelHome extends Panel {
     private void socialPanel(StackPane socialContent) {
         int btnSpacing = 300 / 4; // Panel size / number of btn
         Button website = setupSocialBtn("/minecraftbetter/images/home/website.png", 0);
-        website.setOnMouseClicked(event -> openUrl("https://minecraftbetter.com"));
+        website.setOnMouseClicked(event -> openUrl("https://justbetter.fr"));
         socialContent.getChildren().add(website);
         Button discord = setupSocialBtn("/minecraftbetter/images/home/discord.png", btnSpacing);
         discord.setOnMouseClicked(event -> openUrl("https://discord.com/invite/4TC5eNEkE5"));
