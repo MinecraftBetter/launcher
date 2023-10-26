@@ -43,7 +43,7 @@ shadowJar {
 repositories {
     mavenCentral()
     maven {
-        url 'https://api.minecraftbetter.com/minecraftbetter/maven/'
+        url 'https://api.justbetter.fr/minecraftbetter/maven/'
     }
     maven {
         url 'https://repo.u-team.info'
